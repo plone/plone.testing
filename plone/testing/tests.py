@@ -1,6 +1,8 @@
 import unittest2 as unittest
 import doctest
 
+import zope.component.testing
+
 # This is somewhat retarted. We execute README.txt as a doctest, mainly just
 # to test that the code samples import cleanly and are valid Python. However,
 # in there we also have a code sample of a doctest, which gets executed by the
@@ -20,7 +22,8 @@ def test_suite():
         ),
         doctest.DocFileSuite(
             '../../README.txt',
-            globs={'canOutrunKlingons': _canOutrunKlingons,}
+            globs={'canOutrunKlingons': _canOutrunKlingons,},
+            tearDown=zope.component.testing.tearDown(),
         ),
     ])
     return suite

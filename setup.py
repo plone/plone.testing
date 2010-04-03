@@ -28,6 +28,20 @@ setup(name='plone.testing',
           'zope.testing',
           'unittest2',
       ],
+      extras_require = {
+        'tests': [
+                'zope.component',
+                'zope.event',
+                'zope.publisher',
+                'zope.configuration',
+            ],
+        'zope': [
+                'zope.component',
+            ],
+        'Zope2': [
+                'Zope2',
+            ]
+      },
       entry_points="""
       """,
       )

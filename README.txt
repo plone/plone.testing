@@ -167,6 +167,12 @@ one, you can do::
 
     $ bin/test -s my.package
 
+If you want to run only a particular test within this package, use the ``-t``
+option. This can be passed a regular expression matching either a doctest
+file name or a test method name.
+
+    $ bin/test -s my.package -t test_spaceship
+
 There are other command line options, which you can find by running::
 
     $ bin/test --help
@@ -840,15 +846,325 @@ This is equivalent to:
 In this example, we've opted to use ``addTest()`` to add a single suite,
 instead of using ``addTests()`` to add multiple suites in one go.
 
+Zope testing tools
+==================
+
+Everything described so far in this document relies only on the standard
+`unittest`_/`unittest2`_ and `doctest`_ modules and `zope.testing`_, and you
+can use this package without any other dependencies.
+
+However, there are also some tools (and layers) available in this package, as
+well as in other packages, that are specifically useful for testing
+applications that use the Zope application framework.
+
+Test cleanup
+------------
+
+If a test uses a global registry, it may be necessary to clean that registry
+on set up and tear down of each test fixture. ``zope.testing`` provides a
+mechanism to register cleanup handlers - methods that are called to clean
+up global state. This can then be invoked in the ``setUp()`` and 
+`tearDown()`` fixture lifecycle methods of a test case.
+
+    >>> from zope.testing import cleanup
+
+Let's say we had a global registry, implemented as a dictionary
+
+    >>> SOME_GLOBAL_REGISTRY = {}
+
+If we wanted to clean this up on each test run, we could call ``clear()``
+on the dict. Since that's a no-argument method, it is perfect as a cleanup
+handler.
+
+    >>> cleanup.addCleanUp(SOME_GLOBAL_REGISTRY.clear)
+
+We can now use the ``cleanUp()`` method to execute all registered 
+cleanups:
+
+    >>> cleanup.cleanUp()
+
+This call could be placed in a ``setUp()`` and/or ``tearDow()`` method in a
+test class, for example.
+
+Event testing
+-------------
+
+You may wish to test some code that uses ``zope.event`` to fire specific
+events. `zope.component`_ provides some helpers to capture and analyse
+events.
+
+    >>> from zope.component import eventtesting
+
+To use this, you first need to set up event testing. Some of the layers
+shown below will do this for you, but you can do it yourself by calling
+the ``eventtesting.setUp()`` method, e.g. from your own ``setUp()`` method:
+
+    >>> eventtesting.setUp()
+
+This simply registers a few catch-all event handlers. Once you have
+executed the code that is expected to fire events, you can use the
+``getEvents()`` helper function to obtain a list of the event instances
+caught:
+
+    >>> events = eventtesting.getEvents()
+
+You can now examine ``events`` to see what events have been caught since the
+last cleanup.
+
+``getEvents()`` takes two optional arguments that can be used to filter the
+returned list of events. The first (``event_type``) is an interface. If given,
+only events providing this interface are returned. The second (``filter``) is
+a callable taking one argument. If given, it will be called with each captured
+event. Only those events where the filter function returns ``True`` will be
+included.
+
+The ``eventtesting`` module registers a cleanup action as outlined above. When
+you call ``cleanup.cleanUp()`` (or ``eventtesting.clearEvents()``, which is
+the handler it registers), the events list will be cleared, ready for the
+next test.
+
+Mock requests
+-------------
+
+Many tests require a request object, often with particular request/form
+variables set. `zope.publisher`_ contains a useful class for this purpose.
+
+    >>> from zope.publisher.browser import TestRequest
+
+A simple test request can be constructed with no arguments:
+
+    >>> request = TestRequest()
+
+To add a body input stream, pass a ``StringIO`` or file as the first
+parameter. To set the environment (request headers), use the ``environ``
+keyword argument. To simulate a submitted and marshalled form, use the
+``form`` keyword argument:
+
+    >>> request = TestRequest(form=dict(field1='foo', field2=1))
+
+Note that the ``form`` dict contains marshalled form fields, so modifiers like
+``:int`` or ``:boolean`` should not be included in the field names, and
+values should be converted to the appropriate type.
+
+Registering components
+----------------------
+
+Many test fixtures will depend on having a minimum of Zope Component
+Architecture (ZCA) components registered. In normal operation, these would
+probably be registered via ZCML, but in a unit test, you should avoid loading
+the full ZCML configuration of your package (and its dependencies).
+
+Instead, you can use the Python API in `zope.component`_ to register
+global components instantly. The three most commonly used functions are:
+
+    >>> from zope.component import provideAdapter
+    >>> from zope.component import provideUtility
+    >>> from zope.component import provideHandler
+
+See the `zope.component`_ documentation for details about how to use these.
+
+When registering global components like this, it is important to avoid
+test leakage. The ``cleanup`` mechanism outlined above can be used to tear
+down the component registry between each test.
+
+Loading ZCML
+------------
+
+Integration tests often need to load ZCML configuration. This can be achieved
+using the ``zope.configuration`` API.
+
+    >>> from zope.configuration import xmlconfig
+
+The ``xmlconfig`` module contains two useful methods. ``xmlconfig.string()``
+can be used to load a literal string of ZCML:
+
+    >>> xmlconfig.string("""\
+    ... <configure xmlns="http://namespaces.zope.org/zope" package="plone.testing">
+    ...     <include package="zope.component" file="meta.zcml" />
+    ... </configure>
+    ... """) # doctest: +ELLIPSIS
+    <zope.configuration.config.ConfigurationMachine object at ...>
+
+Note that we need to set a package (used for relative imports and file
+locations) explicitly here.
+
+Also note that unless the optional second argument (``context``) is passed,
+a new configuration machine will be created every time ``string()`` is called.
+It therefore becomes necessary to explicitly ``<include />`` the files that
+contains the directives you want to use (the one in ``zope.component`` is a
+common example). Layers that set up ZCML configuration may expose a resource
+which can be passed as the ``context`` parameter.
+
+To load the configuration for a particular package, use ``xmlconfig.file()``:
+
+    >>> import zope.component
+    >>> context = xmlconfig.file('meta.zcml', zope.component)
+    >>> xmlconfig.file('configure.zcml', zope.component, context=context) # doctest: +ELLIPSIS
+    <zope.configuration.config.ConfigurationMachine object at ...>
+
+This takes two required arguments: the file name and the module relative to
+which it is to be found. Here, we have loaded two files: ``meta.zcml`` and
+``configure.zcml``. The first call to ``xmlconfig.file()`` creates and
+returns a configuration context. We re-use that for the subsequent invocation,
+so that the directives configured are available.
+
+Installing a Zope 2 product
+---------------------------
+
+Some packages (including all those in the ``Products.*`` namespace) have the
+special status of being Zope 2 "products". These are recorded in a special
+registry viewable through the Zope Management Interface, and may have an
+``initialize()`` hook in their top-level ``__init__.py`` that needs to be
+called for the package to be fully configured.
+
+Zope 2 will find and execute any products during startup. For testing, we
+need to explicitly list the products to install. Provided you are using
+``plone.testing`` with Zope 2, you can use the following:
+
+    >>> from plone.testing.z2 import installProduct
+    >>> installProduct('Products.ZCatalog')
+
+Note:
+
+* Unlike the similarly-named function from ``ZopeTestCase``, this helper
+  will work with any type of product. There is no distinction between a
+  "product" and a "package" (and no ``installPackage()``).
+* Installing a product in this manner is independent of ZCML configuration.
+  However, it is almost always necessary to install the package's ZCML
+  configuration first.
+
 Layer reference
 ===============
 
 ``plone.testing`` comes with several layers that are available to use directly
 or extend. These are outlined below.
 
-TODO
+Zope Component Architecture: sandbox
+------------------------------------
+
++------------+--------------------------------------------------+
+| Layer:     | ``plone.testing.zca.SANDBOX``                    |
++------------+--------------------------------------------------+
+| Class:     | ``plone.testing.zca.Sandbox``                    |
++------------+--------------------------------------------------+
+| Bases:     | None                                             |
++------------+--------------------------------------------------+
+| Resources: | None                                             |
++------------+--------------------------------------------------+
+
+This layer does not set up a fixture per se, but performs a cleanup
+before and after each test, using ``zope.testing.cleanup`` as described
+above.
+
+The net result is that each test has a clean global component registry. Thus,
+it is safe to use the `zope.component`_ Python API (``provideAdapter()``,
+``provideUtility()``, ``provideHandler()`` and so on) to register components.
+
+Be careful about using this layer in combination with other layers. Because
+it tears down the component registry between each test, it will clobber any
+layer that sets up more permanent test fixture in the component registry.
+
+Zope Component Architecture: Placeless setup
+--------------------------------------------
+
++------------+--------------------------------------------------+
+| Layer:     | ``plone.testing.zca.PLACELESS``                  |
++------------+--------------------------------------------------+
+| Class:     | ``plone.testing.zca.Placeless``                  |
++------------+--------------------------------------------------+
+| Bases:     | ``plone.testing.zca.SANDBOX``                    |
++------------+--------------------------------------------------+
+| Resources: | None                                             |
++------------+--------------------------------------------------+
+
+TODO - describe
+
+Zope Component Architecture: Basic ZCML directives
+--------------------------------------------------
+
++------------+--------------------------------------------------+
+| Layer:     | ``plone.testing.zca.ZCML_DIRECTIVES``            |
++------------+--------------------------------------------------+
+| Class:     | ``plone.testing.zca.ZCMLDirectives``             |
++------------+--------------------------------------------------+
+| Bases:     | ``plone.testing.zca.PLACELESS``                  |
++------------+--------------------------------------------------+
+| Resources: | ``configurationContext``                         |
++------------+--------------------------------------------------+
+
+TODO - describe
+
+Zope Component Architecture: ZCML browser directives
+----------------------------------------------------
+
++------------+--------------------------------------------------+
+| Layer:     | ``plone.testing.zca.ZCML_BROWSER_DIRECTIVES``    |
++------------+--------------------------------------------------+
+| Class:     | ``plone.testing.zca.ZCMLBrowserDirectives``      |
++------------+--------------------------------------------------+
+| Bases:     | ``plone.testing.zca.ZCML_DIRECTIVES``            |
++------------+--------------------------------------------------+
+| Resources: | None                                             |
++------------+--------------------------------------------------+
+
+TODO - describe
+
+ZODB: Basic persistent sandbox
+------------------------------
+
++------------+--------------------------------------------------+
+| Layer:     | ``plone.testing.zodb.EMPTY_ZODB``                |
++------------+--------------------------------------------------+
+| Class:     | ``plone.testing.zodb.EmptyZODB``                 |
++------------+--------------------------------------------------+
+| Bases:     |  None                                            |
++------------+--------------------------------------------------+
+| Resources: | ``zodbRoot``                                     |
++------------+--------------------------------------------------+
+
+TODO - describe
+
+Zope 2: Basic site
+------------------
+
++------------+--------------------------------------------------+
+| Layer:     | ``plone.testing.z2.BASIC_SITE``                  |
++------------+--------------------------------------------------+
+| Class:     | ``plone.testing.z2.BasicSite``                   |
++------------+--------------------------------------------------+
+| Bases:     | None                                             |
++------------+--------------------------------------------------+
+| Resources: | ``applicationRoot``                              |
+|            +--------------------------------------------------+
+|            | ``rootUser``                                     |
++------------+--------------------------------------------------+
+
+TODO - describe
+
+NOTE: We have to avoid using Five's load_site() anywhere - it is too brittle
+because it loads things in the environment not related to the package under
+test.
+
+Zope 2: HTTP ZServer thread
+---------------------------
+
++------------+--------------------------------------------------+
+| Layer:     | ``plone.testing.z2.ZSERVER``                     |
++------------+--------------------------------------------------+
+| Class:     | ``plone.testing.z2.ZServer``                     |
++------------+--------------------------------------------------+
+| Bases:     | ``plone.testing.z2.BASIC_SITE``                  |
++------------+--------------------------------------------------+
+| Resources: | ``host``                                         |
+|            +--------------------------------------------------+
+|            | ``port``                                         |
++------------+--------------------------------------------------+
+
+TODO - describe
 
 .. _zope.testing: http://pypi.python.org/pypi/zope.testing
+.. _zope.component: http://pypi.python.org/pypi/zope.component
+.. _zope.publisher: http://pypi.python.org/pypi/zope.publisher
 .. _plone.app.testing: http://pypi.python.org/pypi/plone.app.testing
 .. _zc.recipe.testrunner: http://pypi.python.org/pypi/zc.recipe.testrunner
 .. _z3c.coverage: http://pypi.python.org/pypi/z3c.coverage
