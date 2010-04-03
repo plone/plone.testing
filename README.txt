@@ -307,8 +307,8 @@ dependencies like this, the order of set up and tear-down as calculated by the
 test runner is similar to the way in which Python searches for the method to
 invoke in the case of multiple inheritance.
 
-Writing layer
--------------
+Writing a layer
+---------------
 
 The easiest way to create a new layer is to use the ``Layer`` base class and
 implement the ``setUp()``, ``tearDown()``, ``testSetUp()`` and
