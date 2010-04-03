@@ -16,16 +16,14 @@ various types.
     testing Plone add-on products.
 
 If you are new to automated testing and test driven development, you should
-spend some time learning about the core concepts. Some useful references
-include:
+spend some time learning about those concepts. Some useful references include:
 
 * `The Wikipedia article on unit testing <http://en.wikipedia.org/wiki/Unit_testing>`_
 * `The Dive Into Python chapter on testing <http://diveintopython.org/unit_testing/index.html>`_
 
 Bear in mind that different Python frameworks have slightly different takes on
-how to approach testing. Therefore, you may find examples that are slightly
-different to those shown below. The basic concepts should be consistent,
-however.
+how to approach testing. Therefore, you may find examples that are different to
+those shown below. The core concepts should be consistent, however.
 
 Definitions
 -----------
@@ -59,7 +57,7 @@ Black box testing
     example, a functional test is normally a black box test that provides inputs
     only through the defined interface (e.g. URLs published in a web
     application), and makes assertions only on end outputs (e.g. the
-    response returned by those requests).
+    response returned for requests to those URLs).
 White box testing
     Testing which examines the internal state of a system to make assertions.
     Authors of unit and integration tests normally have significant knowledge of
@@ -79,32 +77,28 @@ Test case
 Test fixture
     The state used as a baseline for one or more tests. The test fixture is
     *set up* before each test is executed, and *torn down* afterwards. This
-    is a pre-requisite in *test isolation* - the principle that tests should
+    is a pre-requisite for *test isolation* - the principle that tests should
     be independent of one another.
 Layer
     The configuration of a test fixture shared by a number of tests. All test
-    cases that belong to a particular layer will be executed together. The
-    layer is *set up* once before the tests are executed, and *torn down* once
-    after. Layers may depend on one another. Any *base layers* are set up before
-    and torn down after a particular layer is used. The test runner will order
-    test execution to minimise layer setup and tear-down. For example, if some
-    tests use layer A, some other tests use layer B, and both of these layers
-    share layer C as a base layer, the test runner will set up C, set up A,
-    execute the tests in A, tear down A, set up B, execute the tests in B, 
-    tear down B, and finally tear down C.
+    cases that belong to a particular layer will be executed together. The layer
+    is *set up* once before the tests are executed, and *torn down* once after.
+    Layers may depend on one another. Any *base layers* are set up before and
+    torn down after a particular *child layer* is used. The test runner will
+    order test execution to minimise layer setup and tear-down.
 Test suite
     A collection of test cases (and layers) that are executed together.
 Test runner
-    The program which executes tests. This is responsible for layer and test
-    fixture set-up and tear-down. It also reports on the test run, usually by
-    printing output to the console.
+    The program which executes tests. This is responsible for calling layer and
+    test fixture set-up and tear-down methods. It also reports on the test run,
+    usually by printing output to the console.
 Coverage
-    To have confidence in your code, you should ensure it iscovered by tests.
-    That is, each line of code, and each possible branching point (loops, ``if``
-    statements) should be executed by a test. This is known as *coverage*,
-    and is normally measured as a percentage of lines of non-test code covered
-    by tests. Coverage can be measured by the test runner, which keeps track
-    of which lines of code were executed in a given test run.
+    To have confidence in your code, you should ensure it is adequately covered
+    by tests. That is, each line of code, and each possible branching point
+    (loops, ``if`` statements) should be executed by a test. This is known as
+    *coverage*, and is normally measured as a percentage of lines of non-test
+    code covered by tests. Coverage can be measured by the test runner, which
+    keeps track of which lines of code were executed in a given test run.
 Doctest
     A style of testing where tests are written as examples that could be typed
     into the interactive Python interpreter. The test runner executes each
@@ -157,7 +151,7 @@ any regular dependencies (listed in the ``install_requires`` option in
 the ``extras_require`` option.
 
 Note that it becomes important to properly list your dependencies here, because
-the test runner will only be aware of the package explicitly listed, and their
+the test runner will only be aware of the packages explicitly listed, and their
 dependencies. For example, if your package depends on Zope 2, you need to list
 ``Zope2`` in the ``install_requires`` list in ``setup.py``; ditto for ``Plone``,
 or indeed any other package you import from.
@@ -168,7 +162,8 @@ it without arguments to run all tests of each egg listed in the ``eggs`` list::
 
     $ bin/test
 
-If you have listed several eggs, and you want to run only one, you can do::
+If you have listed several eggs, and you want to run the tests for a particular
+one, you can do::
 
     $ bin/test -s my.package
 
@@ -189,9 +184,9 @@ When writing tests, it is useful to know how well your tests cover your code.
     $ bin/test --coverage ../../coverage
 
 This will place coverage reporting information in the ``coverage`` directory
-inside your buildout. The ``../../`` prefix is necessary because the test runner
-is actually executed in relation to the installation path for the ``test`` part,
-which is usually ``parts/test``.
+inside your buildout root. The ``../../`` prefix is necessary because the test
+runner is actually executed in relation to the installation path for the
+``test`` part, which is usually ``parts/test``.
 
 If you always want test coverage, you can add the coverage options to the
 ``defaults`` line in ``buildout.cfg``::
@@ -307,7 +302,7 @@ execution might be::
     1.4. B.tearDown()
     2. C.tearDown()
 
-A bayer layer may of course depend on another base layer. In the case of nested
+A base layer may of course depend on other base layers. In the case of nested
 dependencies like this, the order of set up and tear-down as calculated by the
 test runner is similar to the way in which Python searches for the method to
 invoke in the case of multiple inheritance.
@@ -341,23 +336,24 @@ A simple layer may look like this:
     ...     def tearDownTest(self)
     ...         print "Emptying the fuel tank"
 
-    **Note:** You may find it useful to create other layer base or mix-in
-    classes that extend ``plone.testing.Layer`` and provide helper methods for
-    use in your own layers. This is perfectly acceptable, but please do not
-    confuse a layer base class used in this manner with the concept of a *base
-    layer* as documented above.
+    **Note:** You may find it useful to create other layer base/mix-in classes
+    that extend ``plone.testing.Layer`` and provide helper methods for use in
+    your own layers. This is perfectly acceptable, but please do not confuse a
+    layer base class used in this manner with the concept of a *base layer* as
+    documented above.
     
     Also note that the `zope.testing`_ documentation contains examples of layers
     that are "old-style" classes where the ``setUp()`` and ``tearDown()``
-    methods are ``classmethod``s. Whilst this pattern works, we discourage its
-    use, because the classes created using this pattern are not really used as
-    classes. The concept of layer inheritance is slightly different from class
-    inheritance, and using the ``class`` keyword to create layers with base
-    layers leads to a number of "gotchas" that are best avoided.
+    methods are ``classmethod``s and class inheritance syntax is used to specify
+    base layers. Whilst this pattern works, we discourage its use, because the
+    classes created using this pattern are not really used as classes. The
+    concept of layer inheritance is slightly different from class inheritance,
+    and using the ``class`` keyword to create layers with base layers leads to a
+    number of "gotchas" that are best avoided.
 
 Before this layer can be used, it must be instantiated. Layers are normally
 instantiated exactly once, since by nature they are shared between tests. This
-becomes important when you start to manage state (such as persistent data,
+becomes important when you start to manage resources (such as persistent data,
 database connections, or other shared resources) in layers.
 
 The layer instance is conventionally also found in ``testing.py``, just after
@@ -365,16 +361,16 @@ the layer class definition.
 
     >>> SPACE_SHIP = SpaceShip()
 
-    **Note:** Since the layer is created in module scope, it will be
-    constructed as soon as the ``testing`` module where it lives is imported.
-    It is therefore very important that the layer class is inexpensive to
+    **Note:** Since the layer is created in module scope, it will be constructed
+    as soon as the ``testing`` module where it lives is imported. It is
+    therefore very important that the layer class is inexpensive and safe to
     create. In general, you should avoid doing anything non-trivial in the
     ``__init__()`` method of your layer class. All setup should happen in the
-    ``setUp()`` class. If you *do* implement ``__init__()``, be sure to call
-    the ``super`` version as well.
+    ``setUp()`` method. If you *do* implement ``__init__()``, be sure to call the
+    ``super`` version as well.
 
 The layer shown above did not have any base layers (dependencies). Here is an
-example of another layer that depends on the example layer above:
+example of another layer that depends on it:
 
     >>> class ZIGSpaceShip(Layer):
     ...     __bases__ = (SPACE_SHIP,)
@@ -384,33 +380,34 @@ example of another layer that depends on the example layer above:
 
     >>> ZIG = ZIGSpaceShip()
 
-Here, we have explicitly listed the base layers on which ``MyOtherLayer``
-depends, by setting the ``__bases__`` tuple. Note that we used the layer
-*instance* in the ``__bases__`` tuple, not the class.
+Here, we have explicitly listed the base layers on which ``ZIGSpaceShip``
+depends, by setting the ``__bases__`` tuple.
 
-    **Note:** In this example, we have only implemented one method. Presumably,
-    the ZIG layer does not require any tear-down to leave a clean state for the
-    next layer.
+Note that we use the layer *instance* in the ``__bases__`` tuple, not the class.
+Layer dependencies always pertain to specific layer instances. Above, we are
+really saying that *instances* of ``ZIGSpaceShip`` will, by default, depend on
+the ``SPACE_SHIP`` layer. Of course, there is usually only one instance.
 
 Advanced usage - overriding bases
 ---------------------------------
 
 In some cases, it may be useful to create a copy of a layer, but change its
 bases. One reason to do this may if you are re-using a layer from another
-module, but need to change the order in which layers are set up and torn down.
+module, and you need to change the order in which layers are set up and torn
+down.
 
-Normally, you would just re-use the layer instance, either directly
-in a test, or in the ``__bases__`` tuple of another layer. However, if you
-need to change the bases, you can pass a new list of bases to the layer
+Normally, of course, you would just re-use the layer instance, either directly
+in a test, or in the ``__bases__`` tuple of another layer, but if you need to
+change the bases, you can pass a new list of bases to the layer instance
 constructor:
 
     >>> class CATSMessage(Layer)
     ...     
     ...     def setUp(self):
-    ...         print "Somebody set up us the bomb"
+    ...         print "All your base are belong to us"
     ...     
     ...     def tearDown(self):
-    ...         print "All your base are belong to us"
+    ...         print "For great justice"
 
     >>> CATS_MESSAGE = CATSMessage()
 
@@ -421,8 +418,9 @@ implementation may make assumptions about the test fixture that was set up
 by its bases. If you change the order in which the bases are listed, or remove
 a base altogether, the layer may fail to set up correctly.
 
-Also, the new layer instance is independent of the original layer instance, so
-any resources defined in the layer are likely to be duplicated.
+Also, bear in mind that the new layer instance is independent of the original
+layer instance, so any resources defined in the layer are likely to be
+duplicated.
 
 Layer resources
 ---------------
@@ -454,7 +452,7 @@ dictionary notation:
     ...     __bases__ = (SPACE_SHIP,)
     ...
     ...     def setUp(self):
-    ...         self['warpDrive'] = WarpDrive(8)
+    ...         self['warpDrive'] = WarpDrive(8.0)
     ...
     ...     def tearDown(self):
     ...         del self['warpDrive']
@@ -502,8 +500,8 @@ The distinction becomes even more important when you consider how a test case
 may access the shared resource. We'll discuss how to write test cases that use
 layers shortly, but consider the following test:
 
-    >>> import unittest
-    >>> class TestFasterThanLightTravel(unittest.TestCase):
+    >>> import unittest2
+    >>> class TestFasterThanLightTravel(unittest2.TestCase):
     ...     layer = GALAXY_CLASS_SPACE_SHIP
     ...     
     ...     def test_hyperdrive(self):
@@ -516,10 +514,13 @@ actually initiated by the ``ConstitutionClassSpaceShip`` base layer.
 
 If, however, the base layer had assigned the resource as an instance variable,
 it would not inherit to child layers (remember: layer bases are not base
-classes!). The syntax to access it would be
-``self.layer.__bases__[0].warpDrive``, which is not only ugly, but brittle:
-if the list of bases is changed, the expression above may lead to an attribute
-error.
+classes!). The syntax to access it would be::
+
+
+    self.layer.__bases__[0].warpDrive
+    
+which is not only ugly, but brittle: if the list of bases is changed, the
+expression above may lead to an attribute error.
 
 Writing tests
 =============
