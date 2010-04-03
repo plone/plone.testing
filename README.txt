@@ -652,8 +652,27 @@ the default test loader and load all tests in the current module:
 
 See the `unittest`_ documentation for other options.
 
+    **Note:** Adding a ``test_suite()`` method to a module disables automatic
+    test discovery, even when using a recent version of ``zope.testing``.
+
 Doctests
 --------
+
+Doctests can be written in two ways: as the contents of a docstring (usually,
+but not always, as a means of illustrating and testing the functionality of
+the method or class where the docstring appears), or as a separate text file. In
+both cases, the standard `doctest`_ module is used. See its documentation for
+details about doctest syntax and conventions.
+
+Docstring doctests
+~~~~~~~~~~~~~~~~~~
+
+
+
+File doctests
+~~~~~~~~~~~~~
+
+
 
 Layer reference
 ===============
@@ -664,3 +683,4 @@ Layer reference
 .. _z3c.coverage: http://pypi.python.org/pypi/z3c.coverage
 .. _unittest: http://doc.python.org/library/unittest.html
 .. _unittest2: http://pypi.python.org/pypi/unittest2
+.. _doctest: http://docs.python.org/dev/library/doctest.html
