@@ -333,7 +333,7 @@ A simple layer may look like this:
     ...     def setUpTest(self):
     ...         print "Fuelling space ship in preparation for test"
     ...     
-    ...     def tearDownTest(self)
+    ...     def tearDownTest(self):
     ...         print "Emptying the fuel tank"
 
     **Note:** You may find it useful to create other layer base/mix-in classes
@@ -401,8 +401,8 @@ in a test, or in the ``__bases__`` tuple of another layer, but if you need to
 change the bases, you can pass a new list of bases to the layer instance
 constructor:
 
-    >>> class CATSMessage(Layer)
-    ...     
+    >>> class CATSMessage(Layer):
+    ...
     ...     def setUp(self):
     ...         print "All your base are belong to us"
     ...     
@@ -411,7 +411,7 @@ constructor:
 
     >>> CATS_MESSAGE = CATSMessage()
 
-    >>> ZERO_WING = ZIGSpaceship((SPACE_SHIP, CATS_MESSAGE))
+    >>> ZERO_WING = ZIGSpaceShip((SPACE_SHIP, CATS_MESSAGE))
 
 Please take great care when changing layer bases like this. The layer
 implementation may make assumptions about the test fixture that was set up
@@ -436,7 +436,7 @@ dictionary notation:
     >>> class WarpDrive(object):
     ...     """A shared resource"""
     ...     
-    ...     def __init__(self, maxSpeed)
+    ...     def __init__(self, maxSpeed):
     ...         self.maxSpeed = maxSpeed
     ...         self.running = False
     ...     
@@ -472,8 +472,8 @@ dictionary notation:
     >>> GALAXY_CLASS_SPACE_SHIP = GalaxyClassSpaceShip()
 
 As shown, layers (that derive from ``plone.testing.Layer``) support item
-(dict-like) assignment, access and deletion of arbitrary resources under string
-keys.
+(dict-like) assignment, access and deletion of arbitrary resources under
+string keys.
 
 A resource defined in a base layer is accessible through a child layer. If a
 resource is set on a child using a key that also exists in a base layer, the
@@ -502,8 +502,8 @@ The distinction becomes even more important when you consider how a test case
 may access the shared resource. We'll discuss how to write test cases that use
 layers shortly, but consider the following test:
 
-    >>> import unittest2
-    >>> class TestFasterThanLightTravel(unittest2.TestCase):
+    >>> import unittest2 as unittest
+    >>> class TestFasterThanLightTravel(unittest.TestCase):
     ...     layer = GALAXY_CLASS_SPACE_SHIP
     ...     
     ...     def test_hyperdrive(self):
@@ -545,12 +545,13 @@ will have a fixture that contains enough of the full system to execute an
 Python tests
 ------------
 
-Python tests use the Python `unittest`_ module, or its cousin `unittest2`_ (see
-below). They should be placed in a module or package called ``tests``. For small
-packages, a single module called ``tests.py`` will normally contain all tests.
-For larger packages, it is common to have a ``tests`` module that contains a
-number of modules with tests. These need to start with the word ``test``, e.g.
-``test_foo.py`` or ``test_bar.py``. Don't forget the ``__init__.py`` either.
+Python tests use the Python `unittest`_ module, or its cousin `unittest2`_
+(see below). They should be placed in a module or package called ``tests``.
+For small packages, a single module called ``tests.py`` will normally contain
+all tests. For larger packages, it is common to have a ``tests`` module that
+contains a number of modules with tests. These need to start with the word
+``test``, e.g. ``test_foo.py`` or ``test_bar.py``. Don't forget the
+``__init__.py`` either.
 
 unittest2
 ~~~~~~~~~
@@ -562,7 +563,10 @@ called `unittest2`_ can be installed. Simply replace all uses of the
 ``unittest2`` (and uses it for its own tests), so you will have access to it if
 you depend on ``plone.testing``.
 
-We will use ``unittest2`` for the examples in this document.
+We will use ``unittest2`` for the examples in this document, but import it
+with an alias of ``unittest``. This makes the code forward compatible with
+Python 2.7, where the built-in ``unittest`` module will have all the features
+of the ``unittest2`` module.
 
 Please note that the `zope.testing`_ test runner at the time of writing
 (version 3.9.3) does not (yet) support the new ``setUpClass()``,
@@ -576,7 +580,7 @@ Test modules, classes and functions
 Python tests are written in classes that derive from the base class
 ``TestCase``. Each test is written as a method that takes no arguments and
 has a name starting with ``test``. Other methods can be added and called from
-test methods as appropraite, e.g. to share some test logic.
+test methods as appropriate, e.g. to share some test logic.
 
 Two special methods, ``setUp()`` and ``tearDown()``, can also be added. These
 will be called before or after each test, respectively, and provide a useful
@@ -596,9 +600,9 @@ write assertions. They all take the form ``self.assertSomething()``, e.g.
 
 Putting this together, let's expand on our previous example unit test:
 
-    >>> import unittest2
+    >>> import unittest2 as unittest
 
-    >>> class TestFasterThanLightTravel(unittest2.TestCase):
+    >>> class TestFasterThanLightTravel(unittest.TestCase):
     ...     layer = GALAXY_CLASS_SPACE_SHIP
     ...     
     ...     def setUp(self):
@@ -619,7 +623,7 @@ Putting this together, let's expand on our previous example unit test:
     
 A few things to note:
 
-* The class derives from ``unittest2.TestCase``.
+* The class derives from ``unittest.TestCase``.
 * The ``layer`` class attribute is set to a layer instance (not a layer class!)
   defined previously. This would typically be imported from a ``testing``
   module.
@@ -648,15 +652,15 @@ contains several tools to construct suites, but one of the simplest is to use
 the default test loader and load all tests in the current module:
 
     >>> def test_suite():
-    ...     return unittest2.defaultTestLoader.loadTestsFromName(__name__)
+    ...     return unittest.defaultTestLoader.loadTestsFromName(__name__)
 
 If you need to load tests explicitly, you can use the ``TestSuite`` API from
 the `unittest`_ module. For example:
 
     >>> def test_suite():
-    ...     suite = unittest2.TestSuite()
+    ...     suite = unittest.TestSuite()
     ...     suite.addTests([
-    ...         unittest2.makeSuite(TestFasterThanLightTravel)
+    ...         unittest.makeSuite(TestFasterThanLightTravel)
     ...     ])
     ...     return suite
 
@@ -705,6 +709,7 @@ Doctests can be added to any module, class or function docstring::
         >>> drive = WarpDrive(8.0)
         >>> canOutrunKlingons(drive)
         False
+
         """
         return warpDrive.maxSpeed > 8.0
 
@@ -713,9 +718,9 @@ use the ``test_suite()`` function hook:
     
     >>> import doctest
     >>> def test_suite():
-    ...     suite = unittest2.TestSuite()
+    ...     suite = unittest.TestSuite()
     ...     suite.addTests([
-    ...         unittest2.makeSuite(TestFasterThanLightTravel),
+    ...         unittest.makeSuite(TestFasterThanLightTravel),
     ...         doctest.DocTestSuite('spaceship.utils'),
     ...     ])
     ...     return suite
@@ -740,9 +745,9 @@ Doctests contained in a file are similar. For example, if we had a file called
 with:
 
     >>> def test_suite():
-    ...     suite = unittest2.TestSuite()
+    ...     suite = unittest.TestSuite()
     ...     suite.addTests([
-    ...         unittest2.makeSuite(TestFasterThanLightTravel),
+    ...         unittest.makeSuite(TestFasterThanLightTravel),
     ...         doctest.DocTestSuite('spaceship.utils'),
     ...         doctest.DocFileSuite('spaceship.txt'),
     ...     ])
@@ -756,9 +761,9 @@ package.
 It is possible to pass several tests to the suite, e.g.::
 
     >>> def test_suite():
-    ...     suite = unittest2.TestSuite()
+    ...     suite = unittest.TestSuite()
     ...     suite.addTests([
-    ...         unittest2.makeSuite(TestFasterThanLightTravel),
+    ...         unittest.makeSuite(TestFasterThanLightTravel),
     ...         doctest.DocTestSuite('spaceship.utils'),
     ...         doctest.DocFileSuite('spaceship.txt', 'warpdrive.txt',),
     ...     ])
@@ -791,7 +796,7 @@ For example:
     ...     doctest.globs['oldStyleKlings'] = False
 
     >>> def test_suite():
-    ...     suite = unittest2.TestSuite()
+    ...     suite = unittest.TestSuite()
     ...     suite.addTests([
     ...         doctest.DocTestSuite('spaceship.utils', setUp=setUpKlingons, tearDown=tearDownKlingons),
     ...     ])
@@ -815,7 +820,7 @@ For example:
 
     >>> from plone.testing import layered
     >>> def test_suite():
-    ...     suite = unittest2.TestSuite()
+    ...     suite = unittest.TestSuite()
     ...     suite.addTests([
     ...         layered(doctest.DocTestSuite('spaceship.utils'), layer=CONSTITUTION_CLASS_SPACE_SHIP),
     ...     ])
@@ -824,7 +829,7 @@ For example:
 This is equivalent to:
 
     >>> def test_suite():
-    ...     suite = unittest2.TestSuite()
+    ...     suite = unittest.TestSuite()
     ...     
     ...     spaceshipUtilTests = doctest.DocTestSuite('spaceship.utils')
     ...     spaceshipUtilTests.layer = CONSTITUTION_CLASS_SPACE_SHIP
@@ -838,9 +843,10 @@ instead of using ``addTests()`` to add multiple suites in one go.
 Layer reference
 ===============
 
+``plone.testing`` comes with several layers that are available to use directly
+or extend. These are outlined below.
+
 TODO
-
-
 
 .. _zope.testing: http://pypi.python.org/pypi/zope.testing
 .. _plone.app.testing: http://pypi.python.org/pypi/plone.app.testing

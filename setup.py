@@ -26,6 +26,7 @@ setup(name='plone.testing',
       install_requires=[
           'setuptools',
           'zope.testing',
+          'unittest2',
       ],
       entry_points="""
       """,
