@@ -307,8 +307,8 @@ dependencies like this, the order of set up and tear-down as calculated by the
 test runner is similar to the way in which Python searches for the method to
 invoke in the case of multiple inheritance.
 
-Writing a layer
----------------
+Writing layers
+--------------
 
 The easiest way to create a new layer is to use the ``Layer`` base class and
 implement the ``setUp()``, ``tearDown()``, ``testSetUp()`` and
@@ -361,13 +361,13 @@ the layer class definition.
 
     >>> SPACE_SHIP = SpaceShip()
 
-    **Note:** Since the layer is created in module scope, it will be constructed
-    as soon as the ``testing`` module where it lives is imported. It is
-    therefore very important that the layer class is inexpensive and safe to
-    create. In general, you should avoid doing anything non-trivial in the
+    **Note:** Since the layer is instantiated in module scope, it will be
+    created as soon as the ``testing`` module where it lives is imported. It
+    is therefore very important that the layer class is inexpensive and safe
+    to create. In general, you should avoid doing anything non-trivial in the
     ``__init__()`` method of your layer class. All setup should happen in the
-    ``setUp()`` method. If you *do* implement ``__init__()``, be sure to call the
-    ``super`` version as well.
+    ``setUp()`` method. If you *do* implement ``__init__()``, be sure to call
+    the ``super`` version as well.
 
 The layer shown above did not have any base layers (dependencies). Here is an
 example of another layer that depends on it:
@@ -383,13 +383,13 @@ example of another layer that depends on it:
 Here, we have explicitly listed the base layers on which ``ZIGSpaceShip``
 depends, by setting the ``__bases__`` tuple.
 
-Note that we use the layer *instance* in the ``__bases__`` tuple, not the class.
-Layer dependencies always pertain to specific layer instances. Above, we are
-really saying that *instances* of ``ZIGSpaceShip`` will, by default, depend on
-the ``SPACE_SHIP`` layer. Of course, there is usually only one instance.
+Note that we use the layer *instance* in the ``__bases__`` tuple, not the
+class. Layer dependencies always pertain to specific layer instances. Above,
+we are really saying that *instances* of ``ZIGSpaceShip`` will, by default,
+require the ``SPACE_SHIP`` layer to be set up first.
 
-Advanced usage - overriding bases
----------------------------------
+Advanced - overriding bases
+---------------------------
 
 In some cases, it may be useful to create a copy of a layer, but change its
 bases. One reason to do this may if you are re-using a layer from another
@@ -411,7 +411,7 @@ constructor:
 
     >>> CATS_MESSAGE = CATSMessage()
 
-    >>> ZERO_WING = ZIGSpaceShip((SPACE_SHIP, CATS_MESSAGE))
+    >>> ZERO_WING = ZIGSpaceShip((SPACE_SHIP, CATS_MESSAGE,))
 
 Please take great care when changing layer bases like this. The layer
 implementation may make assumptions about the test fixture that was set up
