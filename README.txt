@@ -650,6 +650,22 @@ the default test loader and load all tests in the current module:
     >>> def test_suite():
     ...     return unittest2.defaultTestLoader.loadTestsFromName(__name__)
 
+If you need to load tests explicitly, you can use the ``TestSuite`` API from
+the `unittest`_ module. For example:
+
+    >>> def test_suite():
+    ...     suite = unittest2.TestSuite()
+    ...     suite.addTests([
+    ...         unittest2.makeSuite(TestFasterThanLightTravel)
+    ...     ])
+    ...     return suite
+
+The ``makeSuite()`` function creates a test suite from the test methods in
+the given class (which must derive from ``TestCase``). This suite is then
+appended to an overall suite, which is returned from the ``test_suite()``
+method. Note that ``addTests()`` takes a list of suites. We'll add additional
+suites later.
+
 See the `unittest`_ documentation for other options.
 
     **Note:** Adding a ``test_suite()`` method to a module disables automatic
@@ -667,15 +683,164 @@ details about doctest syntax and conventions.
 Docstring doctests
 ~~~~~~~~~~~~~~~~~~
 
+Doctests can be added to any module, class or function docstring::
 
+    def canOutrunKlingons(warpDrive):
+        """Find out of the given warp drive can outrun Klingons.
+        
+        Klingons travel at warp 8
+        
+        >>> drive = WarpDrive(5)
+        >>> canOutrunKlingons(drive)
+        False
+        
+        We have to be faster than that to outrun them.
+        
+        >>> drive = WarpDrive(8.1)
+        >>> canOutrunKlingons(drive)
+        True
+        
+        We can't outrun them if we're travelling exactly the same speed
+        
+        >>> drive = WarpDrive(8.0)
+        >>> canOutrunKlingons(drive)
+        False
+        """
+        return warpDrive.maxSpeed > 8.0
+
+To add the doctests from a particular module to a test suite, you need to
+use the ``test_suite()`` function hook:
+    
+    >>> import doctest
+    >>> def test_suite():
+    ...     suite = unittest2.TestSuite()
+    ...     suite.addTests([
+    ...         unittest2.makeSuite(TestFasterThanLightTravel),
+    ...         doctest.DocTestSuite('spaceship.utils'),
+    ...     ])
+    ...     return suite
+
+Here, we have given the name of the module to check as a string dotted name.
+It is also possible to import a module and pass it as an object. The code
+above passes a list to ``addTests()``, making it easy to add several sets of
+tests to the suite: the list can contain be constructed from calls to
+``DocTestSuite()``, ``DocFileSuite()`` (shown below) and ``makeSuite()``
+(shown above).
+
+    Remember that if you add a ``test_suite()`` function to a module that
+    also has ``TestCase``-derived python tests, those tests will no longer
+    be automatically picked up, so you need to add them to the test suite
+    explicitly.
 
 File doctests
 ~~~~~~~~~~~~~
 
+Doctests contained in a file are similar. For example, if we had a file called
+``spaceship.txt`` with doctests, we could add it to the test suite above 
+with:
 
+    >>> def test_suite():
+    ...     suite = unittest2.TestSuite()
+    ...     suite.addTests([
+    ...         unittest2.makeSuite(TestFasterThanLightTravel),
+    ...         doctest.DocTestSuite('spaceship.utils'),
+    ...         doctest.DocFileSuite('spaceship.txt'),
+    ...     ])
+    ...     return suite
+
+By default, the file is located relative to the module where the the test
+suite is defined. You can use ``../`` to reference the parent directory,
+which is sometimes useful if the doctest is inside a module in a ``tests``
+package.
+
+It is possible to pass several tests to the suite, e.g.::
+
+    >>> def test_suite():
+    ...     suite = unittest2.TestSuite()
+    ...     suite.addTests([
+    ...         unittest2.makeSuite(TestFasterThanLightTravel),
+    ...         doctest.DocTestSuite('spaceship.utils'),
+    ...         doctest.DocFileSuite('spaceship.txt', 'warpdrive.txt',),
+    ...     ])
+    ...     return suite
+
+Doctest fixtures and layers
+~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+A docstring doctest will by default have access to any global symbol available
+in the module (e.g. anything defined or imported in the module). The global
+namespace can be overridden by passing a ``globs`` keyword argument to the
+``DocTestSuite()`` constructor, or augmented by passing an ``extraglobs``
+argument. Both should be given dictionaries.
+
+A file doctest has an empty globals namespace by default. Globals may be
+provided via the ``globs`` argument to ``DocFileSuite()``.
+
+To manage a simple test fixture for a doctest, you can define set-up and
+tear-down functions and pass them as the ``setUp`` and ``tearDown``
+arguments respectively. These both take a single arugment, a ``DocTest``
+object. The most useful attribute of this object is ``globs``, which is a
+mutable dictionary of globals available in the test.
+
+For example:
+
+    >>> def setUpKlingons(doctest):
+    ...     doctest.globs['oldStyleKlings'] = True
+    
+    >>> def tearDownKlingons(doctest):
+    ...     doctest.globs['oldStyleKlings'] = False
+
+    >>> def test_suite():
+    ...     suite = unittest2.TestSuite()
+    ...     suite.addTests([
+    ...         doctest.DocTestSuite('spaceship.utils', setUp=setUpKlingons, tearDown=tearDownKlingons),
+    ...     ])
+    ...     return suite
+
+The same arguments are available on the ``DocFileSuite()`` constructor. The
+set up method is called before each docstring in the given module for a
+``DocTestSuite``, and before each file given in a ``DocFileSuite``.
+
+Of course, we often want to use layers with doctests too. Unfortunately,
+the ``unittest`` API is not aware of layers, so you can't just pass a layer
+to the ``DocTestSuite()`` and ``DocFileSuite()`` constructors. Instead,
+you have to set a ``layer`` attribute on the suite after it has been
+constructed.
+
+To make it easier to do this, ``plone.testing`` comes with a helper function
+called ``layered()``. Its first argument is a test suite. The second argument
+is the layer.
+
+For example:
+
+    >>> from plone.testing import layered
+    >>> def test_suite():
+    ...     suite = unittest2.TestSuite()
+    ...     suite.addTests([
+    ...         layered(doctest.DocTestSuite('spaceship.utils'), layer=CONSTITUTION_CLASS_SPACE_SHIP),
+    ...     ])
+    ...     return suite
+
+This is equivalent to:
+
+    >>> def test_suite():
+    ...     suite = unittest2.TestSuite()
+    ...     
+    ...     spaceshipUtilTests = doctest.DocTestSuite('spaceship.utils')
+    ...     spaceshipUtilTests.layer = CONSTITUTION_CLASS_SPACE_SHIP
+    ...     suite.addTest(spaceshipUtilTests)
+    ...     
+    ...     return suite
+
+In this example, we've opted to use ``addTest()`` to add a single suite,
+instead of using ``addTests()`` to add multiple suites in one go.
 
 Layer reference
 ===============
+
+TODO
+
+
 
 .. _zope.testing: http://pypi.python.org/pypi/zope.testing
 .. _plone.app.testing: http://pypi.python.org/pypi/plone.app.testing
