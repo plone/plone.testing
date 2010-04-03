@@ -438,15 +438,17 @@ dictionary notation:
     ...     
     ...     def __init__(self, maxSpeed)
     ...         self.maxSpeed = maxSpeed
+    ...         self.running = False
     ...     
     ...     def start(self, speed):
     ...         if speed > self.maxSpeed:
     ...             print "We need more power!"
     ...         else:
     ...             print "Going to warp at speed", speed
+    ...             self.running = True
     ...     
     ...     def stop(self):
-    ...         pass
+    ...         self.running = False
     
     >>> class ConstitutionClassSpaceShip(Layer):
     ...     __bases__ = (SPACE_SHIP,)
@@ -525,8 +527,130 @@ expression above may lead to an attribute error.
 Writing tests
 =============
 
-Tests in Python
----------------
+Tests are usually written in one of two ways: As methods on a class, sometimes
+known as "Python tests" or "JUnit-style tests"; or using doctest syntax.
+
+You should realise that although the relevant frameworks (``unittest``,
+``unittest2`` and ``doctest``) often talk about unit testing, these tools are
+also used to write integration and functional tests. The distinction between
+unit, integration and functional tests is largely practical: you use the same
+techniques to set up a fixture or write assertions for an integration test as
+you would for a unit test. The difference lies in what that fixture contains, 
+and how you invoke the code under test. In general, a true unit test will have
+a minimal or no test fixture, whereas an integration test will have a fixture
+that contains the components your code is integrating with. A functional test
+will have a fixture that contains enough of the full system to execute an
+"end-to-end" test.
+
+Python tests
+------------
+
+Python tests use the Python `unittest`_ module, or its cousin `unittest2`_ (see
+below). They should be placed in a module or package called ``tests``. For small
+packages, a single module called ``tests.py`` will normally contain all tests.
+For larger packages, it is common to have a ``tests`` module that contains a
+number of modules with tests. These need to start with the word ``test``, e.g.
+``test_foo.py`` or ``test_bar.py``. Don't forget the ``__init__.py`` either.
+
+unittest2
+~~~~~~~~~
+
+In Python 2.7+, the ``unittest`` module has grown several new and useful
+features. To make use of these in Python 2.4, 2.5 and 2.6, an add-on module
+called `unittest2`_ can be installed. Simply replace all uses of the
+``unittest`` module with ``unittest2``. ``plone.testing`` depends on
+``unittest2`` (and uses it for its own tests), so you will have access to it if
+you depend on ``plone.testing``.
+
+We will use ``unittest2`` for the examples in this document.
+
+Please note that the `zope.testing`_ test runner at the time of writing
+(version 3.9.3) does not (yet) support the new ``setUpClass()``,
+``tearDownClass()``, ``setUpModule()`` and ``tearDownModule()`` hooks from
+``unittest2``. This is not normally a problem, since we tend to use layers to
+manage complex fixtures.
+
+Test modules, classes and functions
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+Python tests are written in classes that derive from the base class
+``TestCase``. Each test is written as a method that takes no arguments and
+has a name starting with ``test``. Other methods can be added and called from
+test methods as appropraite, e.g. to share some test logic.
+
+Two special methods, ``setUp()`` and ``tearDown()``, can also be added. These
+will be called before or after each test, respectively, and provide a useful
+place to construct and clean up test fixtures without writing a custom layer.
+They are obviously not as re-usable as layers, though.
+
+A layer can be specified by setting the ``layer`` class attribute to a layer
+instance. If layers are used in conjunction with ``setUp()`` and ``tearDown()``
+methods in the test class itself, the class' ``setUp()`` method will be called
+after the layer's ``setUpTest()`` method, and the class' ``tearDown()`` method
+will be called before the layer's ``tearDownTest()`` method.
+
+The ``TestCase`` base class contains a number of methods which can be used to
+write assertions. They all take the form ``self.assertSomething()``, e.g.
+``self.assertEqual(result, expectedValue)``. See the `unittest`_ and/or
+`unittest2`_ documentation for details.
+
+Putting this together, let's expand on our previous example unit test:
+
+    >>> import unittest2
+
+    >>> class TestFasterThanLightTravel(unittest2.TestCase):
+    ...     layer = GALAXY_CLASS_SPACE_SHIP
+    ...     
+    ...     def setUp(self):
+    ...         self.warpDrive = self.layer['warpDrive']
+    ...         self.warpDrive.stop()
+    ...     
+    ...     def tearDown(self):
+    ...         self.warpDrive.stop()
+    ...     
+    ...     def test_warp8(self):
+    ...         self.warpDrive.start(8)
+    ...         self.assertEqual(self.warpDrive.running, True)
+    ...     
+    ...     def test_max_speed(self):
+    ...         tooFast = self.warpDrive.maxSpeed + 0.1
+    ...         self.warpDrive.start(tooFast)
+    ...         self.assertEqual(self.warpDrive.running, False)
+    
+A few things to note:
+
+* The class derives from ``unittest2.TestCase``.
+* The ``layer`` class attribute is set to a layer instance (not a layer class!)
+  defined previously. This would typically be imported from a ``testing``
+  module.
+* We have used the ``setUp()`` method to fetch the ``warpDrive`` resource and
+  ensure that it is stopped before each test is executed. Assigning a variable
+  to ``self`` is a useful way to provide some state to each test method, though
+  be careful about data leaking between tests: in general, you cannot predict
+  the order in which tests will run, and tests should always be independent.
+* We have used the ``tearDown()`` method to make sure the warp drive is really
+  stopped after each test.
+* There are two tests here: ``test_warp8()`` and ``test_max_speed()``.
+* We have used the ``self.assertEqual()`` assertion in both tests to check the
+  result of executing the ``start()`` method on the warp drive.
+
+Test suite
+~~~~~~~~~~
+
+If you are using version 3.8.0 or later of `zope.testing`_, a class like the
+one above is all you need: any class deriving from ``TestCase`` in a module
+with a name starting with ``test`` will be examined for test methods. Those
+tests are then collected into a test suite and executed.
+
+With older versions of `zope.testing`_, you need to add a ``test_suite()``
+in each module that returns the tests in the test suite. The `unittest`_ module
+contains several tools to construct suites, but one of the simplest is to use
+the default test loader and load all tests in the current module:
+
+    >>> def test_suite():
+    ...     return unittest2.defaultTestLoader.loadTestsFromName(__name__)
+
+See the `unittest`_ documentation for other options.
 
 Doctests
 --------
@@ -538,3 +662,5 @@ Layer reference
 .. _plone.app.testing: http://pypi.python.org/pypi/plone.app.testing
 .. _zc.recipe.testrunner: http://pypi.python.org/pypi/zc.recipe.testrunner
 .. _z3c.coverage: http://pypi.python.org/pypi/z3c.coverage
+.. _unittest: http://doc.python.org/library/unittest.html
+.. _unittest2: http://pypi.python.org/pypi/unittest2
