@@ -34,6 +34,7 @@ setup(name='plone.testing',
                 'zope.event',
                 'zope.publisher',
                 'zope.configuration',
+                'zope.testbrowser',
             ],
         'zodb': [
                 'ZODB3',

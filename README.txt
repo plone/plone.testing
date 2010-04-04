@@ -699,8 +699,8 @@ A few things to note:
 * We have used the ``self.assertEqual()`` assertion in both tests to check the
   result of executing the ``start()`` method on the warp drive.
 
-Test suite
-~~~~~~~~~~
+Test suites
+~~~~~~~~~~~
 
 If you are using version 3.8.0 or later of `zope.testing`_, a class like the
 one above is all you need: any class deriving from ``TestCase`` in a module
@@ -1088,14 +1088,42 @@ Note:
   However, it is almost always necessary to install the package's ZCML
   configuration first.
 
+Functional testing
+------------------
+
+For functional tests that aim to simulate the browser, you can use
+`zope.testbrowser`_ in a Python test or doctest.
+
+    >>> from zope.testbrowser import Browser
+
+This provides a simple API to simulate browser input, without actually running
+a web server thread or scripting a live browser (as tools such as Windmill
+and Selenium do). The downside is that it is not possible to test JavaScript-
+dependent behaviour.
+
+If you are testing a Zope 2 application, you need to change the import
+location slightly::
+
+    from Products.Five.testbrowser import Browser
+
+Beyond that, the `zope.testbrowser`_ documentation should cover how to use
+the test browser.
+
 Layer reference
 ===============
 
 ``plone.testing`` comes with several layers that are available to use directly
 or extend. These are outlined below.
 
-Zope Component Architecture: sandbox
-------------------------------------
+Zope Component Architecture
+---------------------------
+
+The Zope Component Architecture layers are found in the module
+``plone.testing.zca``. If you depend on this, you can use the ``[zca]`` extra
+when depending on ``plone.testing``.
+
+Sandbox
+~~~~~~~
 
 +------------+--------------------------------------------------+
 | Layer:     | ``plone.testing.zca.SANDBOX``                    |
@@ -1107,7 +1135,7 @@ Zope Component Architecture: sandbox
 | Resources: | None                                             |
 +------------+--------------------------------------------------+
 
-This layer does not set up a fixture per se, but performs a cleanup
+This layer does not set up a fixture per se, but cleans up global state
 before and after each test, using ``zope.testing.cleanup`` as described
 above.
 
@@ -1119,8 +1147,8 @@ Be careful with using this layer in combination with other layers. Because
 it tears down the component registry between each test, it will clobber any
 layer that sets up more permanent test fixture in the component registry.
 
-Zope Component Architecture: Event testing
-------------------------------------------
+Event testing
+~~~~~~~~~~~~~
 
 +------------+--------------------------------------------------+
 | Layer:     | ``plone.testing.zca.EVENT_TESTING``              |
@@ -1133,10 +1161,14 @@ Zope Component Architecture: Event testing
 +------------+--------------------------------------------------+
 
 This layer extends the ``zca.SANDBOX`` layer to enable the ``eventtesting``
-support from ``zope.component``. See above for details.
+support from ``zope.component``. Using this layer, you can import and use
+``zope.component.eventtesting.getEvent`` to inspect events fired by the code
+under test.
 
-Zope Component Architecture: Basic ZCML directives
---------------------------------------------------
+See above for details.
+
+Basic ZCML directives
+~~~~~~~~~~~~~~~~~~~~~
 
 +------------+--------------------------------------------------+
 | Layer:     | ``plone.testing.zca.ZCML_DIRECTIVES``            |
@@ -1161,15 +1193,24 @@ had ``zca.ZCML_DIRECTIVES`` as a base, you could do:
 
 See above for more details about loading custom ZCML in a layer or test.
 
-Zope Toolkit: Placeless setup
------------------------------
+Zope Toolkit
+------------
+
+The Zope Toolkit layers build on the Zope Component Architecture layers. They
+can be found in the module ``plone.testing.ztk``. 
+
+If you depend on this, you can use the ``[ztk]`` extra when depending on
+``plone.testing``.
+
+Placeless setup
+~~~~~~~~~~~~~~~
 
 +------------+--------------------------------------------------+
 | Layer:     | ``plone.testing.ztk.PLACELESS``                  |
 +------------+--------------------------------------------------+
 | Class:     | ``plone.testing.ztk.Basic``                      |
 +------------+--------------------------------------------------+
-| Bases:     | ``plone.testing.zca.SANDBOX``                    |
+| Bases:     | ``plone.testing.zca.EVENT_TESTING``              |
 +------------+--------------------------------------------------+
 | Resources: | None                                             |
 +------------+--------------------------------------------------+
@@ -1188,8 +1229,8 @@ Toolkit:
 As it is based on the ``zca.SANDBOX`` layer, the component architecture is set
 up and torn down before/after each test
 
-Zope Toolkit: ZCML browser directives
--------------------------------------
+ZCML browser directives
+~~~~~~~~~~~~~~~~~~~~~~~
 
 +------------+--------------------------------------------------+
 | Layer:     | ``plone.testing.ztk.ZCML_BROWSER_DIRECTIVES``    |
@@ -1210,8 +1251,19 @@ allows browser views, browser pages and other UI components to be registered.
 As with ``zca.ZCML_DIRECTIVES``, you should use the ``configurationContext``
 resource when loading ZCML strings or files.
 
-ZODB: Basic persistent sandbox
-------------------------------
+ZODB
+----
+
+The ZODB layers set up a test fixture with a persistent ZODB. The ZODB
+instance uses ``DemoStorage``, so it will not interfere with any "live"
+data.
+
+
+ZODB layers can be found in the module ``plone.testing.zodb``. If you depend
+on this, you can use the ``[zodb]`` extra when depending on ``plone.testing``.
+
+Basic persistent sandbox
+~~~~~~~~~~~~~~~~~~~~~~~~
 
 +------------+--------------------------------------------------+
 | Layer:     | ``plone.testing.zodb.EMPTY_ZODB``                |
@@ -1223,47 +1275,129 @@ ZODB: Basic persistent sandbox
 | Resources: | ``zodbRoot``                                     |
 +------------+--------------------------------------------------+
 
-TODO - describe
+This layer sets up a simple ZODB sandbox using ``DemoStorage``. The ZODB root
+object is a ``BTrees.OOBTree.OOBTree`` available as the resource ``zodbRoot``.
 
-Zope 2: Basic site
-------------------
+A new transaction is begun for each test, and rolled back (aborted) on test
+tear-down. This means that so long as you don't use ``transaction.commit()``
+explicitly in your code, it should be safe to add or modify items in the
+ZODB root.
+
+Zope 2
+------
+
+The Zope 2 layers provide test fixtures suitable for testing Zope 2
+applications. They set up a Zope 2 application root, install core Zope 2
+products, and manage security.
+
+Zope 2 layers can be found in the module ``plone.testing.z2``. If you depend
+on this, you can use the ``[z2]`` extra when depending on ``plone.testing``.
+
+Basic site
+~~~~~~~~~~
 
 +------------+--------------------------------------------------+
 | Layer:     | ``plone.testing.z2.BASIC_SITE``                  |
 +------------+--------------------------------------------------+
 | Class:     | ``plone.testing.z2.BasicSite``                   |
 +------------+--------------------------------------------------+
-| Bases:     | None                                             |
+| Bases:     | ``plone.testing.zodb.EMPTY_ZODB``                |
 +------------+--------------------------------------------------+
-| Resources: | ``applicationRoot``                              |
+| Resources: | ``appRoot``                                      |
 |            +--------------------------------------------------+
 |            | ``rootUser``                                     |
+|            +--------------------------------------------------+
+|            | ``rootPassword``                                 |
 +------------+--------------------------------------------------+
 
-TODO - describe
+This layer sets up an empty Zope 2 site, using ``DemoStorage``. It does not
+start a ZServer thread, and is not suitable for use with `zope.testbrowser`_.
+However, you can manipulate Zope using the Python API.
 
-NOTE: We have to avoid using Five's load_site() anywhere - it is too brittle
-because it loads things in the environment not related to the package under
-test.
+The Zope application root is available as the resource ``appRoot``. An
+initial user with the ``Manager`` role is created. Its username is available
+as the resource ``rootUser``, and the password as ``rootPassword``.
 
-Zope 2: HTTP ZServer thread
----------------------------
+The ZODB transaction is rolled back after each test, so long as the code under
+test does not call ``commit()`` explicitly.
+
+Note that this layer only installs and loads the ZCML configuration of the
+products that would be found in a minimal Zope 2 installation. In particular,
+packages in the ``Products.*`` namespace or placed in the ``Products`` folder
+are *not* loaded automatically. Use the ``installProduct()`` helper method
+to install any products you need.
+
+Functional testing
+~~~~~~~~~~~~~~~~~~
+
++------------+--------------------------------------------------+
+| Layer:     | ``plone.testing.z2.FUNCTIONAL``                  |
++------------+--------------------------------------------------+
+| Class:     | ``plone.testing.z2.Functional``                  |
++------------+--------------------------------------------------+
+| Bases:     | ``plone.testing.z2.BASIC_SITE``                  | 
++------------+--------------------------------------------------+
+| Resources: | None                                             |
++------------+--------------------------------------------------+
+
+This layer sets up an empty Zope 2 site, using ``DemoStorage``. It does not
+start a ZServer thread, but is suitable for use with `zope.testbrowser`_ (note
+that you must import the ``Browser`` class from ``Products.Five.testbrowser``
+when using the test browser with Zope 2), as well as direct manipulation using
+the Python API.
+
+The ZODB is restored to the initial state after each test, but it is safe to
+execute several end-to-end requests that result in a transaction commit during
+a given test.
+
+If you use this layer as a base for your own layer, it is safe to use the
+``appRoot`` resource during layer set-up to modify the test fixture. You
+should call ``transaction.commit()`` at the end of the fixture configuration.
+
+HTTP ZServer thread
+~~~~~~~~~~~~~~~~~~~
 
 +------------+--------------------------------------------------+
 | Layer:     | ``plone.testing.z2.ZSERVER``                     |
 +------------+--------------------------------------------------+
 | Class:     | ``plone.testing.z2.ZServer``                     |
 +------------+--------------------------------------------------+
-| Bases:     | ``plone.testing.z2.BASIC_SITE``                  |
+| Bases:     | ``plone.testing.z2.FUNCTIONAL``                  |
 +------------+--------------------------------------------------+
 | Resources: | ``host``                                         |
 |            +--------------------------------------------------+
 |            | ``port``                                         |
 +------------+--------------------------------------------------+
 
-TODO - describe
+This layer extends the ``z2.BASIC_SITE`` layer to start an HTTP ZServer in
+a separate thread. This means the test site can be accessed through a web
+browser, and can thus be used with tools like `Windmill`_ or `Selenium`_.
+
+The ZServer's hostname (normally ``localhost``) is available through the
+resource ``host``, whilst the port it is running on is available through the
+resource ``port``.
+
+Helper functions
+~~~~~~~~~~~~~~~~
+
+Several helper functions are available in the ``plone.testing.z2`` module.
+
+``installProduct(product, quiet=True)``
+    Install a Zope 2 style product, ensuring that it is available in the
+    product registry in the Zope 2 control panel and that its ``initialize()``
+    function is called.
+``login(userFolder, userName)``
+    Create a new security manager that simulates being logged in as the given
+    user. ``userFolder`` is an ``acl_users`` object, e.g.
+    ``appRoot['acl_user``']`` for the root user folder.
+``logout()``
+    Simulate being the anonymous user by unsetting the security manager.
+``setRoles(userFolder, userName, roles)``
+    Set the roles of the given user in the given user folder to the given
+    tuple of roles.
 
 .. _zope.testing: http://pypi.python.org/pypi/zope.testing
+.. _zope.testbrowser: http://pypi.python.org/pypi/zope.testbrowser
 .. _zope.component: http://pypi.python.org/pypi/zope.component
 .. _zope.publisher: http://pypi.python.org/pypi/zope.publisher
 .. _plone.app.testing: http://pypi.python.org/pypi/plone.app.testing
@@ -1272,3 +1406,5 @@ TODO - describe
 .. _unittest: http://doc.python.org/library/unittest.html
 .. _unittest2: http://pypi.python.org/pypi/unittest2
 .. _doctest: http://docs.python.org/dev/library/doctest.html
+.. _Windmill: http://getwindmill.com/
+.. _Selenium: http://seleniumhq.org/

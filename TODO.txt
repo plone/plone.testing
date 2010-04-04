@@ -1,0 +1,24 @@
+plone.testing TODO
+==================
+
+* The Zope BASIC_SITE may need a non-administrative user by default
+
+* installProduct() is global and cannot be easily torn down. Maybe we need an
+  "uninstallProduct"?
+  
+* It'd be useful to be able to "stack" ZODBs for effective sandboxing and
+  layer tear-down.
+  
+* It'd be useful to be able to "stack" component registries for effective
+  sandboxing and layer tear-down. Perhaps the ``z3c.baseregistry`` approach
+  is useful here?
+
+* Define Plone layers (in plone.app.testing)
+
+    - Should not have any content or non-standard products installed
+    - Should use a well-defined minimal workflow
+    - Should have a single user with role Member
+    - Helpers:
+        - install extension profile
+        - install product using portal_quickinstaller (discourage?)
+        - create user
