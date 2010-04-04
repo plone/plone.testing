@@ -19,6 +19,10 @@ def test_suite():
     suite.addTests([
         doctest.DocFileSuite(
             'layer.txt',
+            'zca.txt',
+            setUp=zope.component.testing.setUp(),
+            tearDown=zope.component.testing.tearDown(),
+            optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE,
         ),
         doctest.DocFileSuite(
             '../../README.txt',

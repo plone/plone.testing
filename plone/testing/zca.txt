@@ -1,0 +1,79 @@
+Zope Component Architecture layers
+==================================
+
+The ZCA layers are found in the module ``plone.testing.zca``:
+
+    >>> from plone.testing import zca
+
+For testing, we need a testrunner
+
+    >>> from zope.testing.testrunner import runner
+
+Sandbox layer
+-------------
+
+The SANDBOX layer is used to set up a clean component registry between each
+test. It uses ``zope.testing.cleanup`` to clean up all global state.
+
+It has no bases:
+
+    >>> "%s.%s" % (zca.SANDBOX.__module__, zca.SANDBOX.__name__,)
+    'plone.testing.zca.Sandbox'
+
+    >>> zca.SANDBOX.__bases__
+    ()
+
+The component registry is cleaned up between each test.
+
+    >>> from zope.interface import Interface
+    >>> from zope.component import provideUtility
+    
+    >>> class DummyUtility(object):
+    ...     def __init__(self, name):
+    ...         self.name = name
+    ...     def __repr__(self):
+    ...         return "<%s>" % self.name
+
+    >>> provideUtility(DummyUtility("Dummy"), provides=Interface, name="test-dummy")
+
+    >>> from zope.component import queryUtility
+    >>> queryUtility(Interface, name="test-dummy")
+    <Dummy>
+
+Layer setup does nothing.
+
+    >>> options = runner.get_options([], [])
+    >>> setupLayers = {}
+    >>> runner.setup_layer(options, zca.SANDBOX, setupLayers)
+    Set up plone.testing.zca.Sandbox in ... seconds.
+
+Let's now simulate a test. Before any test setup has happened, our previously
+registered utility is still there.
+
+    >>> queryUtility(Interface, name="test-dummy")
+    <Dummy>
+
+On test setup, it disappears.
+
+    >>> zca.SANDBOX.testSetUp()
+
+    >>> queryUtility(Interface, name="test-dummy") is None
+    True
+
+The test would now execute. It may registered some components.
+
+    >>> provideUtility(DummyUtility("Dummy2"), provides=Interface, name="test-dummy")
+    >>> queryUtility(Interface, name="test-dummy")
+    <Dummy2>
+
+On test tear-down, this disappears.
+
+    >>> zca.SANDBOX.testTearDown()
+
+    >>> queryUtility(Interface, name="test-dummy") is None
+    True
+
+Layer tear-down does nothing.
+
+    >>> runner.tear_down_unneeded(options, [], setupLayers)
+    Tear down plone.testing.zca.Sandbox in ... seconds.
