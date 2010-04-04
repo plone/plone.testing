@@ -131,7 +131,7 @@ class Layer(ResourceManager):
     def tearDown(self):
         pass
     
-    def setUpTest(self):
+    def testSetUp(self):
         pass
     
     def tearDownTest(self):

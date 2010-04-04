@@ -8,7 +8,7 @@ class Sandbox(Layer):
     test and torn down after each test.
     """
     
-    def setUpTest(self):
+    def testSetUp(self):
         import zope.component.testing
         zope.component.testing.setUp()
     
@@ -29,7 +29,7 @@ class EventTesting(Layer):
     
     __bases__ = (SANDBOX,)
     
-    def setUpTest(self):
+    def testSetUp(self):
         import zope.component.eventtesting
         zope.component.eventtesting.setUp()
     

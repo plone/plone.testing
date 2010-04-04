@@ -13,7 +13,7 @@ class Placeless(Layer):
     
     __bases__ = (zca.EVENT_TESTING,)
     
-    def setUpTest(self):
+    def testSetUp(self):
         
         # This is basically what zope.app.testing.placelesssetup does, except 
         # we don't want to duplicate what we already have EVENT_TESTING

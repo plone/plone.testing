@@ -22,7 +22,7 @@ the layer lifecycle methods does nothing.
     'plone.testing.layer'
     
     >>> NULL_LAYER.setUp()
-    >>> NULL_LAYER.setUpTest()
+    >>> NULL_LAYER.testSetUp()
     >>> NULL_LAYER.tearDown()
     >>> NULL_LAYER.tearDownTest()
 

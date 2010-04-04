@@ -374,7 +374,7 @@ A simple layer may look like this:
     ...     def tearDown(self):
     ...         print "Disasembling space ship"
     ...     
-    ...     def setUpTest(self):
+    ...     def testSetUp(self):
     ...         print "Fuelling space ship in preparation for test"
     ...     
     ...     def tearDownTest(self):
@@ -649,7 +649,7 @@ They are obviously not as re-usable as layers, though.
 A layer can be specified by setting the ``layer`` class attribute to a layer
 instance. If layers are used in conjunction with ``setUp()`` and
 ``tearDown()`` methods in the test class itself, the class' ``setUp()`` method
-will be called after the layer's ``setUpTest()`` method, and the class'
+will be called after the layer's ``testSetUp()`` method, and the class'
 ``tearDown()`` method will be called before the layer's ``tearDownTest()``
 method.
 
