@@ -377,7 +377,7 @@ A simple layer may look like this:
     ...     def testSetUp(self):
     ...         print "Fuelling space ship in preparation for test"
     ...     
-    ...     def tearDownTest(self):
+    ...     def testTearDown(self):
     ...         print "Emptying the fuel tank"
 
     **Note:** You may find it useful to create other layer base/mix-in classes
@@ -650,7 +650,7 @@ A layer can be specified by setting the ``layer`` class attribute to a layer
 instance. If layers are used in conjunction with ``setUp()`` and
 ``tearDown()`` methods in the test class itself, the class' ``setUp()`` method
 will be called after the layer's ``testSetUp()`` method, and the class'
-``tearDown()`` method will be called before the layer's ``tearDownTest()``
+``tearDown()`` method will be called before the layer's ``testTearDown()``
 method.
 
 The ``TestCase`` base class contains a number of methods which can be used to

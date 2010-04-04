@@ -24,7 +24,7 @@ the layer lifecycle methods does nothing.
     >>> NULL_LAYER.setUp()
     >>> NULL_LAYER.testSetUp()
     >>> NULL_LAYER.tearDown()
-    >>> NULL_LAYER.tearDownTest()
+    >>> NULL_LAYER.testTearDown()
 
 Just about the only reason to use this directly (i.e. not as a base class) is
 to group together other layers.

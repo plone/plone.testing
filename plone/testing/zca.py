@@ -12,7 +12,7 @@ class Sandbox(Layer):
         import zope.component.testing
         zope.component.testing.setUp()
     
-    def tearDownTest(self):
+    def testTearDown(self):
         import zope.component.testing
         zope.component.testing.tearDown()
 
