@@ -60,7 +60,7 @@ On test setup, it disappears.
     >>> queryUtility(Interface, name="test-dummy") is None
     True
 
-The test would now execute. It may registered some components.
+The test would now execute. It may register some components.
 
     >>> provideUtility(DummyUtility("Dummy2"), provides=Interface, name="test-dummy")
     >>> queryUtility(Interface, name="test-dummy")
@@ -76,4 +76,68 @@ On test tear-down, this disappears.
 Layer tear-down does nothing.
 
     >>> runner.tear_down_unneeded(options, [], setupLayers)
+    Tear down plone.testing.zca.Sandbox in ... seconds.
+
+Event testing
+-------------
+
+The EVENT_TESTING layer extends the SANDBOX layer to add the necessary
+registrations for ``zope.component.eventtesting`` to work.
+
+    >>> "%s.%s" % (zca.EVENT_TESTING.__module__, zca.EVENT_TESTING.__name__,)
+    'plone.testing.zca.EventTesting'
+
+    >>> zca.EVENT_TESTING.__bases__
+    (<Layer 'plone.testing.zca.Sandbox'>,)
+
+Before the test, the component registry is empty and ``getEvents()`` returns
+nothing, even if an event is fired.
+
+    >>> from zope.component.eventtesting import getEvents
+
+    >>> class DummyEvent(object):
+    ...     def __repr__(self):
+    ...         return "<Dummy event>"
+    
+    >>> from zope.event import notify
+    >>> notify(DummyEvent())
+
+    >>> getEvents()
+    []
+
+Layer setup does nothing.
+
+    >>> options = runner.get_options([], [])
+    >>> setupLayers = {}
+    >>> runner.setup_layer(options, zca.EVENT_TESTING, setupLayers)
+    Set up plone.testing.zca.Sandbox in ... seconds.
+    Set up plone.testing.zca.EventTesting in ... seconds.
+
+Let's now simulate a test. On test setup, the event testing list is emptied.
+    
+    >>> zca.SANDBOX.testSetUp()
+    >>> zca.EVENT_TESTING.testSetUp()
+
+    >>> getEvents()
+    []
+
+The test would now execute. It may fire some events, which would show up in
+the event testing list.
+
+    >>> notify(DummyEvent())
+    >>> getEvents()
+    [<Dummy event>]
+
+On test tear-down, the list is emptied again
+
+    >>> zca.EVENT_TESTING.testTearDown()
+    >>> zca.SANDBOX.testTearDown()
+
+    >>> getEvents()
+    []
+
+Layer tear-down does nothing.
+
+    >>> runner.tear_down_unneeded(options, [], setupLayers)
+    Tear down plone.testing.zca.EventTesting in ... seconds.
     Tear down plone.testing.zca.Sandbox in ... seconds.
