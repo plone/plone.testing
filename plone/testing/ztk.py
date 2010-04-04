@@ -52,7 +52,12 @@ class Placeless(Layer):
 PLACELESS = Placeless()
 
 class ZCMLDirectives(Layer):
-    """
+    """Enables the use of the ZCML directives from ``zope.app.publisher``
+    (most of the ``browser`` namespace, excluding viewlets), and
+    ``zope.security`` (the ``permission`` directive).
+    
+    Extends ``zca.ZCML_DIRECTIVES`` and uses its ``configurationContext``
+    resource.
     """
     
     __bases__ = (zca.ZCML_DIRECTIVES, PLACELESS,)
