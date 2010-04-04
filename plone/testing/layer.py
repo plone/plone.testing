@@ -1,4 +1,4 @@
-
+import sys
 _marker = object()
 
 class ResourceManager(object):
@@ -95,6 +95,10 @@ class Layer(ResourceManager):
         Pass a module to override the layer module. By default, it is the
         module of the layer class.
         """
+        
+        if self.__class__ is Layer and name is None:
+            raise ValueError('The "name" argument is required when instantiating `Layer` directly')
+        
         super(Layer, self).__init__()
         
         if bases is not None:
@@ -105,7 +109,15 @@ class Layer(ResourceManager):
         self.__name__ = name
         
         if module is None:
-            module = self.__class__.__module__
+            
+            # Get the module name of whatever instantiated the layer, not
+            # the class, by default
+            
+            try:
+                module = sys._getframe(1).f_globals['__name__']
+            except (ValueError, AttributeError, KeyError,):
+                module = self.__class__.__module__
+
         self.__module__ = module
     
     def __repr__(self):
