@@ -185,6 +185,40 @@ Also note the ``defaults`` option in the buildout configuration. This can be
 used to set default command line options. Some commonly useful options are
 shown above.
 
+Optional dependencies
+---------------------
+
+``plone.testing`` comes with a core set of tools for managing layers, which
+depends only on `zope.testing`_ and `unittest2`_. In addition, there are
+several layers and helper functions which can be used in your own tests (or
+as bases for your own layers). Some of these have deeper dependencies.
+However, these dependencies are optional. If you don't need the relevant code
+(and do not import from the relevant modules), they will not affect you.
+
+``plone.testing`` does specify these dependencies, however, using the
+``setuptools`` "extras" feature. This is mainly to aid internal testing of
+``plone.testing`` itself. If the extra layers and helpers are useful to you,
+you'll probably have the relevant dependencies declared directly in your own
+package anyway, so there's no need to use the extras.
+
+For the sake of completeness, though, the extras are:
+
+``zodb``
+    Depends on ``ZODB3``. The relevant layers and helpers are in the module
+    ``plone.testing.zodb``.
+``zca``
+    Depends on core Zope Component Architecture packages such as
+    ``zope.component`` and ``zope.event``. The relevant layers and helpers are
+    in the module ``plone.testing.zca``.
+``ztk``
+    Depends on some Zope Toolkit packages such as ``zope.container``,
+    ``zope.traversing`` and ``zope.password``. The relevant layers and helpers
+    are in the module ``plone.testing.ztk``.
+``z2``
+    Depends on the ``Zope2`` egg, which includes all the dependences of the 
+    Zope 2 application server. The relevant layers and helpers are in the
+    module ``plone.testing.z2``
+
 Coverage reporting
 ------------------
 
@@ -1081,24 +1115,25 @@ The net result is that each test has a clean global component registry. Thus,
 it is safe to use the `zope.component`_ Python API (``provideAdapter()``,
 ``provideUtility()``, ``provideHandler()`` and so on) to register components.
 
-Be careful about using this layer in combination with other layers. Because
+Be careful with using this layer in combination with other layers. Because
 it tears down the component registry between each test, it will clobber any
 layer that sets up more permanent test fixture in the component registry.
 
-Zope Component Architecture: Placeless setup
---------------------------------------------
+Zope Component Architecture: Event testing
+------------------------------------------
 
 +------------+--------------------------------------------------+
-| Layer:     | ``plone.testing.zca.PLACELESS``                  |
+| Layer:     | ``plone.testing.zca.EVENT_TESTING``              |
 +------------+--------------------------------------------------+
-| Class:     | ``plone.testing.zca.Placeless``                  |
+| Class:     | ``plone.testing.zca.EventTesting``               |
 +------------+--------------------------------------------------+
 | Bases:     | ``plone.testing.zca.SANDBOX``                    |
 +------------+--------------------------------------------------+
 | Resources: | None                                             |
 +------------+--------------------------------------------------+
 
-TODO - describe
+This layer extends the ``zca.SANDBOX`` layer to enable the ``eventtesting``
+support from ``zope.component``. See above for details.
 
 Zope Component Architecture: Basic ZCML directives
 --------------------------------------------------
@@ -1108,27 +1143,72 @@ Zope Component Architecture: Basic ZCML directives
 +------------+--------------------------------------------------+
 | Class:     | ``plone.testing.zca.ZCMLDirectives``             |
 +------------+--------------------------------------------------+
-| Bases:     | ``plone.testing.zca.PLACELESS``                  |
+| Bases:     | ``plone.testing.zca.SANDBOX``                    |
 +------------+--------------------------------------------------+
 | Resources: | ``configurationContext``                         |
 +------------+--------------------------------------------------+
 
-TODO - describe
+This layer extends the ``zca.SANDBOX`` layer to register a minimal set of
+ZCML directives, principally those found in the ``zope.component`` package
+itself. This allows custom ZCML to be loaded as described above.
 
-Zope Component Architecture: ZCML browser directives
-----------------------------------------------------
+The ``configurationContext`` resource should be used when loading custom
+ZCML. For example, if you were writing a ``setUp()`` method in a layer that
+had ``zca.ZCML_DIRECTIVES`` as a base, you could do:
+
+    context = self['configurationContext']
+    xmlconfig.string(someZCMLString, context=context)
+
+See above for more details about loading custom ZCML in a layer or test.
+
+Zope Toolkit: Placeless setup
+-----------------------------
 
 +------------+--------------------------------------------------+
-| Layer:     | ``plone.testing.zca.ZCML_BROWSER_DIRECTIVES``    |
+| Layer:     | ``plone.testing.ztk.PLACELESS``                  |
 +------------+--------------------------------------------------+
-| Class:     | ``plone.testing.zca.ZCMLBrowserDirectives``      |
+| Class:     | ``plone.testing.ztk.Basic``                      |
 +------------+--------------------------------------------------+
-| Bases:     | ``plone.testing.zca.ZCML_DIRECTIVES``            |
+| Bases:     | ``plone.testing.zca.SANDBOX``                    |
 +------------+--------------------------------------------------+
 | Resources: | None                                             |
 +------------+--------------------------------------------------+
 
-TODO - describe
+This layer sets up a minimal test fixture for testing code using the Zope
+Toolkit:
+
+* The ``zope.component.eventtesting`` hooks are installed (see above)
+* A name chooser is installed for ``zope.container``
+* A default ``IAbsoluteURL`` view is installed
+* A simple password manager using ``zope.password`` is set up, and 
+  a new interaction is started for each test, allowing basic security checks
+* ``zope.i18n`` is configured with basic charsets and languages
+* The vocabulary global registry is cleared before each test
+
+As it is based on the ``zca.SANDBOX`` layer, the component architecture is set
+up and torn down before/after each test
+
+Zope Toolkit: ZCML browser directives
+-------------------------------------
+
++------------+--------------------------------------------------+
+| Layer:     | ``plone.testing.ztk.ZCML_BROWSER_DIRECTIVES``    |
++------------+--------------------------------------------------+
+| Class:     | ``plone.testing.ztk.ZCMLBrowserDirectives``      |
++------------+--------------------------------------------------+
+| Bases:     | ``plone.testing.zca.ZCML_DIRECTIVES``            |
+|            +--------------------------------------------------+
+|            | ``plone.testing.ztk.PLACELESS``                  |
++------------+--------------------------------------------------+
+| Resources: | None                                             |
++------------+--------------------------------------------------+
+
+This layer combines the ``zca.ZCML_DIRECTIVES`` and ``ztk.PLACELESS`` layers,
+and installs additional ZCML directives in the ``browser`` namespace. This
+allows browser views, browser pages and other UI components to be registered.
+
+As with ``zca.ZCML_DIRECTIVES``, you should use the ``configurationContext``
+resource when loading ZCML strings or files.
 
 ZODB: Basic persistent sandbox
 ------------------------------
