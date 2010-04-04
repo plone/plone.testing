@@ -141,3 +141,73 @@ Layer tear-down does nothing.
     >>> runner.tear_down_unneeded(options, [], setupLayers)
     Tear down plone.testing.zca.EventTesting in ... seconds.
     Tear down plone.testing.zca.Sandbox in ... seconds.
+
+Basic ZCML directives
+---------------------
+
+The ZCML_DIRECTIVES layer extends the SANDBOX layer to add a ZCML
+configuration context with the basic ``zope.component`` directives available.
+
+    >>> "%s.%s" % (zca.ZCML_DIRECTIVES.__module__, zca.ZCML_DIRECTIVES.__name__,)
+    'plone.testing.zca.ZCMLDirectives'
+
+    >>> zca.ZCML_DIRECTIVES.__bases__
+    (<Layer 'plone.testing.zca.Sandbox'>,)
+
+Before the test, we cannot use e.g. a ``<utility />`` directive without
+loading the necessary ``meta.zcml`` files.
+
+    >>> from zope.configuration import xmlconfig
+    >>> xmlconfig.string("""\
+    ... <configure package="plone.testing" xmlns="http://namespaces.zope.org/zope">
+    ...     <utility factory=".tests.DummyUtility" provides="zope.interface.Interface" name="test-dummy" />
+    ... </configure>""")
+    Traceback (most recent call last):
+    ...
+    ZopeXMLConfigurationError: File "<string>", line 2.4
+        ConfigurationError: ('Unknown directive', u'http://namespaces.zope.org/zope', u'utility')
+
+Layer setup creates a configuration context we can use to load further
+configuration.
+
+    >>> options = runner.get_options([], [])
+    >>> setupLayers = {}
+    >>> runner.setup_layer(options, zca.ZCML_DIRECTIVES, setupLayers)
+    Set up plone.testing.zca.Sandbox in ... seconds.
+    Set up plone.testing.zca.ZCMLDirectives in ... seconds.
+
+Let's now simulate a test that uses this configuration context to load the
+same ZCML string.
+    
+    >>> zca.SANDBOX.testSetUp()
+    >>> zca.ZCML_DIRECTIVES.testSetUp()
+
+    >>> context = zca.ZCML_DIRECTIVES['configurationContext'] # would normally be self.layer['configurationContext']
+    >>> xmlconfig.string("""\
+    ... <configure package="plone.testing" xmlns="http://namespaces.zope.org/zope">
+    ...     <utility factory=".tests.DummyUtility" provides="zope.interface.Interface" name="test-dummy" />
+    ... </configure>""", context=context) is context
+    True
+    
+The utility is now registered:
+
+    >>> queryUtility(Interface, name="test-dummy")
+    <Dummy utility>
+
+On test tear-down, the component architecture is torn down courtesy of the 
+SANDBOX layer.
+
+    >>> zca.ZCML_DIRECTIVES.testTearDown()
+    >>> zca.SANDBOX.testTearDown()
+
+    >>> queryUtility(Interface, name="test-dummy") is None
+    True
+
+Layer tear-down deletes the configuration context resource.
+
+    >>> runner.tear_down_unneeded(options, [], setupLayers)
+    Tear down plone.testing.zca.ZCMLDirectives in ... seconds.
+    Tear down plone.testing.zca.Sandbox in ... seconds.
+
+    >>> zca.ZCML_DIRECTIVES.get('configurationContext', None) is None
+    True

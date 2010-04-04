@@ -14,6 +14,10 @@ import zope.component.testing
 def _canOutrunKlingons(warpDrive):
     return warpDrive.maxSpeed > 8.0
 
+class DummyUtility(object):
+    def __repr__(self):
+        return "<Dummy utility>"
+
 def test_suite():
     suite = unittest.TestSuite()
     suite.addTests([
