@@ -1,6 +1,12 @@
 plone.testing TODO
 ==================
 
+* Implement all layers and helpers listed in the reference in the README.
+
+* Revise README to reflect implementation as necessary
+
+* zope.security's ZCML directives should be part of a ZTK fixture
+
 * The Zope BASIC_SITE may need a non-administrative user by default
 
 * installProduct() is global and cannot be easily torn down. Maybe we need an

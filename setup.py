@@ -42,14 +42,19 @@ setup(name='plone.testing',
         'zca': [
                 'zope.component',
                 'zope.event',
+                'zope.configuration',
             ],
         'ztk': [
-                'zope.publisher',
-                'zope.traversing',
+                'zope.component',
+                'zope.interface',
                 'zope.container',
                 'zope.i18n',
-                'zope.schema',
                 'zope.password',
+                'zope.publisher',
+                'zope.traversing',
+                'zope.security',
+                'zope.schema',
+                'zope.app.publisher', # XXX: Can probably go away in Zope 2.13
             ],
         'z2': [
                 'Zope2',

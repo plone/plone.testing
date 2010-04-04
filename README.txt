@@ -1094,7 +1094,7 @@ Functional testing
 For functional tests that aim to simulate the browser, you can use
 `zope.testbrowser`_ in a Python test or doctest.
 
-    >>> from zope.testbrowser import Browser
+    >>> from zope.testbrowser.browser import Browser
 
 This provides a simple API to simulate browser input, without actually running
 a web server thread or scripting a live browser (as tools such as Windmill
@@ -1208,7 +1208,7 @@ Placeless setup
 +------------+--------------------------------------------------+
 | Layer:     | ``plone.testing.ztk.PLACELESS``                  |
 +------------+--------------------------------------------------+
-| Class:     | ``plone.testing.ztk.Basic``                      |
+| Class:     | ``plone.testing.ztk.Placeless``                  |
 +------------+--------------------------------------------------+
 | Bases:     | ``plone.testing.zca.EVENT_TESTING``              |
 +------------+--------------------------------------------------+
@@ -1229,13 +1229,13 @@ Toolkit:
 As it is based on the ``zca.SANDBOX`` layer, the component architecture is set
 up and torn down before/after each test
 
-ZCML browser directives
-~~~~~~~~~~~~~~~~~~~~~~~
+ZCML directives
+~~~~~~~~~~~~~~~
 
 +------------+--------------------------------------------------+
-| Layer:     | ``plone.testing.ztk.ZCML_BROWSER_DIRECTIVES``    |
+| Layer:     | ``plone.testing.ztk.ZCML_DIRECTIVES``            |
 +------------+--------------------------------------------------+
-| Class:     | ``plone.testing.ztk.ZCMLBrowserDirectives``      |
+| Class:     | ``plone.testing.ztk.ZCMLDirectives``             |
 +------------+--------------------------------------------------+
 | Bases:     | ``plone.testing.zca.ZCML_DIRECTIVES``            |
 |            +--------------------------------------------------+
@@ -1245,8 +1245,10 @@ ZCML browser directives
 +------------+--------------------------------------------------+
 
 This layer combines the ``zca.ZCML_DIRECTIVES`` and ``ztk.PLACELESS`` layers,
-and installs additional ZCML directives in the ``browser`` namespace. This
-allows browser views, browser pages and other UI components to be registered.
+and installs additional ZCML directives in the ``browser`` namespace 
+(from ``zope.app.publisher.browser``) as well as those from ``zope.security``.
+This allows browser views, browser pages and other UI components to be
+registered, as well as the definition of new permissions.
 
 As with ``zca.ZCML_DIRECTIVES``, you should use the ``configurationContext``
 resource when loading ZCML strings or files.
