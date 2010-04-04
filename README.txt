@@ -199,10 +199,10 @@ If you always want test coverage, you can add the coverage options to the
 
     defaults = ['--exit-with-status', '--auto-color', '--auto-progress', '--coverage', '../../coverage']
 
-The coverage reporter will print a summary to the console, indicating percentage
-coverage for each module, and write detailed information to the ``coverage``
-directory as specified. For a more user-friendly report, you can use the
-`z3c.coverage`_ tool to turn the coverage report into HTML.
+The coverage reporter will print a summary to the console, indicating
+percentage coverage for each module, and write detailed information to the
+``coverage`` directory as specified. For a more user-friendly report, you can
+use the `z3c.coverage`_ tool to turn the coverage report into HTML.
 
 To install `z3c.coverage`_, you can use a buildout part like the following::
 
@@ -222,8 +222,8 @@ After re-running buildout, you can convert the contents of an existing
 
     $ bin/coveragereport
 
-As you might have guessed, the ``arguments`` option specifies the "raw" coverage
-report directory, and the output directory for the HTML report.
+As you might have guessed, the ``arguments`` option specifies the "raw"
+coverage report directory, and the output directory for the HTML report.
 
 Layers
 ======
@@ -239,13 +239,13 @@ We'll discuss the last two items here.
 Layer basics
 ------------
 
-Layers are used to create test fixtures that are shared by multiple test cases.
-For example, if you are writing a set of integration tests, you may need to set
-up a database and configure various components to access that database. This
-type of test fixture setup can be resource-intensive and time-consuming. If it
-is possible to only perform the setup and tear-down once for a set of tests
-without losing isolation between those tests, test runs can often be sped up
-significantly.
+Layers are used to create test fixtures that are shared by multiple test
+cases. For example, if you are writing a set of integration tests, you may
+need to set up a database and configure various components to access that
+database. This type of test fixture setup can be resource-intensive and
+time-consuming. If it is possible to only perform the setup and tear-down once
+for a set of tests without losing isolation between those tests, test runs can
+often be sped up significantly.
 
 At the most basic, a layer is an object with the following methods and
 attributes:
@@ -265,15 +265,15 @@ attributes:
 ``__bases__``
     A tuple of base layers.
 
-Each test case is associated with zero or one layer. (The syntax for specifying
-the layer is shown in the section "Writing tests" below.) All the tests
-associated with a given layer will be executed together.
+Each test case is associated with zero or one layer. (The syntax for
+specifying the layer is shown in the section "Writing tests" below.) All the
+tests associated with a given layer will be executed together.
 
-Layers can depend on one another (as indicated in the ``__bases__`` tuple). Base
-layers are set up before and torn down after their dependants. For example, if
-the test runner is executing some tests that belong to layer A, and some other
-tests that belong to layer B, both of which depend on layer C, the order of
-execution might be::
+Layers can depend on one another (as indicated in the ``__bases__`` tuple).
+Base layers are set up before and torn down after their dependants. For
+example, if the test runner is executing some tests that belong to layer A,
+and some other tests that belong to layer B, both of which depend on layer C,
+the order of execution might be::
 
     1. C.setUp()
     1.1. A.setUp()
@@ -322,8 +322,8 @@ implement the ``setUp()``, ``tearDown()``, ``testSetUp()`` and
 implementation of each does nothing.
 
 By convention, layers are created in a module called ``testing.py`` at the top
-level of your package. The idea is that other packages that extend your package
-can re-use your layers for their own testing.
+level of your package. The idea is that other packages that extend your
+package can re-use your layers for their own testing.
 
 A simple layer may look like this:
 
@@ -348,14 +348,14 @@ A simple layer may look like this:
     layer base class used in this manner with the concept of a *base layer* as
     documented above.
     
-    Also note that the `zope.testing`_ documentation contains examples of layers
-    that are "old-style" classes where the ``setUp()`` and ``tearDown()``
-    methods are ``classmethod``s and class inheritance syntax is used to specify
-    base layers. Whilst this pattern works, we discourage its use, because the
-    classes created using this pattern are not really used as classes. The
-    concept of layer inheritance is slightly different from class inheritance,
-    and using the ``class`` keyword to create layers with base layers leads to a
-    number of "gotchas" that are best avoided.
+    Also note that the `zope.testing`_ documentation contains examples of
+    layers that are "old-style" classes where the ``setUp()`` and
+    ``tearDown()`` methods are ``classmethod``s and class inheritance syntax
+    is used to specify base layers. Whilst this pattern works, we discourage
+    its use, because the classes created using this pattern are not really
+    used as classes. The concept of layer inheritance is slightly different
+    from class inheritance, and using the ``class`` keyword to create layers
+    with base layers leads to a number of "gotchas" that are best avoided.
 
 Before this layer can be used, it must be instantiated. Layers are normally
 instantiated exactly once, since by nature they are shared between tests. This
@@ -490,19 +490,19 @@ the child layer accesses and modifies the object, it will modify the original.
     **Note:** It is sometimes necessary (or desirable) to modify a shared
     resource in a child layer, as shown in the example above. In this case,
     however, it is very important to restore the original state when the layer
-    is torn down. Otherwise, other layers or tests using the base layer directly
-    may be affected in difficult-to-debug ways.
+    is torn down. Otherwise, other layers or tests using the base layer
+    directly may be affected in difficult-to-debug ways.
 
 If the same key is used in multiple base layers, the rules for choosing which
 version to use are similar to those that apply when choosing an attribute or
 method to use in the case of multiple inheritance.
 
-In the example above, we used the resource manager for the ``warpDrive`` object,
-but we assigned the ``previousMaxSpeed`` variable to ``self``.  This is because
-``previousMaxSpeed`` is internal to the layer and should not be shared with
-any other layers that happen to use this layer as a base. Nor should it be used
-by any test cases. Conversely, ``warpDrive`` is a shared resource that is
-exposed to other layers and test cases.
+In the example above, we used the resource manager for the ``warpDrive``
+object, but we assigned the ``previousMaxSpeed`` variable to ``self``. This is
+because ``previousMaxSpeed`` is internal to the layer and should not be shared
+with any other layers that happen to use this layer as a base. Nor should it
+be used by any test cases. Conversely, ``warpDrive`` is a shared resource that
+is exposed to other layers and test cases.
 
 The distinction becomes even more important when you consider how a test case
 may access the shared resource. We'll discuss how to write test cases that use
@@ -523,7 +523,6 @@ actually initiated by the ``ConstitutionClassSpaceShip`` base layer.
 If, however, the base layer had assigned the resource as an instance variable,
 it would not inherit to child layers (remember: layer bases are not base
 classes!). The syntax to access it would be::
-
 
     self.layer.__bases__[0].warpDrive
     
@@ -566,8 +565,8 @@ In Python 2.7+, the ``unittest`` module has grown several new and useful
 features. To make use of these in Python 2.4, 2.5 and 2.6, an add-on module
 called `unittest2`_ can be installed. Simply replace all uses of the
 ``unittest`` module with ``unittest2``. ``plone.testing`` depends on
-``unittest2`` (and uses it for its own tests), so you will have access to it if
-you depend on ``plone.testing``.
+``unittest2`` (and uses it for its own tests), so you will have access to it
+if you depend on ``plone.testing``.
 
 We will use ``unittest2`` for the examples in this document, but import it
 with an alias of ``unittest``. This makes the code forward compatible with
@@ -594,10 +593,11 @@ place to construct and clean up test fixtures without writing a custom layer.
 They are obviously not as re-usable as layers, though.
 
 A layer can be specified by setting the ``layer`` class attribute to a layer
-instance. If layers are used in conjunction with ``setUp()`` and ``tearDown()``
-methods in the test class itself, the class' ``setUp()`` method will be called
-after the layer's ``setUpTest()`` method, and the class' ``tearDown()`` method
-will be called before the layer's ``tearDownTest()`` method.
+instance. If layers are used in conjunction with ``setUp()`` and
+``tearDown()`` methods in the test class itself, the class' ``setUp()`` method
+will be called after the layer's ``setUpTest()`` method, and the class'
+``tearDown()`` method will be called before the layer's ``tearDownTest()``
+method.
 
 The ``TestCase`` base class contains a number of methods which can be used to
 write assertions. They all take the form ``self.assertSomething()``, e.g.
@@ -630,16 +630,17 @@ Putting this together, let's expand on our previous example unit test:
 A few things to note:
 
 * The class derives from ``unittest.TestCase``.
-* The ``layer`` class attribute is set to a layer instance (not a layer class!)
-  defined previously. This would typically be imported from a ``testing``
-  module.
+* The ``layer`` class attribute is set to a layer instance (not a layer
+  class!) defined previously. This would typically be imported from a
+  ``testing`` module.
 * We have used the ``setUp()`` method to fetch the ``warpDrive`` resource and
   ensure that it is stopped before each test is executed. Assigning a variable
-  to ``self`` is a useful way to provide some state to each test method, though
-  be careful about data leaking between tests: in general, you cannot predict
-  the order in which tests will run, and tests should always be independent.
-* We have used the ``tearDown()`` method to make sure the warp drive is really
-  stopped after each test.
+  to ``self`` is a useful way to provide some state to each test method,
+  though be careful about data leaking between tests: in general, you cannot
+  predict the order in which tests will run, and tests should always be
+  independent.
+* We have used the ``tearDown()`` method to make sure the warp
+  drive is really stopped after each test.
 * There are two tests here: ``test_warp8()`` and ``test_max_speed()``.
 * We have used the ``self.assertEqual()`` assertion in both tests to check the
   result of executing the ``start()`` method on the warp drive.
@@ -652,8 +653,8 @@ one above is all you need: any class deriving from ``TestCase`` in a module
 with a name starting with ``test`` will be examined for test methods. Those
 tests are then collected into a test suite and executed.
 
-With older versions of `zope.testing`_, you need to add a ``test_suite()``
-in each module that returns the tests in the test suite. The `unittest`_ module
+With older versions of `zope.testing`_, you need to add a ``test_suite()`` in
+each module that returns the tests in the test suite. The `unittest`_ module
 contains several tools to construct suites, but one of the simplest is to use
 the default test loader and load all tests in the current module:
 
@@ -686,9 +687,9 @@ Doctests
 
 Doctests can be written in two ways: as the contents of a docstring (usually,
 but not always, as a means of illustrating and testing the functionality of
-the method or class where the docstring appears), or as a separate text file. In
-both cases, the standard `doctest`_ module is used. See its documentation for
-details about doctest syntax and conventions.
+the method or class where the docstring appears), or as a separate text file.
+In both cases, the standard `doctest`_ module is used. See its documentation
+for details about doctest syntax and conventions.
 
 Docstring doctests
 ~~~~~~~~~~~~~~~~~~
