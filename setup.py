@@ -37,6 +37,8 @@ setup(name='plone.testing',
             ],
         'zope': [
                 'zope.component',
+                'zope.event',
+                'zope.container',
             ],
         'Zope2': [
                 'Zope2',

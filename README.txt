@@ -5,15 +5,16 @@ Introduction
 
 ``plone.testing`` provides tools for writing unit and integration tests in a
 Zope and Plone environment. It is not tied to Plone, and it does not depend on
-Zope 2 (although it will provide some additional tools if you are using Zope 2).
+Zope 2 (although it will provide some additional tools if you are using Zope
+2).
 
 ``plone.testing`` builds on `zope.testing`_, in particular its layers concept.
 This package also aims to promote some "good practice" for writing tests of
 various types.
 
-    **Note:** If you are working with Plone, there is also `plone.app.testing`_,
-    which builds on ``plone.testing`` to provide additional layers useful for
-    testing Plone add-on products.
+    **Note:** If you are working with Plone, there is also
+    `plone.app.testing`_, which builds on ``plone.testing`` to provide
+    additional layers useful for testing Plone add-on products.
 
 If you are new to automated testing and test driven development, you should
 spend some time learning about those concepts. Some useful references include:
@@ -22,8 +23,8 @@ spend some time learning about those concepts. Some useful references include:
 * `The Dive Into Python chapter on testing <http://diveintopython.org/unit_testing/index.html>`_
 
 Bear in mind that different Python frameworks have slightly different takes on
-how to approach testing. Therefore, you may find examples that are different to
-those shown below. The core concepts should be consistent, however.
+how to approach testing. Therefore, you may find examples that are different
+to those shown below. The core concepts should be consistent, however.
 
 Definitions
 -----------
@@ -41,64 +42,65 @@ Unit test
 Integration test
     An automated test that tests how a number of units interact. In a Zope
     context, this often pertains to how a particular object or view interacts
-    with the Zope framework, the ZODB persistence engine, and so on. Integration
-    tests usually require some setup and can be slower to run than unit tests.
-    It is common to have fewer integration tests than unit test.
+    with the Zope framework, the ZODB persistence engine, and so on.
+    Integration tests usually require some setup and can be slower to run than
+    unit tests. It is common to have fewer integration tests than unit test.
 Functional test
-    An automated test that tests a feature in an "end-to-end" fashion. In a Zope
-    context, that normally means that it invokes an action in the same way
-    that a user would, i.e. through a web request.Functional tests are normally
-    slower to run than either unit or integration tests, and can be
+    An automated test that tests a feature in an "end-to-end" fashion. In a
+    Zope context, that normally means that it invokes an action in the same
+    way that a user would, i.e. through a web request.Functional tests are
+    normally slower to run than either unit or integration tests, and can be
     significantly slower to run. It is therefore common to have only a few
     functional tests for each major feature, relying on unit and integration
     tests for the bulk of testing.
 Black box testing
     Testing which only considers the system's defined inputs and outputs. For
-    example, a functional test is normally a black box test that provides inputs
-    only through the defined interface (e.g. URLs published in a web
-    application), and makes assertions only on end outputs (e.g. the
-    response returned for requests to those URLs).
+    example, a functional test is normally a black box test that provides
+    inputs only through the defined interface (e.g. URLs published in a web
+    application), and makes assertions only on end outputs (e.g. the response
+    returned for requests to those URLs).
 White box testing
     Testing which examines the internal state of a system to make assertions.
-    Authors of unit and integration tests normally have significant knowledge of
-    the implementation of the code under test, and can examine such things as
-    data in a database or changes to the system's environment to determine
+    Authors of unit and integration tests normally have significant knowledge
+    of the implementation of the code under test, and can examine such things
+    as data in a database or changes to the system's environment to determine
     if the test succeeded or failed.
 Assertion
     A check that determines whether a test succeeds or fails. For example, if
     a unit test for the function ``foo()`` expects it to return the value 1,
-    an assertion could be written to verify this fact. A test is said to *fail*
-    if any of its assertions fail. A test always contains one or more
+    an assertion could be written to verify this fact. A test is said to
+    *fail* if any of its assertions fail. A test always contains one or more
     assertions.
 Test case
     A single unit, integration or functional test. Often shortened to just
-    *test*. A test case sets up, executes and makes assertions against a single
-    scenario that bears testing.
+    *test*. A test case sets up, executes and makes assertions against a
+    single scenario that bears testing.
 Test fixture
     The state used as a baseline for one or more tests. The test fixture is
-    *set up* before each test is executed, and *torn down* afterwards. This
-    is a pre-requisite for *test isolation* - the principle that tests should
-    be independent of one another.
+    *set up* before each test is executed, and *torn down* afterwards. This is
+    a pre-requisite for *test isolation* - the principle that tests should be
+    independent of one another.
 Layer
     The configuration of a test fixture shared by a number of tests. All test
-    cases that belong to a particular layer will be executed together. The layer
-    is *set up* once before the tests are executed, and *torn down* once after.
-    Layers may depend on one another. Any *base layers* are set up before and
-    torn down after a particular *child layer* is used. The test runner will
-    order test execution to minimise layer setup and tear-down.
+    cases that belong to a particular layer will be executed together. The
+    layer is *set up* once before the tests are executed, and *torn down* once
+    after. Layers may depend on one another. Any *base layers* are set up
+    before and torn down after a particular *child layer* is used. The test
+    runner will order test execution to minimise layer setup and tear-down.
 Test suite
     A collection of test cases (and layers) that are executed together.
 Test runner
-    The program which executes tests. This is responsible for calling layer and
-    test fixture set-up and tear-down methods. It also reports on the test run,
-    usually by printing output to the console.
+    The program which executes tests. This is responsible for calling layer
+    and test fixture set-up and tear-down methods. It also reports on the test
+    run, usually by printing output to the console.
 Coverage
-    To have confidence in your code, you should ensure it is adequately covered
-    by tests. That is, each line of code, and each possible branching point
-    (loops, ``if`` statements) should be executed by a test. This is known as
-    *coverage*, and is normally measured as a percentage of lines of non-test
-    code covered by tests. Coverage can be measured by the test runner, which
-    keeps track of which lines of code were executed in a given test run.
+    To have confidence in your code, you should ensure it is adequately
+    covered by tests. That is, each line of code, and each possible branching
+    point (loops, ``if`` statements) should be executed by a test. This is
+    known as *coverage*, and is normally measured as a percentage of lines of
+    non-test code covered by tests. Coverage can be measured by the test
+    runner, which keeps track of which lines of code were executed in a given
+    test run.
 Doctest
     A style of testing where tests are written as examples that could be typed
     into the interactive Python interpreter. The test runner executes each
@@ -113,9 +115,10 @@ Installation and usage
 ======================
 
 To use ``plone.testing`` in your own package, you need to add it as a
-dependency. Most people prefer to keep test-only dependencies separate, so that
-they do not need to be installed in scenarios (such as on a production server)
-where the tests will not be run. This can be achieved using a ``tests`` extra.
+dependency. Most people prefer to keep test-only dependencies separate, so
+that they do not need to be installed in scenarios (such as on a production
+server) where the tests will not be run. This can be achieved using a
+``tests`` extra.
 
 In ``setup.py``, add or modify the ``extras_require`` option, like so::
 
@@ -127,9 +130,9 @@ In ``setup.py``, add or modify the ``extras_require`` option, like so::
 
 You can add other test-only dependencies to that list as well, of course.
 
-To run tests, you need a test runner. If you are using ``zc.buildout``, you can
-install a test runner using the `zc.recipe.testrunner`_ recipe. For example, you
-could add the following to your ``buildout.cfg``::
+To run tests, you need a test runner. If you are using ``zc.buildout``, you
+can install a test runner using the `zc.recipe.testrunner`_ recipe. For
+example, you could add the following to your ``buildout.cfg``::
 
     [test]
     recipe = zc.recipe.testrunner
@@ -147,29 +150,30 @@ You'll also need to add this part to the ``parts`` list, of course::
 In this example, have listed a single package to test, called ``my.package``,
 and asked for it to be installed with the ``[tests]`` extra. This will install
 any regular dependencies (listed in the ``install_requires`` option in
-``setup.py``), as well as those in the list associated with the ``tests`` key in
-the ``extras_require`` option.
+``setup.py``), as well as those in the list associated with the ``tests`` key
+in the ``extras_require`` option.
 
-Note that it becomes important to properly list your dependencies here, because
-the test runner will only be aware of the packages explicitly listed, and their
-dependencies. For example, if your package depends on Zope 2, you need to list
-``Zope2`` in the ``install_requires`` list in ``setup.py``; ditto for ``Plone``,
-or indeed any other package you import from.
+Note that it becomes important to properly list your dependencies here,
+because the test runner will only be aware of the packages explicitly listed,
+and their dependencies. For example, if your package depends on Zope 2, you
+need to list ``Zope2`` in the ``install_requires`` list in ``setup.py``; ditto
+for ``Plone``, or indeed any other package you import from.
 
-Once you have re-run buildout, the test runner will be installed as ``bin/test`` 
-(the executable name is taken from the name of the buildout part). You can run
-it without arguments to run all tests of each egg listed in the ``eggs`` list::
+Once you have re-run buildout, the test runner will be installed as
+``bin/test`` (the executable name is taken from the name of the buildout
+part). You can run it without arguments to run all tests of each egg listed in
+the ``eggs`` list::
 
     $ bin/test
 
-If you have listed several eggs, and you want to run the tests for a particular
-one, you can do::
+If you have listed several eggs, and you want to run the tests for a
+particular one, you can do::
 
     $ bin/test -s my.package
 
 If you want to run only a particular test within this package, use the ``-t``
-option. This can be passed a regular expression matching either a doctest
-file name or a test method name.
+option. This can be passed a regular expression matching either a doctest file
+name or a test method name.
 
     $ bin/test -s my.package -t test_spaceship
 
