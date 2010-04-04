@@ -1,2 +1,2 @@
-"""Core Zope/ZTK-specific helpers and layers
+"""Core Zope Component Architecture helpers and layers
 """

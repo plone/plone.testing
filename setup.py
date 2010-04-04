@@ -35,12 +35,22 @@ setup(name='plone.testing',
                 'zope.publisher',
                 'zope.configuration',
             ],
-        'zope': [
+        'zodb': [
+                'ZODB3',
+            ],
+        'zca': [
                 'zope.component',
                 'zope.event',
-                'zope.container',
             ],
-        'Zope2': [
+        'ztk': [
+                'zope.publisher',
+                'zope.traversing',
+                'zope.container',
+                'zope.i18n',
+                'zope.schema',
+                'zope.password',
+            ],
+        'z2': [
                 'Zope2',
             ]
       },
