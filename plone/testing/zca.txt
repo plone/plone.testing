@@ -12,8 +12,8 @@ For testing, we need a testrunner
 Sandbox layer
 -------------
 
-The SANDBOX layer is used to set up a clean component registry between each
-test. It uses ``zope.testing.cleanup`` to clean up all global state.
+The ``SANDBOX`` layer is used to set up a clean component registry between
+each test. It uses ``zope.testing.cleanup`` to clean up all global state.
 
 It has no bases:
 
@@ -81,7 +81,7 @@ Layer tear-down does nothing.
 Event testing
 -------------
 
-The EVENT_TESTING layer extends the SANDBOX layer to add the necessary
+The ``EVENT_TESTING`` layer extends the ``SANDBOX`` layer to add the necessary
 registrations for ``zope.component.eventtesting`` to work.
 
     >>> "%s.%s" % (zca.EVENT_TESTING.__module__, zca.EVENT_TESTING.__name__,)
@@ -145,7 +145,7 @@ Layer tear-down does nothing.
 Basic ZCML directives
 ---------------------
 
-The ZCML_DIRECTIVES layer extends the SANDBOX layer to add a ZCML
+The ``ZCML_DIRECTIVES`` layer extends the ``SANDBOX`` layer to add a ZCML
 configuration context with the basic ``zope.component`` directives available.
 
     >>> "%s.%s" % (zca.ZCML_DIRECTIVES.__module__, zca.ZCML_DIRECTIVES.__name__,)

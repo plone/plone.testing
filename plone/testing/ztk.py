@@ -37,7 +37,7 @@ class Placeless(Layer):
         from zope.traversing.browser.interfaces import IAbsoluteURL
         from zope.traversing.browser.absoluteurl import AbsoluteURL
         
-        provideAdapter(AbsoluteURL, adapts=(Interface, IDefaultBrowserLayer,), name="absolute_url")
+        provideAdapter(AbsoluteURL, adapts=(Interface, IDefaultBrowserLayer,), provides=Interface, name="absolute_url")
         provideAdapter(AbsoluteURL, adapts=(Interface, IDefaultBrowserLayer,), provides=IAbsoluteURL)
 
         from zope.security.testing import addCheckerPublic
@@ -45,9 +45,6 @@ class Placeless(Layer):
 
         from zope.security.management import newInteraction
         newInteraction()
-        
-        from zope.schema.vocabulary import setVocabularyRegistry
-        setVocabularyRegistry(None)
 
 PLACELESS = Placeless()
 

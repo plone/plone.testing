@@ -1218,16 +1218,15 @@ Placeless setup
 This layer sets up a minimal test fixture for testing code using the Zope
 Toolkit:
 
-* The ``zope.component.eventtesting`` hooks are installed (see above)
 * A name chooser is installed for ``zope.container``
 * A default ``IAbsoluteURL`` view is installed
-* A simple password manager using ``zope.password`` is set up, and 
-  a new interaction is started for each test, allowing basic security checks
+* The default password managers in ``zope.password`` are set up
+* The ``zope.Public`` permission is installed
+* A new interaction is started for each test, allowing basic security checks
 * ``zope.i18n`` is configured with basic charsets and languages
-* The vocabulary global registry is cleared before each test
 
 As it is based on the ``zca.SANDBOX`` layer, the component architecture is set
-up and torn down before/after each test
+up and torn down before/after each test.
 
 ZCML directives
 ~~~~~~~~~~~~~~~
