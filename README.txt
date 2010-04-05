@@ -1262,6 +1262,11 @@ registered, as well as the definition of new permissions.
 As with ``zca.ZCML_DIRECTIVES``, you should use the ``configurationContext``
 resource when loading ZCML strings or files.
 
+**Warning:** This layer does not properly tear down the
+``configurationContext`` resource. After layer tear-down, the additional
+directives installed on layer setup are still present in the configuration
+context.
+
 ZODB
 ----
 
