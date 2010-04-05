@@ -535,11 +535,21 @@ As shown, layers (that derive from ``plone.testing.Layer``) support item
 (dict-like) assignment, access and deletion of arbitrary resources under
 string keys.
 
+    **Important:** If a layer creates a resource (by assigning an object to
+    a key on ``self`` as shown above) during fixture setup-up, it must also
+    delete the resource on tear-down. Set-up and deletion should be symmetric:
+    if the resource is assigned during ``setUp()`` it should be deleted in
+    ``tearDown()``; if it's created in ``testSetUp()`` it should be deleted
+    in ``testTearDown()``.
+
 A resource defined in a base layer is accessible through a child layer. If a
 resource is set on a child using a key that also exists in a base layer, the
-child version will shadow the base version when that key is used on the child
-layer, but the base layer version is intact. Conversely, if (as shown above)
-the child layer accesses and modifies the object, it will modify the original.
+child version will shadow the base version until the child layer is torn down
+(presuming it deletes the resource, which it should), but the base layer
+version remains intact.
+
+Conversely, if (as shown above) the child layer accesses and modifies the
+object, it will modify the original.
 
     **Note:** It is sometimes necessary (or desirable) to modify a shared
     resource in a child layer, as shown in the example above. In this case,
