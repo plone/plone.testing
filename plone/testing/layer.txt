@@ -140,7 +140,7 @@ Layers are also resource managers. Resources can be set, retrieved and
 deleted using dictionary syntax. Resources in base layers are available in
 child layers. When an item is set on a child layer, it shadows any items with
 the same key in any base layer (until it is deleted), but the original item
-still exists and is accessible from the base layer directly.
+still exists.
 
 Let's create a somewhat complex hierarchy of layers that all set resources
 under a key ``'foo'`` in their ``setUp()`` methods.
@@ -148,24 +148,37 @@ under a key ``'foo'`` in their ``setUp()`` methods.
     >>> class Layer1(Layer):
     ...     def setUp(self):
     ...         self['foo'] = 1
+    ...     def tearDown(self):
+    ...         del self['foo']
     >>> LAYER1 = Layer1()
 
     >>> class Layer2(Layer):
     ...     __bases__ = (LAYER1,)
     ...     def setUp(self):
     ...         self['foo'] = 2
+    ...     def tearDown(self):
+    ...         del self['foo']
     >>> LAYER2 = Layer2()
 
     >>> class Layer3(Layer):
     ...     def setUp(self):
     ...         self['foo'] = 3
+    ...     def tearDown(self):
+    ...         del self['foo']
     >>> LAYER3 = Layer3()
 
     >>> class Layer4(Layer):
     ...     __bases__ = (LAYER2, LAYER3,)
     ...     def setUp(self):
     ...         self['foo'] = 4
+    ...     def tearDown(self):
+    ...         del self['foo']
     >>> LAYER4 = Layer4()
+
+    **Important:** Resources that are created in ``setUp()`` must be deleted
+    in ``tearDown()``. Similarly, resources created in ``testSetUp()`` must
+    be deleted in ``testTearDown()``. This ensures resources are properly
+    stacked and do not leak between layers.
 
 If a test was using ``LAYER4``, the test runner would call each setup step in
 turn, starting with the "deepest" layer. We'll simulate that here, so that
@@ -175,20 +188,6 @@ each of the resources is created.
     >>> LAYER2.setUp()
     >>> LAYER3.setUp()
     >>> LAYER4.setUp()
-
-Each layer maintains its own resources.
-
-    >>> LAYER1._resources
-    {'foo': 1}
-    
-    >>> LAYER2._resources
-    {'foo': 2}
-    
-    >>> LAYER3._resources
-    {'foo': 3}
-    
-    >>> LAYER4._resources
-    {'foo': 4}
 
 The layers are ordered in a known "resource resolution order", which is used
 to determine in which order the layers shadow one another. This is based on
@@ -207,25 +206,26 @@ resource resolution order.
     4
 
 This is not terribly interesting, since ``LAYER4`` has the resource ``'foo'``
-set directly. Let's delete that and see where it goes next.
+set directly. Let's tear down the layer (which deletes the resource) and see
+what happens.
 
-    >>> del LAYER4['foo']
+    >>> LAYER4.tearDown()
     >>> LAYER4['foo']
     2
 
 We can continue up the chain:
 
-    >>> del LAYER2['foo']
+    >>> LAYER2.tearDown()
     >>> LAYER4['foo']
     1
 
-    >>> del LAYER1['foo']
+    >>> LAYER1.tearDown()
     >>> LAYER4['foo']
     3
 
 Once we've deleted the last key, we'll get a ``KeyError``:
 
-    >>> del LAYER3['foo']
+    >>> LAYER3.tearDown()
     >>> LAYER4['foo']
     Traceback (most recent call last):
     ...
@@ -236,12 +236,92 @@ To guard against this, we can use the ``get()`` method.
     >>> LAYER4.get('foo', -1)
     -1
 
+We can also test with 'in':
+
+    >>> 'foo' in LAYER4
+    False
+
 To illustrate that this indeed works, let's set the resource back on one
 of the bases.
 
     >>> LAYER3['foo'] = 10
     >>> LAYER4.get('foo', -1)
     10
+
+Let's now consider a special case: a base layer sets up a resource in layer
+setup, and uses it in test setup. A child layer then shadows this resource in
+its own layer setup method. In this case, we want the base layer's
+``testSetUp()`` to use the shadowed version that the child provided. (This is
+similar to how instance variables work: a base class may set an attribute on
+``self`` and use it in a method. If a subclass then sets the same attribute to
+a different value and the base class method is called on an instance of the
+subclass, the base class attribute is used).
+
+    *Hint:* If you definitely need to access the "original" resource in your
+    ``testSetUp()``/``testTearDown()`` methods, you can store a reference to
+    the resource as a layer instance variable::
+    
+        self.someResource = self['someResource'] = SomeResource()
+    
+    ``self.someResource`` will now be the exact resource created here, whereas
+    ``self['someResource']`` will retain the layer shadowing semantics. In
+    most cases, you probably *don't* want to do this, allowing child layers to
+    supply overridden versions of resources as appropriate.
+
+First, we'll create a base layer.
+
+    >>> class ResourceBaseLayer(Layer):
+    ...     def setUp(self):
+    ...         self['resource'] = "Base"
+    ...     def testSetUp(self):
+    ...         print self['resource']
+    ...     def tearDown(self):
+    ...         del self['resource']
+    
+    >>> RESOURCE_BASE_LAYER = ResourceBaseLayer()
+
+We'll then create the child layer that overrides this resource.
+
+    >>> class ResourceChildLayer(Layer):
+    ...     __bases__ = (RESOURCE_BASE_LAYER,)
+    ...     def setUp(self):
+    ...         self['resource'] = "Child"
+    ...     def tearDown(self):
+    ...         del self['resource']
+    
+    >>> RESOURCE_CHILD_LAYER = ResourceChildLayer()
+    
+We'll first set up the base layer on its own and simulate a test.
+
+    >>> RESOURCE_BASE_LAYER.setUp()
+
+    >>> RESOURCE_BASE_LAYER.testSetUp()
+    Base
+    >>> RESOURCE_BASE_LAYER.testTearDown()
+
+Now let's set up the child layer and simulate another test. We should now be
+using the shadowed resource.
+    
+    >>> RESOURCE_CHILD_LAYER.setUp()
+
+    >>> RESOURCE_BASE_LAYER.testSetUp()
+    Child
+    >>> RESOURCE_CHILD_LAYER.testSetUp()
+    >>> RESOURCE_CHILD_LAYER.testTearDown()
+    >>> RESOURCE_BASE_LAYER.testTearDown()
+
+Finally, we'll tear down the child layer again and simulate another test.
+we should have the original resource back.
+
+    >>> RESOURCE_CHILD_LAYER.tearDown()
+
+    >>> RESOURCE_BASE_LAYER.testSetUp()
+    Base
+    >>> RESOURCE_BASE_LAYER.testTearDown()
+
+Finally, we'll tear down the base layer.
+
+    >>> RESOURCE_BASE_LAYER.tearDown()
 
 Doctest layer helper
 ====================

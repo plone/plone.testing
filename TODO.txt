@@ -1,19 +1,16 @@
 plone.testing TODO
 ==================
 
-* It may be necessary to change the resource manager slightly. Consider
-  this scenario:
-  
-    - A layer based on EMPTY_ZODB wants to change the storage
-    - It creates a new DB object and sets it to shadow self['zodbDB']
-    - The EMPTY_ZODB layer uses self['zodbDB'] in testSetUp()
-    - It should use the shadow, not the original version
-    
-  To support this, we can store resources in a single map.
+* In layer.txt: LAYER1, LAYER2, and LAYER4 share a resource manager,
+  but LAYER3 has its own. This means shadowing works for testSetUp() methods
+  in LAYER1 and LAYER2, but not in LAYER3, since it'll never see the shadowed
+  resource.
 
 * Implement all layers and helpers listed in the reference in the README.
-
 * Revise README to reflect implementation as necessary
+
+* Document how to use DemoStorage push/pop to create ZODB sandboxes in
+  zodb.txt and/or README.txt
 
 * The Zope BASIC_SITE may need a non-administrative user by default
 

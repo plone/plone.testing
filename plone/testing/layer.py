@@ -2,7 +2,7 @@ import sys
 _marker = object()
 
 class ResourceManager(object):
-    """Mixin class for 
+    """Mixin class for resource managers.
     """
     
     __bases__ = ()
@@ -10,34 +10,82 @@ class ResourceManager(object):
     def __init__(self):
         self._resources = {}
     
+    def get(self, key, default=None):
+        for resourceManager in self.resourceResolutionOrder():
+            if key in resourceManager._resources:
+                # Get the value on the top of the stack
+                return resourceManager._resources[key][-1][0]
+        return default
+    
+    # Dict API
+    
     def __getitem__(self, key):
         item = self.get(key, _marker)
         if item is _marker:
             raise KeyError(key)
         return item
     
-    def get(self, key, default=None):
-        for resourceManager in self.resourceResolutionOrder():
-            if key in resourceManager._resources:
-                return resourceManager._resources[key]
-        return default
+    def __contains__(self, key):
+        return self.get(key, _marker) is not _marker
     
     def __setitem__(self, key, value):
-        self._resources[key] = value
+        foundStack = False
+        
+        for resourceManager in self.resourceResolutionOrder():
+            if key in resourceManager._resources:
+                stack = resourceManager._resources[key]
+                foundStack = True
+                
+                foundStackItem = False
+                for idx in range(len(stack)-1, -1, -1):
+                    if stack[idx][1] is self:
+                        
+                        # This layer instance has already added an item to
+                        # the stack. Update that item instead of pushing a new
+                        # item onto the stack.
+                        stack[idx][0] = value
+                        
+                        foundStackItem = True
+                        break
+                
+                # This layer instance does not have a stack item yet. Create
+                # a new one.
+                if not foundStackItem:
+                    stack.append([value, self,])
+                
+                break
+        
+        # This resource is not shadowing any other: create a new stack here
+        if not foundStack:
+            self._resources[key] = [[value, self]]
     
     def __delitem__(self, key):
-        del self._resources[key]
+        for resourceManager in self.resourceResolutionOrder():
+            if key in resourceManager._resources:
+                stack = resourceManager._resources[key]
+                for idx in range(len(stack)-1, -1, -1):
+                    if stack[idx][1] is self:
+                        del stack[idx]
+                        
+                        if len(stack) == 0:
+                            del resourceManager._resources[key]
+                        
+                        return
+                break
+        raise KeyError(key)
+    
+    # Helpers
     
     def resourceResolutionOrder(self):
         """Get the order in which resources are resolved
         """
         
-        return tuple(self._mro(self))
+        return tuple(self._resourceResolutionOrder(self))
     
     # This is basically the Python MRO algorithm, adapted from
     # http://www.python.org/download/releases/2.3/mro/
     
-    def _merge(self, seqs):
+    def _mergeResourceManagers(self, seqs):
         
         res = []
         i = 0
@@ -66,10 +114,10 @@ class ResourceManager(object):
                 if seq[0] == cand:
                     del seq[0]
     
-    def _mro(self, instance):
-        return self._merge(
+    def _resourceResolutionOrder(self, instance):
+        return self._mergeResourceManagers(
                 [ [instance] ] + 
-                map(self._mro, instance.__bases__) + 
+                map(self._resourceResolutionOrder, instance.__bases__) + 
                 [ list(instance.__bases__) ]
             )
     
