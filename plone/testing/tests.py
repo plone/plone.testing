@@ -18,6 +18,12 @@ class DummyUtility(object):
     def __repr__(self):
         return "<Dummy utility>"
 
+class DummyView(object):
+    def __init__(self, context, request):
+        pass
+    def __call__(self):
+        return u""
+
 def test_suite():
     suite = unittest.TestSuite()
     suite.addTests([
