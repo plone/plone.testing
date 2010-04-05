@@ -1,19 +1,24 @@
 plone.testing TODO
 ==================
 
+* It may be necessary to change the resource manager slightly. Consider
+  this scenario:
+  
+    - A layer based on EMPTY_ZODB wants to change the storage
+    - It creates a new DB object and sets it to shadow self['zodbDB']
+    - The EMPTY_ZODB layer uses self['zodbDB'] in testSetUp()
+    - It should use the shadow, not the original version
+    
+  To support this, we can store resources in a single map.
+
 * Implement all layers and helpers listed in the reference in the README.
 
 * Revise README to reflect implementation as necessary
-
-* zope.security's ZCML directives should be part of a ZTK fixture
 
 * The Zope BASIC_SITE may need a non-administrative user by default
 
 * installProduct() is global and cannot be easily torn down. Maybe we need an
   "uninstallProduct"?
-  
-* It'd be useful to be able to "stack" ZODBs for effective sandboxing and
-  layer tear-down.
   
 * It'd be useful to be able to "stack" component registries for effective
   sandboxing and layer tear-down. Perhaps the ``z3c.baseregistry`` approach

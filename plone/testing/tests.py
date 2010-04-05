@@ -31,6 +31,7 @@ def test_suite():
             'layer.txt',
             'zca.txt',
             'ztk.txt',
+            'zodb.txt',
             setUp=zope.component.testing.setUp(),
             tearDown=zope.component.testing.tearDown(),
             optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE,

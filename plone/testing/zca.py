@@ -8,6 +8,8 @@ class Sandbox(Layer):
     test and torn down after each test.
     """
     
+    __bases__ = ()
+    
     def testSetUp(self):
         import zope.component.testing
         zope.component.testing.setUp()

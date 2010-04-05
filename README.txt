@@ -1274,10 +1274,22 @@ Basic persistent sandbox
 | Bases:     |  None                                            |
 +------------+--------------------------------------------------+
 | Resources: | ``zodbRoot``                                     |
+|            +--------------------------------------------------+
+|            | ``zodbDB``                                       |
+|            +--------------------------------------------------+
+|            | ``zodbConnection``                               |
 +------------+--------------------------------------------------+
 
 This layer sets up a simple ZODB sandbox using ``DemoStorage``. The ZODB root
-object is a ``BTrees.OOBTree.OOBTree`` available as the resource ``zodbRoot``.
+object is a simple persistent mapping, available as the resource ``zodbRoot``.
+The ZODB database object is available as the resource ``zodbDB``. The
+connection used in the test is available as ``zodbConnection``.
+
+Note that the ``zodbConnection`` and ``zodbRoot`` resources are created and
+destroyed for each test. You can use ``zodbDB`` (and the ``open()`` method)
+if you are writing a layer based on this one and need to set up a fixture
+during layer set up. Don't forget to close the connection before concluding
+the test setup!
 
 A new transaction is begun for each test, and rolled back (aborted) on test
 tear-down. This means that so long as you don't use ``transaction.commit()``
