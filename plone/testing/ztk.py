@@ -72,5 +72,9 @@ class ZCMLDirectives(Layer):
         
         import zope.security
         xmlconfig.file('meta.zcml', zope.security, context=context)
-        
+    
+    def tearDown(self):
+        # XXX: No proper tear-down
+        pass
+
 ZCML_DIRECTIVES = ZCMLDirectives()

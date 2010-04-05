@@ -52,24 +52,9 @@ class ZCMLDirectives(Layer):
         from zope.configuration import xmlconfig
         import zope.component
         
-        context = self.get('configurationContext', None)
-        if context is not None:
-            xmlconfig.file(
-                    'meta.zcml',
-                    zope.component,
-                    context=context
-                )
-        else:
-            self['configurationContext'] = xmlconfig.file(
-                    'meta.zcml',
-                    zope.component
-                )
+        self['configurationContext'] = xmlconfig.file('meta.zcml', zope.component)
     
     def tearDown(self):
-        try:
-            del self['configurationContext']
-        except KeyError:
-            # We weren't responsible for creating it
-            pass
+        del self['configurationContext']
     
 ZCML_DIRECTIVES = ZCMLDirectives()
