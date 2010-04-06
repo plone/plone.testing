@@ -1,5 +1,5 @@
 Zope Component Architecture layers
-==================================
+----------------------------------
 
 The ZCA layers are found in the module ``plone.testing.zca``:
 
@@ -10,7 +10,7 @@ For testing, we need a testrunner
     >>> from zope.testing.testrunner import runner
 
 Sandbox layer
--------------
+~~~~~~~~~~~~~
 
 The ``SANDBOX`` layer is used to set up a clean component registry between
 each test. It uses ``zope.testing.cleanup`` to clean up all global state.
@@ -79,7 +79,7 @@ Layer tear-down does nothing.
     Tear down plone.testing.zca.Sandbox in ... seconds.
 
 Event testing
--------------
+~~~~~~~~~~~~~
 
 The ``EVENT_TESTING`` layer extends the ``SANDBOX`` layer to add the necessary
 registrations for ``zope.component.eventtesting`` to work.
@@ -143,7 +143,7 @@ Layer tear-down does nothing.
     Tear down plone.testing.zca.Sandbox in ... seconds.
 
 Basic ZCML directives
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 The ``ZCML_DIRECTIVES`` layer extends the ``SANDBOX`` layer to add a ZCML
 configuration context with the basic ``zope.component`` directives available.

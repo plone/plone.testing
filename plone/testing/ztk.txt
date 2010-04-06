@@ -1,5 +1,5 @@
 Zope Toolkit layers
-===================
+-------------------
 
 The Zope Toolkit layers are found in the module ``plone.testing.ztk``:
 
@@ -10,7 +10,7 @@ For testing, we need a testrunner
     >>> from zope.testing.testrunner import runner
 
 Placeless setup layer
----------------------
+~~~~~~~~~~~~~~~~~~~~~
 
 The ``PLACELESS`` layer is used to set up several core components for each
 test. It also starts a new interaction with the public checker, so that
@@ -130,7 +130,7 @@ Layer tear-down does nothing.
     Tear down plone.testing.zca.Sandbox in ... seconds.
 
 ZCML directives
----------------
+~~~~~~~~~~~~~~~
 
 The ``ztk.ZCML_DIRECTIVES`` layer extends the ``zca.ZCML_DIRECTIVES`` layer to
 extend its ZCML configuration context with the ``zope.app.publisher`` and

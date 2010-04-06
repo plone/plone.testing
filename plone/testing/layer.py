@@ -53,13 +53,16 @@ class ResourceManager(object):
                 if not foundStackItem:
                     stack.append([value, self,])
                 
-                break
+                # Note: We do not break here on purpose: it's possible
+                # that there is resource stack in another branch of the base
+                # tree; we keep those in sync.
         
         # This resource is not shadowing any other: create a new stack here
         if not foundStack:
             self._resources[key] = [[value, self]]
     
     def __delitem__(self, key):
+        found = False
         for resourceManager in self.resourceResolutionOrder():
             if key in resourceManager._resources:
                 stack = resourceManager._resources[key]
@@ -70,9 +73,14 @@ class ResourceManager(object):
                         if len(stack) == 0:
                             del resourceManager._resources[key]
                         
-                        return
-                break
-        raise KeyError(key)
+                        found = True
+                
+                # Note: We do not break here on purpose: it's possible
+                # that there is another stack in another branch of the base
+                # tree; we keep those in sync.
+        
+        if not found:
+            raise KeyError(key)
     
     # Helpers
     

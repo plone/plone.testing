@@ -6,8 +6,14 @@ version = '1.0a1'
 setup(name='plone.testing',
       version=version,
       description="Testing infrastructure for Zope and Plone packages",
-      long_description=open("README.txt").read() + "\n" +
-                       open(os.path.join("docs", "HISTORY.txt")).read(),
+      long_description=open("README.txt").read() + "\n\n" +
+                       open(os.path.join("docs", "HISTORY.txt")).read() + "\n\n" +
+                       "Detailed documentation\n" +
+                       "======================\n\n" +
+                       open(os.path.join("plone", "testing", "layer.txt")).read() + "\n\n" +
+                       open(os.path.join("plone", "testing", "zca.txt")).read() + "\n\n" +
+                       open(os.path.join("plone", "testing", "ztk.txt")).read() + "\n\n" +
+                       open(os.path.join("plone", "testing", "zodb.txt")).read(),
       # Get more strings from
       # http://pypi.python.org/pypi?%3Aaction=list_classifiers
       classifiers=[
@@ -31,10 +37,19 @@ setup(name='plone.testing',
       extras_require = {
         'tests': [
                 'zope.component',
-                'zope.event',
+                'zope.interface',
+                'zope.container',
+                'zope.i18n',
+                'zope.password',
                 'zope.publisher',
+                'zope.traversing',
+                'zope.security',
+                'zope.schema',
+                'zope.event',
                 'zope.configuration',
                 'zope.testbrowser',
+                'zope.app.publisher', # XXX: Can probably go away in Zope 2.13
+                'ZODB3',
             ],
         'zodb': [
                 'ZODB3',

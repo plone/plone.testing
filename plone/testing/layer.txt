@@ -1,5 +1,5 @@
 Layer base class
-================
+----------------
 
 This package provides a layer base class which can be used by the test
 runner. It is available as a convenience import from the package root.
@@ -61,7 +61,7 @@ when using a subclass):
     <Layer '__builtin__.NullLayer'>
 
 Using ``Layer`` as a base class
--------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 The usual pattern is to use ``Layer`` as a base class for a custom layer.
 This can then override the lifecycle methods as appropriate, as well as
@@ -113,7 +113,7 @@ misleading in the test runner output.
     '__builtin__'
 
 Overriding the default list of bases
-------------------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 We can override the list of bases on a per-instance basis. This may be
 dangerous, i.e. the layer is likely to expect that its bases are set up. 
@@ -134,7 +134,7 @@ it's useful to give the new instance a unique name, too.
     '__builtin__'
 
 Using the resource manager
---------------------------
+~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 Layers are also resource managers. Resources can be set, retrieved and
 deleted using dictionary syntax. Resources in base layers are available in
@@ -251,11 +251,12 @@ of the bases.
 Let's now consider a special case: a base layer sets up a resource in layer
 setup, and uses it in test setup. A child layer then shadows this resource in
 its own layer setup method. In this case, we want the base layer's
-``testSetUp()`` to use the shadowed version that the child provided. (This is
-similar to how instance variables work: a base class may set an attribute on
-``self`` and use it in a method. If a subclass then sets the same attribute to
-a different value and the base class method is called on an instance of the
-subclass, the base class attribute is used).
+``testSetUp()`` to use the shadowed version that the child provided.
+
+(This is similar to how instance variables work: a base class may set an
+attribute on ``self`` and use it in a method. If a subclass then sets the same
+attribute to a different value and the base class method is called on an
+instance of the subclass, the base class attribute is used).
 
     *Hint:* If you definitely need to access the "original" resource in your
     ``testSetUp()``/``testTearDown()`` methods, you can store a reference to
@@ -268,63 +269,134 @@ subclass, the base class attribute is used).
     most cases, you probably *don't* want to do this, allowing child layers to
     supply overridden versions of resources as appropriate.
 
-First, we'll create a base layer.
+First, we'll create some base layers. We want to demonstrate having two
+"branches" of bases that both happen to define the same resource.
 
-    >>> class ResourceBaseLayer(Layer):
+    >>> class ResourceBaseLayer1(Layer):
     ...     def setUp(self):
-    ...         self['resource'] = "Base"
+    ...         self['resource'] = "Base 1"
     ...     def testSetUp(self):
     ...         print self['resource']
     ...     def tearDown(self):
     ...         del self['resource']
     
-    >>> RESOURCE_BASE_LAYER = ResourceBaseLayer()
+    >>> RESOURCE_BASE_LAYER1 = ResourceBaseLayer1()
+
+    >>> class ResourceBaseLayer2(Layer):
+    ...     __bases__ = (RESOURCE_BASE_LAYER1,)
+    ...     def testSetUp(self):
+    ...         print self['resource']
+    
+    >>> RESOURCE_BASE_LAYER2 = ResourceBaseLayer2()
+
+    >>> class ResourceBaseLayer3(Layer):
+    ...     def setUp(self):
+    ...         self['resource'] = "Base 3"
+    ...     def testSetUp(self):
+    ...         print self['resource']
+    ...     def tearDown(self):
+    ...         del self['resource']
+    
+    >>> RESOURCE_BASE_LAYER3 = ResourceBaseLayer3()
 
 We'll then create the child layer that overrides this resource.
 
     >>> class ResourceChildLayer(Layer):
-    ...     __bases__ = (RESOURCE_BASE_LAYER,)
+    ...     __bases__ = (RESOURCE_BASE_LAYER2, RESOURCE_BASE_LAYER3)
     ...     def setUp(self):
     ...         self['resource'] = "Child"
+    ...     def testSetUp(self):
+    ...         print self['resource']
     ...     def tearDown(self):
     ...         del self['resource']
     
     >>> RESOURCE_CHILD_LAYER = ResourceChildLayer()
     
-We'll first set up the base layer on its own and simulate a test.
+We'll first set up the base layers on their own and simulate two tests.
 
-    >>> RESOURCE_BASE_LAYER.setUp()
+A test with RESOURCE_BASE_LAYER1 only would look like this:
 
-    >>> RESOURCE_BASE_LAYER.testSetUp()
-    Base
-    >>> RESOURCE_BASE_LAYER.testTearDown()
+    >>> RESOURCE_BASE_LAYER1.setUp()
+
+    >>> RESOURCE_BASE_LAYER1.testSetUp()
+    Base 1
+    >>> RESOURCE_BASE_LAYER1.testTearDown()
+
+    >>> RESOURCE_BASE_LAYER1.tearDown()
+
+A test with RESOURCE_BASE_LAYER2 would look like this:
+
+    >>> RESOURCE_BASE_LAYER1.setUp()
+    >>> RESOURCE_BASE_LAYER2.setUp()
+
+    >>> RESOURCE_BASE_LAYER1.testSetUp()
+    Base 1
+    >>> RESOURCE_BASE_LAYER2.testSetUp()
+    Base 1
+    >>> RESOURCE_BASE_LAYER2.testTearDown()
+    >>> RESOURCE_BASE_LAYER1.testTearDown()
+    
+    >>> RESOURCE_BASE_LAYER2.tearDown()
+    >>> RESOURCE_BASE_LAYER1.tearDown()
+
+A test with RESOURCE_BASE_LAYER3 only would look like this:
+
+    >>> RESOURCE_BASE_LAYER3.setUp()
+
+    >>> RESOURCE_BASE_LAYER3.testSetUp()
+    Base 3
+    >>> RESOURCE_BASE_LAYER3.testTearDown()
+
+    >>> RESOURCE_BASE_LAYER3.tearDown()
 
 Now let's set up the child layer and simulate another test. We should now be
 using the shadowed resource.
     
+    >>> RESOURCE_BASE_LAYER1.setUp()
+    >>> RESOURCE_BASE_LAYER2.setUp()
+    >>> RESOURCE_BASE_LAYER3.setUp()
     >>> RESOURCE_CHILD_LAYER.setUp()
 
-    >>> RESOURCE_BASE_LAYER.testSetUp()
+    >>> RESOURCE_BASE_LAYER1.testSetUp()
+    Child
+    >>> RESOURCE_BASE_LAYER2.testSetUp()
+    Child
+    >>> RESOURCE_BASE_LAYER3.testSetUp()
     Child
     >>> RESOURCE_CHILD_LAYER.testSetUp()
+    Child
+    
     >>> RESOURCE_CHILD_LAYER.testTearDown()
-    >>> RESOURCE_BASE_LAYER.testTearDown()
-
+    >>> RESOURCE_BASE_LAYER3.testTearDown()
+    >>> RESOURCE_BASE_LAYER2.testTearDown()
+    >>> RESOURCE_BASE_LAYER1.testTearDown()
+    
 Finally, we'll tear down the child layer again and simulate another test.
-we should have the original resource back.
+we should have the original resources back. Note that the first and third
+layers no longer share a resource, since they don't have a common ancestor.
 
     >>> RESOURCE_CHILD_LAYER.tearDown()
 
-    >>> RESOURCE_BASE_LAYER.testSetUp()
-    Base
-    >>> RESOURCE_BASE_LAYER.testTearDown()
+    >>> RESOURCE_BASE_LAYER1.testSetUp()
+    Base 1
+    >>> RESOURCE_BASE_LAYER2.testSetUp()
+    Base 1
+    >>> RESOURCE_BASE_LAYER2.testTearDown()
+    >>> RESOURCE_BASE_LAYER1.testTearDown()
 
-Finally, we'll tear down the base layer.
+    >>> RESOURCE_BASE_LAYER3.testSetUp()
+    Base 3
+    >>> RESOURCE_BASE_LAYER3.testTearDown()
 
-    >>> RESOURCE_BASE_LAYER.tearDown()
+Finally, we'll tear down the remaining layers..
+
+    >>> RESOURCE_BASE_LAYER3.tearDown()
+    >>> RESOURCE_BASE_LAYER2.tearDown()
+    >>> RESOURCE_BASE_LAYER1.tearDown()
+
 
 Doctest layer helper
-====================
+~~~~~~~~~~~~~~~~~~~~
 
 The ``doctest`` module is not aware of ``zope.testing``'s layers concept.
 Therefore, the syntax for creating a doctest with a layer and adding it to
