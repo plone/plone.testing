@@ -134,14 +134,13 @@ ZCML directives
 
 The ``ztk.ZCML_DIRECTIVES`` layer extends the ``zca.ZCML_DIRECTIVES`` layer to
 extend its ZCML configuration context with the ``zope.app.publisher`` and
-``zope.security`` directives available. It is also based on the ``PLACELESS``
-layer outlined above.
+``zope.security`` directives available.
 
     >>> "%s.%s" % (ztk.ZCML_DIRECTIVES.__module__, ztk.ZCML_DIRECTIVES.__name__,)
     'plone.testing.ztk.ZCMLDirectives'
 
     >>> ztk.ZCML_DIRECTIVES.__bases__
-    (<Layer 'plone.testing.zca.ZCMLDirectives'>, <Layer 'plone.testing.ztk.Placeless'>)
+    (<Layer 'plone.testing.zca.ZCMLDirectives'>,)
 
 Before the test, we cannot use e.g. the ``<permission />`` or
 ``<browser:view />`` directives without loading the necessary ``meta.zcml``
@@ -171,19 +170,14 @@ configuration.
     >>> options = runner.get_options([], [])
     >>> setupLayers = {}
     >>> runner.setup_layer(options, ztk.ZCML_DIRECTIVES, setupLayers)
-    Set up plone.testing.zca.Sandbox in ... seconds.
     Set up plone.testing.zca.ZCMLDirectives in ... seconds.
-    Set up plone.testing.zca.EventTesting in ... seconds.
-    Set up plone.testing.ztk.Placeless in ... seconds.
     Set up plone.testing.ztk.ZCMLDirectives in ... seconds.
 
 
 Let's now simulate a test that uses this configuration context to load the
 same ZCML string.
     
-    >>> zca.SANDBOX.testSetUp()
     >>> zca.ZCML_DIRECTIVES.testSetUp()
-    >>> ztk.PLACELESS.testSetUp()
     >>> ztk.ZCML_DIRECTIVES.testSetUp()
 
     >>> context = zca.ZCML_DIRECTIVES['configurationContext'] # would normally be self.layer['configurationContext']
@@ -212,30 +206,15 @@ The permission and view are now registered:
     ...   and x.name==u"plone.testing-test"]
     [<class 'zope.app.publisher.browser.viewmeta.plone.testing-test'>]
 
-On test tear-down, the component architecture is torn down courtesy of the 
-SANDBOX layer.
-
-    >>> ztk.ZCML_DIRECTIVES.testTearDown()
-    >>> ztk.PLACELESS.testTearDown()
-    >>> zca.ZCML_DIRECTIVES.testTearDown()
-    >>> zca.SANDBOX.testTearDown()
-
-    >>> queryUtility(IPermission, name=u"plone.testing.Test") is None
-    True
-
-    >>> [x.factory for x in siteManager.registeredAdapters() 
-    ...  if x.provided==Interface and x.required==(Interface, IDefaultBrowserLayer) 
-    ...   and x.name==u"plone.testing-test"]
-    []
+Note that you'd normally combine this layer with the ``zca.SANDBOX`` or
+``ztk.PLACELESS`` layers to automatically tear down the component architecture
+between each test.
 
 Layer tear-down does nothing.
 
     >>> runner.tear_down_unneeded(options, [], setupLayers)
     Tear down plone.testing.ztk.ZCMLDirectives in ... seconds.
-    Tear down plone.testing.ztk.Placeless in ... seconds.
     Tear down plone.testing.zca.ZCMLDirectives in ... seconds.
-    Tear down plone.testing.zca.EventTesting in ... seconds.
-    Tear down plone.testing.zca.Sandbox in ... seconds.
 
     >>> zca.ZCML_DIRECTIVES.get('configurationContext', None) is None
     True

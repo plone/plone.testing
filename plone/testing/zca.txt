@@ -145,14 +145,14 @@ Layer tear-down does nothing.
 Basic ZCML directives
 ~~~~~~~~~~~~~~~~~~~~~
 
-The ``ZCML_DIRECTIVES`` layer extends the ``SANDBOX`` layer to add a ZCML
-configuration context with the basic ``zope.component`` directives available.
+The ``ZCML_DIRECTIVES`` layer creates a ZCML configuration context with the
+basic ``zope.component`` directives available.
 
     >>> "%s.%s" % (zca.ZCML_DIRECTIVES.__module__, zca.ZCML_DIRECTIVES.__name__,)
     'plone.testing.zca.ZCMLDirectives'
 
     >>> zca.ZCML_DIRECTIVES.__bases__
-    (<Layer 'plone.testing.zca.Sandbox'>,)
+    ()
 
 Before the test, we cannot use e.g. a ``<utility />`` directive without
 loading the necessary ``meta.zcml`` files.
@@ -173,13 +173,11 @@ configuration.
     >>> options = runner.get_options([], [])
     >>> setupLayers = {}
     >>> runner.setup_layer(options, zca.ZCML_DIRECTIVES, setupLayers)
-    Set up plone.testing.zca.Sandbox in ... seconds.
     Set up plone.testing.zca.ZCMLDirectives in ... seconds.
 
 Let's now simulate a test that uses this configuration context to load the
 same ZCML string.
     
-    >>> zca.SANDBOX.testSetUp()
     >>> zca.ZCML_DIRECTIVES.testSetUp()
 
     >>> context = zca.ZCML_DIRECTIVES['configurationContext'] # would normally be self.layer['configurationContext']
@@ -194,20 +192,15 @@ The utility is now registered:
     >>> queryUtility(Interface, name="test-dummy")
     <Dummy utility>
 
-On test tear-down, the component architecture is torn down courtesy of the 
-SANDBOX layer.
-
-    >>> zca.ZCML_DIRECTIVES.testTearDown()
     >>> zca.SANDBOX.testTearDown()
 
-    >>> queryUtility(Interface, name="test-dummy") is None
-    True
+Note that normally, we'd combine this with the ``SANDBOX`` layer to tear down
+the component architecture as well.
 
-Layer tear-down deletes the configuration context resource.
+Layer tear-down deletes the configuration context.
 
     >>> runner.tear_down_unneeded(options, [], setupLayers)
     Tear down plone.testing.zca.ZCMLDirectives in ... seconds.
-    Tear down plone.testing.zca.Sandbox in ... seconds.
 
     >>> zca.ZCML_DIRECTIVES.get('configurationContext', None) is None
     True

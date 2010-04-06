@@ -57,7 +57,7 @@ class ZCMLDirectives(Layer):
     resource.
     """
     
-    __bases__ = (zca.ZCML_DIRECTIVES, PLACELESS,)
+    __bases__ = (zca.ZCML_DIRECTIVES,)
     
     def setUp(self):
         from zope.configuration import xmlconfig

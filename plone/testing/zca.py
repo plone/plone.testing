@@ -41,11 +41,10 @@ class ZCMLDirectives(Layer):
     """Enables the use of the basic ZCML directives from ``zope.component``.
     
     Exposes a ``zope.configuration`` configuration context as the resource
-    ``configurationContext``. If such a resource exists already, it will be
-    re-used. Otherwise, a new one is created.
+    ``configurationContext``.
     """
     
-    __bases__ = (SANDBOX,)
+    __bases__ = ()
     
     def setUp(self):
         

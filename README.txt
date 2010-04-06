@@ -1084,16 +1084,17 @@ called for the package to be fully configured.
 
 Zope 2 will find and execute any products during startup. For testing, we
 need to explicitly list the products to install. Provided you are using
-``plone.testing`` with Zope 2, you can use the following:
+``plone.testing`` with Zope 2, you can use the following::
 
-    >>> from plone.testing.z2 import installProduct
-    >>> installProduct('Products.ZCatalog')
+    from plone.testing.z2 import installProduct
+    installProduct('Products.ZCatalog')
 
 Note:
 
 * Unlike the similarly-named function from ``ZopeTestCase``, this helper
   will work with any type of product. There is no distinction between a
-  "product" and a "package" (and no ``installPackage()``).
+  "product" and a "package" (and no ``installPackage()``). However, you must
+  use the full name (``Products.*``) when registering a product.
 * Installing a product in this manner is independent of ZCML configuration.
   However, it is almost always necessary to install the package's ZCML
   configuration first.
@@ -1185,14 +1186,14 @@ Basic ZCML directives
 +------------+--------------------------------------------------+
 | Class:     | ``plone.testing.zca.ZCMLDirectives``             |
 +------------+--------------------------------------------------+
-| Bases:     | ``plone.testing.zca.SANDBOX``                    |
+| Bases:     | None                                             |
 +------------+--------------------------------------------------+
 | Resources: | ``configurationContext``                         |
 +------------+--------------------------------------------------+
 
-This layer extends the ``zca.SANDBOX`` layer to register a minimal set of
-ZCML directives, principally those found in the ``zope.component`` package
-itself. This allows custom ZCML to be loaded as described above.
+This registers a minimal set of ZCML directives, principally those found in
+the ``zope.component`` package, and makes available a configuration context.
+This allows custom ZCML to be loaded as described above.
 
 The ``configurationContext`` resource should be used when loading custom
 ZCML. For example, if you were writing a ``setUp()`` method in a layer that
@@ -1247,25 +1248,23 @@ ZCML directives
 | Class:     | ``plone.testing.ztk.ZCMLDirectives``             |
 +------------+--------------------------------------------------+
 | Bases:     | ``plone.testing.zca.ZCML_DIRECTIVES``            |
-|            +--------------------------------------------------+
-|            | ``plone.testing.ztk.PLACELESS``                  |
 +------------+--------------------------------------------------+
 | Resources: | None                                             |
 +------------+--------------------------------------------------+
 
-This layer combines the ``zca.ZCML_DIRECTIVES`` and ``ztk.PLACELESS`` layers,
-and installs additional ZCML directives in the ``browser`` namespace 
-(from ``zope.app.publisher.browser``) as well as those from ``zope.security``.
+This layer extends the ``zca.ZCML_DIRECTIVES`` layer to install additional
+ZCML directives in the ``browser`` namespace (from
+``zope.app.publisher.browser``) as well as those from ``zope.security``.
 This allows browser views, browser pages and other UI components to be
 registered, as well as the definition of new permissions.
 
 As with ``zca.ZCML_DIRECTIVES``, you should use the ``configurationContext``
 resource when loading ZCML strings or files.
 
-**Warning:** This layer does not properly tear down the
-``configurationContext`` resource. After layer tear-down, the additional
-directives installed on layer setup are still present in the configuration
-context.
+    **Warning:** This layer does not properly tear down the
+    ``configurationContext`` resource. After layer tear-down, the additional
+    directives installed on layer setup are still present in the configuration
+    context.
 
 ZODB
 ----
@@ -1288,11 +1287,11 @@ Basic persistent sandbox
 +------------+--------------------------------------------------+
 | Bases:     |  None                                            |
 +------------+--------------------------------------------------+
-| Resources: | ``zodbRoot``                                     |
+| Resources: | ``zodbDB``                                       |
 |            +--------------------------------------------------+
-|            | ``zodbDB``                                       |
+|            | ``zodbDB`` (test set-up only)                    |
 |            +--------------------------------------------------+
-|            | ``zodbConnection``                               |
+|            | ``zodbConnection`` (test set-up only)            |
 +------------+--------------------------------------------------+
 
 This layer sets up a simple ZODB sandbox using ``DemoStorage``. The ZODB root
@@ -1331,29 +1330,36 @@ Basic site
 +------------+--------------------------------------------------+
 | Bases:     | ``plone.testing.zodb.EMPTY_ZODB``                |
 +------------+--------------------------------------------------+
-| Resources: | ``appRoot``                                      |
-|            +--------------------------------------------------+
-|            | ``rootUser``                                     |
-|            +--------------------------------------------------+
-|            | ``rootPassword``                                 |
+| Resources: | ``app`` (test set-up only)                       |
 +------------+--------------------------------------------------+
 
 This layer sets up an empty Zope 2 site, using ``DemoStorage``. It does not
 start a ZServer thread, and is not suitable for use with `zope.testbrowser`_.
 However, you can manipulate Zope using the Python API.
 
-The Zope application root is available as the resource ``appRoot``. An
-initial user with the ``Manager`` role is created. Its username is available
-as the resource ``rootUser``, and the password as ``rootPassword``.
+To access the Zope application root during layer setup, do::
+
+    import Zope2
+    app = Zope2.app()
+
+You should close this with::
+
+    app._p_jar.close()
+
+In a test, the ``app`` object can be obtained as the resource ``app``. It will
+be closed automatically.
 
 The ZODB transaction is rolled back after each test, so long as the code under
 test does not call ``commit()`` explicitly.
 
-Note that this layer only installs and loads the ZCML configuration of the
-products that would be found in a minimal Zope 2 installation. In particular,
-packages in the ``Products.*`` namespace or placed in the ``Products`` folder
-are *not* loaded automatically. Use the ``installProduct()`` helper method
-to install any products you need.
+Note that this layer does not load any ZCML configuration, nor does it create
+any users. Only a very minimal set of products are initialised. Packages in
+the ``Products.*`` namespace or placed in the ``Products`` folder are *not*
+loaded automatically.
+
+Use the ``installProduct()`` helper method to install any products you need.
+If the package has any ZCML configuration, you should load this explicitly
+before calling ``installProduct()``.
 
 Functional testing
 ~~~~~~~~~~~~~~~~~~

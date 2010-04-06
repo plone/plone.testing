@@ -1,13 +1,22 @@
 plone.testing TODO
 ==================
 
+* The ZCML_DIRECTIVES layers should not extend SANDBOX
+
+* Create a child of z2.BASIC_SITE that has:
+    - A Manager user
+    - A regular user
+    - A folder owned by the regular user
+    - Loads ZCML?
+
+* Write uninstallProduct()
+
+* Tear down app during BASIC_SITE tear-down
+
+* Write tests for Zope 2 layer
+
 * Implement all layers and helpers listed in the reference in the README.
 * Revise README to reflect implementation as necessary
-
-* The Zope BASIC_SITE may need a non-administrative user by default
-
-* installProduct() is global and cannot be easily torn down. Maybe we need an
-  uninstallProduct()?
   
 * It'd be useful to be able to "stack" component registries for effective
   sandboxing and layer tear-down. Perhaps the ``z3c.baseregistry`` approach
