@@ -208,7 +208,10 @@ The permission and view are now registered:
 
 Note that you'd normally combine this layer with the ``zca.SANDBOX`` or
 ``ztk.PLACELESS`` layers to automatically tear down the component architecture
-between each test.
+between each test. Here, we need to do it manually.
+
+    >>> from zope.component.testing import tearDown
+    >>> tearDown()
 
 Layer tear-down does nothing.
 

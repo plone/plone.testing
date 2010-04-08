@@ -1,26 +1,16 @@
 plone.testing TODO
 ==================
 
-* The ZCML_DIRECTIVES layers should not extend SANDBOX
-
-* Create a child of z2.BASIC_SITE that has:
-    - A Manager user
-    - A regular user
-    - A folder owned by the regular user
-    - Loads ZCML?
-
 * Write uninstallProduct()
 
-* Tear down app during BASIC_SITE tear-down
-
-* Write tests for Zope 2 layer
-
-* Implement all layers and helpers listed in the reference in the README.
-* Revise README to reflect implementation as necessary
+* Update README for z2 layers and helpers
   
 * It'd be useful to be able to "stack" component registries for effective
   sandboxing and layer tear-down. Perhaps the ``z3c.baseregistry`` approach
   is useful here?
+    
+    - would make for better tear-down of z2.STARTUP
+    - would make it easier to load components and tear down properly in own layers
 
 * Define Plone layers (in plone.app.testing)
 
@@ -31,3 +21,6 @@ plone.testing TODO
         - install extension profile
         - install product using portal_quickinstaller (discourage?)
         - create user
+
+* Ensure zope.testbrowser works - do we need any of the stuff in
+  functional.py in ZopeTestCase?

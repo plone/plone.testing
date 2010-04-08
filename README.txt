@@ -1086,12 +1086,18 @@ Zope 2 will find and execute any products during startup. For testing, we
 need to explicitly list the products to install. Provided you are using
 ``plone.testing`` with Zope 2, you can use the following::
 
-    from plone.testing.z2 import installProduct
-    installProduct('Products.ZCatalog')
+    from plone.testing import z2
+    z2.installProduct('Products.ZCatalog')
+
+This would normally be used during layer ``setUp()``. To tear down such a
+layer, you should do::
+
+    from plone.testing import z2
+    z2.uninstallProduct('Products.ZCatalog')
 
 Note:
 
-* Unlike the similarly-named function from ``ZopeTestCase``, this helper
+* Unlike the similarly-named function from ``ZopeTestCase``, these helpers
   will work with any type of product. There is no distinction between a
   "product" and a "package" (and no ``installPackage()``). However, you must
   use the full name (``Products.*``) when registering a product.
@@ -1320,73 +1326,16 @@ products, and manage security.
 Zope 2 layers can be found in the module ``plone.testing.z2``. If you depend
 on this, you can use the ``[z2]`` extra when depending on ``plone.testing``.
 
+Startup
+~~~~~~~
+
 Basic site
 ~~~~~~~~~~
 
-+------------+--------------------------------------------------+
-| Layer:     | ``plone.testing.z2.BASIC_SITE``                  |
-+------------+--------------------------------------------------+
-| Class:     | ``plone.testing.z2.BasicSite``                   |
-+------------+--------------------------------------------------+
-| Bases:     | ``plone.testing.zodb.EMPTY_ZODB``                |
-+------------+--------------------------------------------------+
-| Resources: | ``app`` (test set-up only)                       |
-+------------+--------------------------------------------------+
-
-This layer sets up an empty Zope 2 site, using ``DemoStorage``. It does not
-start a ZServer thread, and is not suitable for use with `zope.testbrowser`_.
-However, you can manipulate Zope using the Python API.
-
-To access the Zope application root during layer setup, do::
-
-    import Zope2
-    app = Zope2.app()
-
-You should close this with::
-
-    app._p_jar.close()
-
-In a test, the ``app`` object can be obtained as the resource ``app``. It will
-be closed automatically.
-
-The ZODB transaction is rolled back after each test, so long as the code under
-test does not call ``commit()`` explicitly.
-
-Note that this layer does not load any ZCML configuration, nor does it create
-any users. Only a very minimal set of products are initialised. Packages in
-the ``Products.*`` namespace or placed in the ``Products`` folder are *not*
-loaded automatically.
-
-Use the ``installProduct()`` helper method to install any products you need.
-If the package has any ZCML configuration, you should load this explicitly
-before calling ``installProduct()``.
 
 Functional testing
 ~~~~~~~~~~~~~~~~~~
 
-+------------+--------------------------------------------------+
-| Layer:     | ``plone.testing.z2.FUNCTIONAL``                  |
-+------------+--------------------------------------------------+
-| Class:     | ``plone.testing.z2.Functional``                  |
-+------------+--------------------------------------------------+
-| Bases:     | ``plone.testing.z2.BASIC_SITE``                  | 
-+------------+--------------------------------------------------+
-| Resources: | None                                             |
-+------------+--------------------------------------------------+
-
-This layer sets up an empty Zope 2 site, using ``DemoStorage``. It does not
-start a ZServer thread, but is suitable for use with `zope.testbrowser`_ (note
-that you must import the ``Browser`` class from ``Products.Five.testbrowser``
-when using the test browser with Zope 2), as well as direct manipulation using
-the Python API.
-
-The ZODB is restored to the initial state after each test, but it is safe to
-execute several end-to-end requests that result in a transaction commit during
-a given test.
-
-If you use this layer as a base for your own layer, it is safe to use the
-``appRoot`` resource during layer set-up to modify the test fixture. You
-should call ``transaction.commit()`` at the end of the fixture configuration.
 
 HTTP ZServer thread
 ~~~~~~~~~~~~~~~~~~~

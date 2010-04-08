@@ -24,6 +24,12 @@ class DummyView(object):
     def __call__(self):
         return u""
 
+def setUp(self):
+    zope.component.testing.setUp()
+
+def tearDown(self):
+    zope.component.testing.tearDown()
+
 def test_suite():
     suite = unittest.TestSuite()
     suite.addTests([
@@ -32,14 +38,16 @@ def test_suite():
             'zca.txt',
             'ztk.txt',
             'zodb.txt',
-            setUp=zope.component.testing.setUp(),
-            tearDown=zope.component.testing.tearDown(),
+            'z2.txt',
+            setUp=setUp,
+            tearDown=tearDown,
             optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE,
         ),
         doctest.DocFileSuite(
             '../../README.txt',
             globs={'canOutrunKlingons': _canOutrunKlingons,},
-            tearDown=zope.component.testing.tearDown(),
+            setUp=setUp,
+            tearDown=tearDown,
         ),
     ])
     return suite
