@@ -12,7 +12,7 @@ Zope 2 (although it will provide some additional tools if you are using Zope
 This package also aims to promote some "good practice" for writing tests of
 various types.
 
-    **Note:** If you are working with Plone, there is also
+    **Note:** If you are working with Plone, there is a complementary package
     `plone.app.testing`_, which builds on ``plone.testing`` to provide
     additional layers useful for testing Plone add-on products.
 
@@ -25,6 +25,12 @@ spend some time learning about those concepts. Some useful references include:
 Bear in mind that different Python frameworks have slightly different takes on
 how to approach testing. Therefore, you may find examples that are different
 to those shown below. The core concepts should be consistent, however.
+
+Compatibility
+-------------
+
+``plone.testing`` has only been tested with Python 2.6. If you're using the
+optional Zope 2 layers, you must use Zope version 2.12 or later.
 
 Definitions
 -----------
@@ -123,7 +129,7 @@ server) where the tests will not be run. This can be achieved using a
 In ``setup.py``, add or modify the ``extras_require`` option, like so::
 
     extras_require = {
-        'tests': [
+        'test': [
                 'plone.testing',
             ]
     },
@@ -137,7 +143,7 @@ example, you could add the following to your ``buildout.cfg``::
     [test]
     recipe = zc.recipe.testrunner
     eggs =
-        my.package [tests]
+        my.package [test]
     defaults = ['--exit-with-status', '--auto-color', '--auto-progress']
 
 You'll also need to add this part to the ``parts`` list, of course::
@@ -148,7 +154,7 @@ You'll also need to add this part to the ``parts`` list, of course::
         test
 
 In this example, have listed a single package to test, called ``my.package``,
-and asked for it to be installed with the ``[tests]`` extra. This will install
+and asked for it to be installed with the ``[test]`` extra. This will install
 any regular dependencies (listed in the ``install_requires`` option in
 ``setup.py``), as well as those in the list associated with the ``tests`` key
 in the ``extras_require`` option.
@@ -161,8 +167,8 @@ for ``Plone``, or indeed any other package you import from.
 
 Once you have re-run buildout, the test runner will be installed as
 ``bin/test`` (the executable name is taken from the name of the buildout
-part). You can run it without arguments to run all tests of each egg listed in
-the ``eggs`` list::
+part). You can execute it without arguments to run all tests of each egg
+listed in the ``eggs`` list::
 
     $ bin/test
 
@@ -185,40 +191,6 @@ Also note the ``defaults`` option in the buildout configuration. This can be
 used to set default command line options. Some commonly useful options are
 shown above.
 
-Optional dependencies
----------------------
-
-``plone.testing`` comes with a core set of tools for managing layers, which
-depends only on `zope.testing`_ and `unittest2`_. In addition, there are
-several layers and helper functions which can be used in your own tests (or
-as bases for your own layers). Some of these have deeper dependencies.
-However, these dependencies are optional. If you don't need the relevant code
-(and do not import from the relevant modules), they will not affect you.
-
-``plone.testing`` does specify these dependencies, however, using the
-``setuptools`` "extras" feature. This is mainly to aid internal testing of
-``plone.testing`` itself. If the extra layers and helpers are useful to you,
-you'll probably have the relevant dependencies declared directly in your own
-package anyway, so there's no need to use the extras.
-
-For the sake of completeness, though, the extras are:
-
-``zodb``
-    Depends on ``ZODB3``. The relevant layers and helpers are in the module
-    ``plone.testing.zodb``.
-``zca``
-    Depends on core Zope Component Architecture packages such as
-    ``zope.component`` and ``zope.event``. The relevant layers and helpers are
-    in the module ``plone.testing.zca``.
-``ztk``
-    Depends on some Zope Toolkit packages such as ``zope.container``,
-    ``zope.traversing`` and ``zope.password``. The relevant layers and helpers
-    are in the module ``plone.testing.ztk``.
-``z2``
-    Depends on the ``Zope2`` egg, which includes all the dependences of the 
-    Zope 2 application server. The relevant layers and helpers are in the
-    module ``plone.testing.z2``
-
 Coverage reporting
 ------------------
 
@@ -229,8 +201,8 @@ When writing tests, it is useful to know how well your tests cover your code.
 
 This will place coverage reporting information in the ``coverage`` directory
 inside your buildout root. The ``../../`` prefix is necessary because the test
-runner is actually executed in relation to the installation path for the
-``test`` part, which is usually ``parts/test``.
+runner is actually executed with a current directory that is the installation
+path for the ``test`` part; usually ``parts/test``.
 
 If you always want test coverage, you can add the coverage options to the
 ``defaults`` line in ``buildout.cfg``::
@@ -239,10 +211,11 @@ If you always want test coverage, you can add the coverage options to the
 
 The coverage reporter will print a summary to the console, indicating
 percentage coverage for each module, and write detailed information to the
-``coverage`` directory as specified. For a more user-friendly report, you can
-use the `z3c.coverage`_ tool to turn the coverage report into HTML.
+``coverage`` directory as specified.
 
-To install `z3c.coverage`_, you can use a buildout part like the following::
+For a more user-friendly report, you can use the `z3c.coverage`_ tool to turn
+the coverage report into HTML. To install `z3c.coverage`_, you can use a
+buildout part like the following::
 
     [buildout]
     parts =
@@ -263,6 +236,47 @@ After re-running buildout, you can convert the contents of an existing
 As you might have guessed, the ``arguments`` option specifies the "raw"
 coverage report directory, and the output directory for the HTML report.
 
+Optional dependencies
+---------------------
+
+``plone.testing`` comes with a core set of tools for managing layers, which
+depends only on `zope.testing`_ and `unittest2`_. In addition, there are
+several layers and helper functions which can be used in your own tests (or
+as bases for your own layers). Some of these have deeper dependencies.
+However, these dependencies are optional and not installed by default. If you
+don't use the relevant layers, you can safely ignore them.
+
+``plone.testing`` does specify these dependencies, however, using the
+``setuptools`` "extras" feature. You can depend on one or more extras in
+your own ``setup.py``'s ``install_requires`` or ``extras_require`` option
+using the same square bracket notation shown for the ``[test]`` buildout part
+above. For example, if you need both the ``zca`` and ``ztk`` extras, you can
+have the following in your ``setup.py``::
+
+    extras_require = {
+        'test': [
+                'plone.testing [zca, ztk]',
+            ]
+    },
+
+The available extras are:
+
+``zodb``
+    ZODB testing. Depends on ``ZODB3``. The relevant layers and helpers are in
+    the module ``plone.testing.zodb``.
+``zca``
+    Zope Component Architecture testing. Depends on core Zope Component
+    Architecture packages such as ``zope.component`` and ``zope.event``. The
+    relevant layers and helpers are in the module ``plone.testing.zca``.
+``ztk``
+    Zope Toolkit testing. Depends on some Zope Toolkit packages such as
+    ``zope.container``, ``zope.traversing`` and ``zope.password``. The
+    relevant layers and helpers are in the module ``plone.testing.ztk``.
+``z2``
+    Zope 2 testing. Depends on the ``Zope2`` egg, which includes all the
+    dependences of the Zope 2 application server. The relevant layers and
+    helpers are in the module ``plone.testing.z2``
+
 Layers
 ======
 
@@ -270,9 +284,11 @@ In large part, ``plone.testing`` is about layers. It provides:
 
 * A set of layers (outlined below), which you can use or extend.
 * A set of tools for working with layers
-* A mini-framework to make it easy to write layers
+* A mini-framework to make it easy to write layers and manage shared resources
+  associated with layers.
 
-We'll discuss the last two items here.
+We'll discuss the last two items here, before showing how to write tests that
+use layers.
 
 Layer basics
 ------------
@@ -285,15 +301,20 @@ time-consuming. If it is possible to only perform the setup and tear-down once
 for a set of tests without losing isolation between those tests, test runs can
 often be sped up significantly.
 
+Layers also allow re-use of test fixtures and set-up/tear-down code.
+``plone.testing`` provides a number of useful (but optional) layers that
+manage test fixtures for common Zope testing scenarios, letting you focus on
+the actual test authoring.
+
 At the most basic, a layer is an object with the following methods and
 attributes:
 
 ``setUp()``
-    Called by the test runner when the layer is to be set up. This is normally
-    called exactly once during the test run.
+    Called by the test runner when the layer is to be set up. This is called
+    exactly once for each layer used during a test run.
 ``tearDown()``
     Called by the test runner when the layer is to be down down. As with
-    ``setUp()``, this is normally called exactly once during the test run.
+    ``setUp()``, this is called exactly once for each layer.
 ``testSetUp()``
     Called immediately before each test case that uses the layer is executed.
 ``testTearDown()``
@@ -307,11 +328,13 @@ Each test case is associated with zero or one layer. (The syntax for
 specifying the layer is shown in the section "Writing tests" below.) All the
 tests associated with a given layer will be executed together.
 
-Layers can depend on one another (as indicated in the ``__bases__`` tuple).
-Base layers are set up before and torn down after their dependants. For
-example, if the test runner is executing some tests that belong to layer A,
-and some other tests that belong to layer B, both of which depend on layer C,
-the order of execution might be::
+Layers can depend on one another (as indicated in the ``__bases__`` tuple),
+allowing one layer to build on the fixture created by another. Base layers are
+set up before and torn down after their dependants.
+
+For example, if the test runner is executing some tests that belong to layer
+A, and some other tests that belong to layer B, both of which depend on layer
+C, the order of execution might be::
 
     1. C.setUp()
     1.1. A.setUp()
@@ -380,21 +403,6 @@ A simple layer may look like this:
     ...     def testTearDown(self):
     ...         print "Emptying the fuel tank"
 
-    **Note:** You may find it useful to create other layer base/mix-in classes
-    that extend ``plone.testing.Layer`` and provide helper methods for use in
-    your own layers. This is perfectly acceptable, but please do not confuse a
-    layer base class used in this manner with the concept of a *base layer* as
-    documented above.
-    
-    Also note that the `zope.testing`_ documentation contains examples of
-    layers that are "old-style" classes where the ``setUp()`` and
-    ``tearDown()`` methods are ``classmethod``s and class inheritance syntax
-    is used to specify base layers. Whilst this pattern works, we discourage
-    its use, because the classes created using this pattern are not really
-    used as classes. The concept of layer inheritance is slightly different
-    from class inheritance, and using the ``class`` keyword to create layers
-    with base layers leads to a number of "gotchas" that are best avoided.
-
 Before this layer can be used, it must be instantiated. Layers are normally
 instantiated exactly once, since by nature they are shared between tests. This
 becomes important when you start to manage resources (such as persistent data,
@@ -431,6 +439,38 @@ Note that we use the layer *instance* in the ``__bases__`` tuple, not the
 class. Layer dependencies always pertain to specific layer instances. Above,
 we are really saying that *instances* of ``ZIGSpaceShip`` will, by default,
 require the ``SPACE_SHIP`` layer to be set up first.
+
+    **Note:** You may find it useful to create other layer base/mix-in classes
+    that extend ``plone.testing.Layer`` and provide helper methods for use in
+    your own layers. This is perfectly acceptable, but please do not confuse a
+    layer base class used in this manner with the concept of a *base layer* as
+    described above:
+    
+    * A class deriving from ``plone.testing.Layer`` is known as a *layer
+      class*. It defines the behaviour of the layer by implementing the
+      lifecycle methods ``setUp()``, ``tearDown()``, ``testSetUp()`` and/or
+      ``testTearDown()``.
+    * A layer class can be instantiated into an actual layer. When a layer is
+      associated with a test, it is the layer *instance* that is used.
+    * The instance is usually a shared, module-global object, although in
+      some cases it is useful to create copies of layers by instantiating the
+      class more than once.
+    * Subclassing an existing layer class is just straightforward OOP re-use:
+      the testrunner is not aware of the subclassing relationship.
+    * A layer *instance* can be associated with any number of layer *bases*,
+      via its ``__bases__`` property. These bases are layer *instances*,
+      not classes. The testrunner will inspect the ``__bases__`` attribute of
+      each layer instance it sets up to calculate layer pre-requisites and
+      dependencies.
+    
+    Also note that the `zope.testing`_ documentation contains examples of
+    layers that are "old-style" classes where the ``setUp()`` and
+    ``tearDown()`` methods are ``classmethod`` methods and class inheritance
+    syntax is used to specify base layers. Whilst this pattern works, we
+    discourage its use, because the classes created using this pattern are not
+    really used as classes. The concept of layer bases is slightly different
+    from class inheritance, and using the ``class`` keyword to create layers
+    with base layers leads to a number of "gotchas" that are best avoided.
 
 Advanced - overriding bases
 ---------------------------
@@ -487,11 +527,11 @@ Layer resources
 
 Many layers will manage one or more resources that are used either by other
 layers, or by tests themselves. Examples may include database connections,
-global objects (such as the Zope application root), or configuration data.
+thread-local objects, or configuration data.
 
-``plone.testing`` contains a simple resource storage that makes it easy to
-access resources from dependant layers or tests. The resource storage uses
-dictionary notation:
+``plone.testing`` contains a simple resource storage abstraction that makes it
+easy to access resources from dependant layers or tests. The resource storage
+uses dictionary notation:
 
     >>> class WarpDrive(object):
     ...     """A shared resource"""
@@ -528,7 +568,11 @@ dictionary notation:
     ...         # Upgrade the warp drive
     ...         self.previousMaxSpeed = self['warpDrive'].maxSpeed
     ...         self['warpDrive'].maxSpeed = 9.5
-        
+    ...
+    ...     def tearDown(self):
+    ...         # Restore warp drive to its previous speed
+    ...         self['warpDrive'].maxSpeed = self.previousMaxSpeed
+    
     >>> GALAXY_CLASS_SPACE_SHIP = GalaxyClassSpaceShip()
 
 As shown, layers (that derive from ``plone.testing.Layer``) support item
@@ -542,11 +586,20 @@ string keys.
     ``tearDown()``; if it's created in ``testSetUp()`` it should be deleted
     in ``testTearDown()``.
 
-A resource defined in a base layer is accessible through a child layer. If a
-resource is set on a child using a key that also exists in a base layer, the
-child version will shadow the base version until the child layer is torn down
-(presuming it deletes the resource, which it should), but the base layer
-version remains intact.
+A resource defined in a base layer is accessible from and through a child
+layer. If a resource is set on a child using a key that also exists in a base
+layer, the child version will shadow the base version until the child layer is
+torn down (presuming it deletes the resource, which it should), but the base
+layer version remains intact.
+
+    **Note:** Accessing a resource is analogous to accessing an instance
+    variable. For example, if a base layer assigns a resource to a given key
+    in its ``setUp()`` method, a child layer shadows that resource with
+    another object under the same key, the shadowed resource will by used
+    during the ``testSetUp()`` and ``testTearDown()`` lifecycle methods if
+    implemented by the *base* layer as well. This will be the case until
+    the child layer "pops" the resource by deleting it, normally in its
+    ``tearDown()``.
 
 Conversely, if (as shown above) the child layer accesses and modifies the
 object, it will modify the original.
@@ -596,8 +649,9 @@ expression above may lead to an attribute error.
 Writing tests
 =============
 
-Tests are usually written in one of two ways: As methods on a class, sometimes
-known as "Python tests" or "JUnit-style tests"; or using doctest syntax.
+Tests are usually written in one of two ways: As methods on a class that
+derives from ``unittest.TestCase`` (this is sometimes known as "Python tests"
+or "JUnit-style tests"); or using doctest syntax.
 
 You should realise that although the relevant frameworks (``unittest``,
 ``unittest2`` and ``doctest``) often talk about unit testing, these tools are
@@ -608,27 +662,28 @@ you would for a unit test. The difference lies in what that fixture contains,
 and how you invoke the code under test. In general, a true unit test will have
 a minimal or no test fixture, whereas an integration test will have a fixture
 that contains the components your code is integrating with. A functional test
-will have a fixture that contains enough of the full system to execute an
-"end-to-end" test.
+will have a fixture that contains enough of the full system to execute and
+test an "end-to-end" scenario.
 
 Python tests
 ------------
 
 Python tests use the Python `unittest`_ module, or its cousin `unittest2`_
-(see below). They should be placed in a module or package called ``tests``.
+(see below). They should be placed in a module or package called ``tests``
+for the testrunner to pick them up.
+
 For small packages, a single module called ``tests.py`` will normally contain
 all tests. For larger packages, it is common to have a ``tests`` module that
 contains a number of modules with tests. These need to start with the word
-``test``, e.g. ``test_foo.py`` or ``test_bar.py``. Don't forget the
-``__init__.py`` either.
+``test``, e.g. ``tests/test_foo.py`` or ``tests/test_bar.py``. Don't forget
+the ``__init__.py`` in the ``tests`` package, too!
 
 unittest2
 ~~~~~~~~~
 
 In Python 2.7+, the ``unittest`` module has grown several new and useful
 features. To make use of these in Python 2.4, 2.5 and 2.6, an add-on module
-called `unittest2`_ can be installed. Simply replace all uses of the
-``unittest`` module with ``unittest2``. ``plone.testing`` depends on
+called `unittest2`_ can be installed. ``plone.testing`` depends on
 ``unittest2`` (and uses it for its own tests), so you will have access to it
 if you depend on ``plone.testing``.
 
@@ -641,12 +696,12 @@ Please note that the `zope.testing`_ test runner at the time of writing
 (version 3.9.3) does not (yet) support the new ``setUpClass()``,
 ``tearDownClass()``, ``setUpModule()`` and ``tearDownModule()`` hooks from
 ``unittest2``. This is not normally a problem, since we tend to use layers to
-manage complex fixtures.
+manage complex fixtures, but it is important to be aware of nonetheless.
 
 Test modules, classes and functions
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-Python tests are written in classes that derive from the base class
+Python tests are written with classes that derive from the base class
 ``TestCase``. Each test is written as a method that takes no arguments and
 has a name starting with ``test``. Other methods can be added and called from
 test methods as appropriate, e.g. to share some test logic.
@@ -655,6 +710,10 @@ Two special methods, ``setUp()`` and ``tearDown()``, can also be added. These
 will be called before or after each test, respectively, and provide a useful
 place to construct and clean up test fixtures without writing a custom layer.
 They are obviously not as re-usable as layers, though.
+
+   *Hint:* Somewhat confusingly, the ``setUp()`` and ``tearDown()`` methods in
+   a test case class are the equivalent of the ``testSetUp()`` and
+   ``testTearDown()`` methods of a layer class.
 
 A layer can be specified by setting the ``layer`` class attribute to a layer
 instance. If layers are used in conjunction with ``setUp()`` and
@@ -697,6 +756,9 @@ A few things to note:
 * The ``layer`` class attribute is set to a layer instance (not a layer
   class!) defined previously. This would typically be imported from a
   ``testing`` module.
+* There are two tests here: ``test_warp8()`` and ``test_max_speed()``.
+* We have used the ``self.assertEqual()`` assertion in both tests to check the
+  result of executing the ``start()`` method on the warp drive.
 * We have used the ``setUp()`` method to fetch the ``warpDrive`` resource and
   ensure that it is stopped before each test is executed. Assigning a variable
   to ``self`` is a useful way to provide some state to each test method,
@@ -705,9 +767,6 @@ A few things to note:
   independent.
 * We have used the ``tearDown()`` method to make sure the warp
   drive is really stopped after each test.
-* There are two tests here: ``test_warp8()`` and ``test_max_speed()``.
-* We have used the ``self.assertEqual()`` assertion in both tests to check the
-  result of executing the ``start()`` method on the warp drive.
 
 Test suites
 ~~~~~~~~~~~
@@ -717,10 +776,11 @@ one above is all you need: any class deriving from ``TestCase`` in a module
 with a name starting with ``test`` will be examined for test methods. Those
 tests are then collected into a test suite and executed.
 
-With older versions of `zope.testing`_, you need to add a ``test_suite()`` in
-each module that returns the tests in the test suite. The `unittest`_ module
-contains several tools to construct suites, but one of the simplest is to use
-the default test loader and load all tests in the current module:
+With older versions of `zope.testing`_, you need to add a ``test_suite()``
+function in each module that returns the tests in the test suite. The
+`unittest`_ module contains several tools to construct suites, but one of the
+simplest is to use the default test loader to load all tests in the current
+module:
 
     >>> def test_suite():
     ...     return unittest.defaultTestLoader.loadTestsFromName(__name__)
@@ -738,8 +798,8 @@ the `unittest`_ module. For example:
 The ``makeSuite()`` function creates a test suite from the test methods in
 the given class (which must derive from ``TestCase``). This suite is then
 appended to an overall suite, which is returned from the ``test_suite()``
-method. Note that ``addTests()`` takes a list of suites. We'll add additional
-suites later.
+method. Note that ``addTests()`` takes a list of suites (which are coalesced
+into a single suite). We'll add additional suites later.
 
 See the `unittest`_ documentation for other options.
 
@@ -791,7 +851,7 @@ use the ``test_suite()`` function hook:
     >>> def test_suite():
     ...     suite = unittest.TestSuite()
     ...     suite.addTests([
-    ...         unittest.makeSuite(TestFasterThanLightTravel),
+    ...         unittest.makeSuite(TestFasterThanLightTravel), # our previous test
     ...         doctest.DocTestSuite('spaceship.utils'),
     ...     ])
     ...     return suite
@@ -825,9 +885,14 @@ with:
     ...     return suite
 
 By default, the file is located relative to the module where the the test
-suite is defined. You can use ``../`` to reference the parent directory,
-which is sometimes useful if the doctest is inside a module in a ``tests``
-package.
+suite is defined. You can use ``../`` (even on Windows) to reference the
+parent directory, which is sometimes useful if the doctest is inside a module
+in a ``tests`` package.
+
+    **Note:** If you put the doctest ``test_suite()`` method in a module
+    inside a ``tests`` package, that module must have a name starting with
+    ``test``. It is common to have ``tests/test_doctests.py`` that contains a
+    single ``test_suite()`` method that returns a suite of multiple doctests.
 
 It is possible to pass several tests to the suite, e.g.::
 
@@ -840,31 +905,36 @@ It is possible to pass several tests to the suite, e.g.::
     ...     ])
     ...     return suite
 
+The testrunner will report each file as a separate test, i.e. the
+``DocFileSuite()`` above would add two tests to the overall suite. Conversely,
+a ``DocTestSuite()`` using a module with more than one docstring containing
+doctests will report one test for each eligible docstring.
+
 Doctest fixtures and layers
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 A docstring doctest will by default have access to any global symbol available
-in the module (e.g. anything defined or imported in the module). The global
-namespace can be overridden by passing a ``globs`` keyword argument to the
-``DocTestSuite()`` constructor, or augmented by passing an ``extraglobs``
-argument. Both should be given dictionaries.
+in the module where the docstring is found (e.g. anything defined or imported
+in the module). The global namespace can be overridden by passing a ``globs``
+keyword argument to the ``DocTestSuite()`` constructor, or augmented by
+passing an ``extraglobs`` argument. Both should be given dictionaries.
 
 A file doctest has an empty globals namespace by default. Globals may be
 provided via the ``globs`` argument to ``DocFileSuite()``.
 
 To manage a simple test fixture for a doctest, you can define set-up and
 tear-down functions and pass them as the ``setUp`` and ``tearDown``
-arguments respectively. These both take a single arugment, a ``DocTest``
+arguments respectively. These are both passed a single argument, a ``DocTest``
 object. The most useful attribute of this object is ``globs``, which is a
 mutable dictionary of globals available in the test.
 
 For example:
 
     >>> def setUpKlingons(doctest):
-    ...     doctest.globs['oldStyleKlings'] = True
+    ...     doctest.globs['oldStyleKlingons'] = True
     
     >>> def tearDownKlingons(doctest):
-    ...     doctest.globs['oldStyleKlings'] = False
+    ...     doctest.globs['oldStyleKlingons'] = False
 
     >>> def test_suite():
     ...     suite = unittest.TestSuite()
