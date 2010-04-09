@@ -990,7 +990,7 @@ can use this package without any other dependencies.
 
 However, there are also some tools (and layers) available in this package, as
 well as in other packages, that are specifically useful for testing
-applications that use the Zope application framework.
+applications that use various Zope-related frameworks.
 
 Test cleanup
 ------------
@@ -1056,7 +1056,9 @@ included.
 The ``eventtesting`` module registers a cleanup action as outlined above. When
 you call ``cleanup.cleanUp()`` (or ``eventtesting.clearEvents()``, which is
 the handler it registers), the events list will be cleared, ready for the
-next test.
+next test. Here, we'll do it manually:
+
+    >>> eventtesting.clearEvents()
 
 Mock requests
 -------------
@@ -1072,8 +1074,8 @@ A simple test request can be constructed with no arguments:
 
 To add a body input stream, pass a ``StringIO`` or file as the first
 parameter. To set the environment (request headers), use the ``environ``
-keyword argument. To simulate a submitted and marshalled form, use the
-``form`` keyword argument:
+keyword argument. To simulate a submitted form, use the ``form`` keyword
+argument:
 
     >>> request = TestRequest(form=dict(field1='foo', field2=1))
 
@@ -1110,8 +1112,9 @@ using the ``zope.configuration`` API.
 
     >>> from zope.configuration import xmlconfig
 
-The ``xmlconfig`` module contains two useful methods. ``xmlconfig.string()``
-can be used to load a literal string of ZCML:
+The ``xmlconfig`` module contains two methods for loading ZCML.
+
+``xmlconfig.string()`` can be used to load a literal string of ZCML:
 
     >>> xmlconfig.string("""\
     ... <configure xmlns="http://namespaces.zope.org/zope" package="plone.testing">
@@ -1121,14 +1124,15 @@ can be used to load a literal string of ZCML:
     <zope.configuration.config.ConfigurationMachine object at ...>
 
 Note that we need to set a package (used for relative imports and file
-locations) explicitly here.
+locations) explicitly here, using the ``package`` attribute of the 
+``<configure />`` element.
 
 Also note that unless the optional second argument (``context``) is passed,
 a new configuration machine will be created every time ``string()`` is called.
 It therefore becomes necessary to explicitly ``<include />`` the files that
 contains the directives you want to use (the one in ``zope.component`` is a
 common example). Layers that set up ZCML configuration may expose a resource
-which can be passed as the ``context`` parameter.
+which can be passed as the ``context`` parameter - see below.
 
 To load the configuration for a particular package, use ``xmlconfig.file()``:
 
@@ -1157,13 +1161,21 @@ need to explicitly list the products to install. Provided you are using
 ``plone.testing`` with Zope 2, you can use the following::
 
     from plone.testing import z2
-    z2.installProduct('Products.ZCatalog')
+    
+    with z2.zopeApp() as app:
+        z2.installProduct(app, 'Products.ZCatalog')
 
-This would normally be used during layer ``setUp()``. To tear down such a
-layer, you should do::
+This would normally be used during layer ``setUp()``. Note that the basic
+Zope 2 application context must have been set up before doing this. The usual
+way to ensure this, is to use a layer that is based on ``z2.STARTUP`` - see
+below.
+
+To tear down such a layer, you should do::
 
     from plone.testing import z2
-    z2.uninstallProduct('Products.ZCatalog')
+    
+    with z2.zopeApp() as app:
+        z2.uninstallProduct(app, 'Products.ZCatalog')
 
 Note:
 
