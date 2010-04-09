@@ -12,7 +12,7 @@ class ResourceManager(object):
     
     def get(self, key, default=None):
         for resourceManager in self.resourceResolutionOrder():
-            if key in resourceManager._resources:
+            if key in getattr(resourceManager, '_resources', {}):
                 # Get the value on the top of the stack
                 return resourceManager._resources[key][-1][0]
         return default
@@ -32,7 +32,7 @@ class ResourceManager(object):
         foundStack = False
         
         for resourceManager in self.resourceResolutionOrder():
-            if key in resourceManager._resources:
+            if key in getattr(resourceManager, '_resources', {}):
                 stack = resourceManager._resources[key]
                 foundStack = True
                 
@@ -64,7 +64,7 @@ class ResourceManager(object):
     def __delitem__(self, key):
         found = False
         for resourceManager in self.resourceResolutionOrder():
-            if key in resourceManager._resources:
+            if key in getattr(resourceManager, '_resources', {}):
                 stack = resourceManager._resources[key]
                 for idx in range(len(stack)-1, -1, -1):
                     if stack[idx][1] is self:
