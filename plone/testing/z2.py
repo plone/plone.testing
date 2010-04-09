@@ -142,11 +142,15 @@ def zopeApp(db=None, conn=None, environ=None):
     ``addRequestContainer()`` for details.
     
     Pass a ZODB handle as ``db`` to use a specificdatabase. Alternatively,
-    pass an open connection as ``conn`` (the connection will be closed).
+    pass an open connection as ``conn`` (the connection will not be closed).
     """
     
     import Zope2
     import transaction
+    
+    closeConn = True
+    if conn is not None:
+        closeConn = False
     
     if conn is None and db is not None:
         conn = db.open()
@@ -164,7 +168,9 @@ def zopeApp(db=None, conn=None, environ=None):
         raise
     finally:
         app.REQUEST.close()
-        conn.close()
+        
+        if closeConn:
+            conn.close()
 
 
 class Startup(Layer):
@@ -344,7 +350,7 @@ class Startup(Layer):
         
         del self['host']
         del self['port']
-        
+    
     def setUpDatabase(self):
         """Create a database and stash it in the resource ``zodbDB``. If
         that resource exists, create a layered DemoStorage on top of the
