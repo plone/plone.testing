@@ -35,7 +35,7 @@ setup(name='plone.testing',
           'unittest2',
       ],
       extras_require = {
-        'tests': [
+        'test': [
                 'zope.component',
                 'zope.interface',
                 'zope.container',
