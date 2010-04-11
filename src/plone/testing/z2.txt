@@ -68,6 +68,37 @@ context manager.
     >>> with z2.zopeApp() as app:
     ...     print app.objectIds()
     ['acl_users', 'Control_Panel']
+
+If you want to use a specific database, you can pass that to ``zopeApp()`` as
+the ``db`` parameter. A new connection will be opened and closed.
+
+    >>> with z2.zopeApp(db=z2.STARTUP['zodbDB']) as app:
+    ...     print app.objectIds()
+    ['acl_users', 'Control_Panel']
+
+If you want to re-use an existing connection, you can pass one to
+``zopeApp()`` as the ``connection`` argument. In this case, you will need to
+close the connection yourself.
+
+    >>> conn = z2.STARTUP['zodbDB'].open()
+    >>> with z2.zopeApp(connection=conn) as app:
+    ...     print app.objectIds()
+    ['acl_users', 'Control_Panel']
+
+    >>> conn.opened is not None
+    True
+
+    >>> conn.close()
+
+If an exception is raised within the ``with`` block, the transaction is
+aborted, but the connection is still closed (if it was opened by the context
+manager):
+
+    >>> with z2.zopeApp() as app:
+    ...     raise Exception("Test error")
+    Traceback (most recent call last):
+    ...
+    Exception: Test error
     
 Note that you would normally *not* use the ``z2.zopeApp()`` in a test or in
 a ``testSetUp()`` or ``testTearDown()`` method. The ``BASIC_SITE`` and

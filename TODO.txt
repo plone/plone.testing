@@ -4,8 +4,6 @@ plone.testing TODO
 * Add z3c.autoinclude "off switch" to STARTUP layer
 * Write uninstallProduct()
 
-* Update README for z2 layers and helpers
-  
 * It'd be useful to be able to "stack" component registries for effective
   sandboxing and layer tear-down. Perhaps the ``z3c.baseregistry`` approach
   is useful here?

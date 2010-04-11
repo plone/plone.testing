@@ -131,7 +131,7 @@ def addRequestContainer(app, environ=None):
 
 
 @contextlib.contextmanager
-def zopeApp(db=None, conn=None, environ=None):
+def zopeApp(db=None, connection=None, environ=None):
     """Context manager for working with the Zope2 app::
     
         with zopeApp() as app:
@@ -142,23 +142,24 @@ def zopeApp(db=None, conn=None, environ=None):
     ``addRequestContainer()`` for details.
     
     Pass a ZODB handle as ``db`` to use a specificdatabase. Alternatively,
-    pass an open connection as ``conn`` (the connection will not be closed).
+    pass an open connection as ``connection`` (the connection will not be
+    closed).
     """
     
     import Zope2
     import transaction
     
     closeConn = True
-    if conn is not None:
+    if connection is not None:
         closeConn = False
     
-    if conn is None and db is not None:
-        conn = db.open()
+    if connection is None and db is not None:
+        connection = db.open()
     
-    app = addRequestContainer(Zope2.app(conn), environ=environ)
+    app = addRequestContainer(Zope2.app(connection), environ=environ)
     
-    if conn is None:
-        conn = app._p_jar
+    if connection is None:
+        connection = app._p_jar
     
     try:
         yield app
@@ -170,7 +171,7 @@ def zopeApp(db=None, conn=None, environ=None):
         app.REQUEST.close()
         
         if closeConn:
-            conn.close()
+            connection.close()
 
 
 class Startup(Layer):
