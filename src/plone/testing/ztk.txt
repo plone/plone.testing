@@ -150,7 +150,8 @@ files.
     >>> xmlconfig.string("""\
     ... <configure package="plone.testing"
     ...     xmlns="http://namespaces.zope.org/zope"
-    ...     xmlns:browser="http://namespaces.zope.org/browser">
+    ...     xmlns:browser="http://namespaces.zope.org/browser"
+    ...     i18n_domain="plone.testing.tests">
     ...     <permission id="plone.testing.Test" title="plone.testing: Test" />
     ...     <browser:view
     ...         for="*"
@@ -161,7 +162,7 @@ files.
     ... </configure>""")
     Traceback (most recent call last):
     ...
-    ZopeXMLConfigurationError: File "<string>", line 4.4
+    ZopeXMLConfigurationError: File "<string>", line 5.4
         ConfigurationError: ('Unknown directive', u'http://namespaces.zope.org/zope', u'permission')
 
 Layer setup creates a configuration context we can use to load further
@@ -184,7 +185,8 @@ same ZCML string.
     >>> xmlconfig.string("""\
     ... <configure package="plone.testing"
     ...     xmlns="http://namespaces.zope.org/zope"
-    ...     xmlns:browser="http://namespaces.zope.org/browser">
+    ...     xmlns:browser="http://namespaces.zope.org/browser"
+    ...     i18n_domain="plone.testing.tests">
     ...     <permission id="plone.testing.Test" title="plone.testing: Test" />
     ...     <browser:view
     ...         for="*"

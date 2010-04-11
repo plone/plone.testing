@@ -48,6 +48,7 @@ def test_suite():
             globs={'canOutrunKlingons': _canOutrunKlingons,},
             setUp=setUp,
             tearDown=tearDown,
+            optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE,
         ),
     ])
     return suite

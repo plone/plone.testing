@@ -9,9 +9,10 @@ class ResourceManager(object):
     
     def __init__(self):
         self._resources = {}
+        self.baseResolutionOrder = tuple(self._resourceResolutionOrder(self))
     
     def get(self, key, default=None):
-        for resourceManager in self.resourceResolutionOrder():
+        for resourceManager in self.baseResolutionOrder:
             if key in getattr(resourceManager, '_resources', {}):
                 # Get the value on the top of the stack
                 return resourceManager._resources[key][-1][0]
@@ -31,7 +32,7 @@ class ResourceManager(object):
     def __setitem__(self, key, value):
         foundStack = False
         
-        for resourceManager in self.resourceResolutionOrder():
+        for resourceManager in self.baseResolutionOrder:
             if key in getattr(resourceManager, '_resources', {}):
                 stack = resourceManager._resources[key]
                 foundStack = True
@@ -63,7 +64,7 @@ class ResourceManager(object):
     
     def __delitem__(self, key):
         found = False
-        for resourceManager in self.resourceResolutionOrder():
+        for resourceManager in self.baseResolutionOrder:
             if key in getattr(resourceManager, '_resources', {}):
                 stack = resourceManager._resources[key]
                 for idx in range(len(stack)-1, -1, -1):
@@ -83,12 +84,6 @@ class ResourceManager(object):
             raise KeyError(key)
     
     # Helpers
-    
-    def resourceResolutionOrder(self):
-        """Get the order in which resources are resolved
-        """
-        
-        return tuple(self._resourceResolutionOrder(self))
     
     # This is basically the Python MRO algorithm, adapted from
     # http://www.python.org/download/releases/2.3/mro/
@@ -115,7 +110,7 @@ class ResourceManager(object):
                     break
           
             if not cand:
-                raise ValueError(u"Inconsistent layer hierarchy!")
+                raise TypeError(u"Inconsistent layer hierarchy!")
             
             res.append(cand)
             for seq in nonemptyseqs: # remove cand
@@ -175,6 +170,8 @@ class Layer(ResourceManager):
                 module = self.__class__.__module__
 
         self.__module__ = module
+        
+        super(Layer, self).__init__()
     
     def __repr__(self):
         return "<Layer '%s.%s'>" % (self.__module__, self.__name__,)

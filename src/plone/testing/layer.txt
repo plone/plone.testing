@@ -133,6 +133,31 @@ it's useful to give the new instance a unique name, too.
     >>> NEW_CHILD_LAYER.__module__
     '__builtin__'
 
+Inconsistent bases
+~~~~~~~~~~~~~~~~~~
+
+Layer bases are maintained in an order that is semantically equivalent to the
+"method resolution order" Python maintains for base classes. We can get this
+from the ``baseResolutionOrder`` attribute:
+
+    >>> CHILD_LAYER.baseResolutionOrder
+    (<Layer '__builtin__.Child layer'>, <Layer '__builtin__.BaseLayer'>)
+    
+    >>> NEW_CHILD_LAYER.baseResolutionOrder
+    (<Layer '__builtin__.New child'>, <Layer 'plone.testing.tests.Simple layer'>,
+     <Layer 'plone.testing.layer.Null layer'>,
+     <Layer '__builtin__.BaseLayer'>)
+
+As with Python classes, it is possible to construct an invalid set of bases.
+In this case, layer instantiation will fail.
+
+    >>> INCONSISTENT_BASE1 = Layer(name="Inconsistent 1")
+    >>> INCONSISTENT_BASE2 = Layer((INCONSISTENT_BASE1,), name="Inconsistent 1")
+    >>> INCONSISTENT_BASE3 = Layer((INCONSISTENT_BASE1, INCONSISTENT_BASE2,), name="Inconsistent 1")
+    Traceback (most recent call last):
+    ...
+    TypeError: Inconsistent layer hierarchy!
+
 Using the resource manager
 ~~~~~~~~~~~~~~~~~~~~~~~~~~
 
@@ -193,7 +218,7 @@ The layers are ordered in a known "resource resolution order", which is used
 to determine in which order the layers shadow one another. This is based on
 the same algorithm as Python's method resolution order.
 
-    >>> LAYER4.resourceResolutionOrder() # doctest: +NORMALIZE_WHITESPACE
+    >>> LAYER4.baseResolutionOrder
     (<Layer '__builtin__.Layer4'>,
      <Layer '__builtin__.Layer2'>,
      <Layer '__builtin__.Layer1'>,
@@ -394,6 +419,52 @@ Finally, we'll tear down the remaining layers..
     >>> RESOURCE_BASE_LAYER2.tearDown()
     >>> RESOURCE_BASE_LAYER1.tearDown()
 
+Asymmetric deletion
+-------------------
+
+It is an error to create or shadow a resource in a set-up lifecycle method and
+not delete it again in the tear-down. It is also an error to delete a resource
+that was not explicitly created. These two layers break those roles:
+
+    >>> class BadLayer1(Layer):
+    ...     def setUp(self):
+    ...         pass
+    ...     def tearDown(self):
+    ...         del self['foo']
+    >>> BAD_LAYER1 = BadLayer1()
+
+    >>> class BadLayer2(Layer):
+    ...     __bases__ = (BAD_LAYER1,)
+    ...     def setUp(self):
+    ...         self['foo'] = 1
+    ...         self['bar'] = 2
+    >>> BAD_LAYER2 = BadLayer2()
+
+Let's simulate a test that uses ``BAD_LAYER2``:
+
+    >>> BAD_LAYER1.setUp()
+    >>> BAD_LAYER2.setUp()
+
+    >>> BAD_LAYER1.testSetUp()
+    >>> BAD_LAYER2.testSetUp()
+
+    >>> BAD_LAYER2.testTearDown()
+    >>> BAD_LAYER1.testTearDown()
+
+    >>> BAD_LAYER2.tearDown()
+    >>> BAD_LAYER1.tearDown()
+    Traceback (most recent call last):
+    ...
+    KeyError: 'foo'
+
+Here, we've got an error in the base layer. This is because the resource
+is actually associated with the layer that first created it, in this case
+``BASE_LAYER2``. This one remains intact and orphaned:
+
+    >>> 'foo' in BAD_LAYER2._resources
+    True
+    >>> 'bar' in BAD_LAYER2._resources
+    True
 
 Doctest layer helper
 ~~~~~~~~~~~~~~~~~~~~

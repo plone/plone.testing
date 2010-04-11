@@ -1197,7 +1197,7 @@ The ``xmlconfig`` module contains two methods for loading ZCML.
     ... <configure xmlns="http://namespaces.zope.org/zope" package="plone.testing">
     ...     <include package="zope.component" file="meta.zcml" />
     ... </configure>
-    ... """) # doctest: +ELLIPSIS
+    ... """)
     <zope.configuration.config.ConfigurationMachine object at ...>
 
 Note that we need to set a package (used for relative imports and file
@@ -1215,7 +1215,7 @@ To load the configuration for a particular package, use ``xmlconfig.file()``:
 
     >>> import zope.component
     >>> context = xmlconfig.file('meta.zcml', zope.component)
-    >>> xmlconfig.file('configure.zcml', zope.component, context=context) # doctest: +ELLIPSIS
+    >>> xmlconfig.file('configure.zcml', zope.component, context=context)
     <zope.configuration.config.ConfigurationMachine object at ...>
 
 This takes two required arguments: the file name and the module relative to
