@@ -10,10 +10,10 @@ setup(name='plone.testing',
                        open(os.path.join("docs", "HISTORY.txt")).read() + "\n\n" +
                        "Detailed documentation\n" +
                        "======================\n\n" +
-                       open(os.path.join("plone", "testing", "layer.txt")).read() + "\n\n" +
-                       open(os.path.join("plone", "testing", "zca.txt")).read() + "\n\n" +
-                       open(os.path.join("plone", "testing", "ztk.txt")).read() + "\n\n" +
-                       open(os.path.join("plone", "testing", "zodb.txt")).read(),
+                       open(os.path.join("src", "plone", "testing", "layer.txt")).read() + "\n\n" +
+                       open(os.path.join("src", "plone", "testing", "zca.txt")).read()   + "\n\n" +
+                       open(os.path.join("src", "plone", "testing", "ztk.txt")).read()   + "\n\n" +
+                       open(os.path.join("src", "plone", "testing", "zodb.txt")).read(),
       # Get more strings from
       # http://pypi.python.org/pypi?%3Aaction=list_classifiers
       classifiers=[
@@ -25,7 +25,8 @@ setup(name='plone.testing',
       author_email='plone-developers@lists.sourceforge.net',
       url='http://pypi.python.org/pypi/plone.testing',
       license='GPL',
-      packages=find_packages(exclude=['ez_setup']),
+      packages=find_packages('src'),
+      package_dir = {'': 'src'},
       namespace_packages=['plone'],
       include_package_data=True,
       zip_safe=False,
@@ -50,6 +51,7 @@ setup(name='plone.testing',
                 'zope.testbrowser',
                 'zope.app.publisher', # XXX: Can probably go away in Zope 2.13
                 'ZODB3',
+                'Zope2',
             ],
         'zodb': [
                 'ZODB3',

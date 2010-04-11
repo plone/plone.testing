@@ -1,6 +1,7 @@
 plone.testing TODO
 ==================
 
+* Add z3c.autoinclude "off switch" to STARTUP layer
 * Write uninstallProduct()
 
 * Update README for z2 layers and helpers
