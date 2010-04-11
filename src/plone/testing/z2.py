@@ -5,7 +5,7 @@ import contextlib
 
 from plone.testing import Layer
 
-_installedProducts = {}
+_INSTALLED_PRODUCTS = {}
 
 # Constants for names used in layer setup
 TEST_FOLDER_NAME = 'test_folder_1_'
@@ -28,28 +28,29 @@ def installProduct(app, productName, quiet=True):
     """
     
     import sys
-    import Products
+    
     
     from OFS.Folder import Folder
     from OFS.Application import get_folder_permissions, get_products
     from OFS.Application import install_product, install_package
+    
     from App.class_init import InitializeClass
     
-    global _installedProducts
+    import Products
+    
     found = False
     
-    if productName in _installedProducts:
+    if productName in _INSTALLED_PRODUCTS:
         return
     
     if productName.startswith('Products.'):
         for priority, name, index, productDir in get_products():
             if ('Products.' + name) == productName:
-                meta_types = []
-                install_product(app, productDir, name, meta_types,
-                                get_folder_permissions(), raise_exc=1)
-                _installedProducts[productName] = 1
-                Products.meta_types = Products.meta_types + tuple(meta_types)
+                
+                install_product(app, productDir, name, [], get_folder_permissions(), raise_exc=1)
                 InitializeClass(Folder)
+                
+                _INSTALLED_PRODUCTS[productName] = (priority, name, index, productDir,)
                 
                 found = True
                 break
@@ -58,8 +59,9 @@ def installProduct(app, productName, quiet=True):
         for module, init_func in getattr(Products, '_packages_to_initialize', []):
             if module.__name__ == productName:
                 install_package(app, module, init_func, raise_exc=1)
-                _installedProducts[productName] = True
                 Products._packages_to_initialize.remove((module, init_func))
+                
+                _INSTALLED_PRODUCTS[productName] = (module, init_func,)
                 
                 found = True
                 break
@@ -73,8 +75,65 @@ def uninstallProduct(app, productName, quiet=True):
     ``installProduct()`` above.
     """
     
-    # TODO: Is this even possible? ;)
-    pass
+    import sys
+    
+    # from OFS.Folder import Folder
+    # from OFS.Application import get_folder_permissions
+    # from App.class_init import InitializeClass
+    
+    from OFS.Application import Application, get_products
+    import Products
+    
+    global _INSTALLED_PRODUCTS
+    found = False
+    
+    if productName not in _INSTALLED_PRODUCTS:
+        return
+    
+    if productName.startswith('Products.'):
+        for priority, name, index, productDir in get_products():
+            if ('Products.' + name) == productName:
+                
+                if name in Application.misc_.__dict__:
+                    del Application.misc_.__dict__[name]
+                
+                if name in app['Control_Panel']['Products']:
+                    product = app['Control_Panel']['Products'][name]
+                    
+                    app._manage_remove_product_meta_type(product)
+                    app._manage_remove_product_permission(product)
+                    
+                    del app['Control_Panel']['Products'][name]
+                
+                # TODO: Also remove permissions from get_folder_permissions?
+                # Difficult to know if this would stomp on any other permissions
+                # InitializeClass(Folder)
+                
+                found = True
+                break
+    elif productName in _INSTALLED_PRODUCTS: # must be a package
+        
+        module, init_func = _INSTALLED_PRODUCTS[productName]
+        name = module.__name__
+        
+        if name in app['Control_Panel']['Products']:
+            product = app['Control_Panel']['Products'][name]
+            
+            app._manage_remove_product_meta_type(product)
+            app._manage_remove_product_permission(product)
+            
+            del app['Control_Panel']['Products'][name]
+        
+        
+        Products._packages_to_initialize.append((module, init_func))
+        found = True
+    
+    if found:
+        del _INSTALLED_PRODUCTS[productName]
+    
+    if not found and not quiet:
+        sys.stderr.write("Could not install product %s" % productName)
+        sys.stderr.flush()
 
 def login(userFolder, userName):
     """Log in as the given user in the given user folder.

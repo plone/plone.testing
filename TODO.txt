@@ -1,8 +1,9 @@
 plone.testing TODO
 ==================
 
-* Add z3c.autoinclude "off switch" to STARTUP layer
-* Write uninstallProduct()
+* Better tests for installProduct() and uninstallProduct()
+
+* Add z3c.autoinclude "off switch" to STARTUP layer? Or just in Plone?
 
 * It'd be useful to be able to "stack" component registries for effective
   sandboxing and layer tear-down. Perhaps the ``z3c.baseregistry`` approach
