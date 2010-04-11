@@ -252,7 +252,13 @@ We can also change the roles using the ``z2.setRoles()`` helper:
     >>> z2.setRoles(folder['acl_users'], 'test_user_2_', [z2.TEST_USER_ROLE])
     >>> getSecurityManager().getUser().getRolesInContext(folder)
     ['test_role_1_', 'Authenticated']
-    
+
+You can test as the anonymous user by using ``z2.logout()``:
+
+    >>> z2.logout()
+    >>> getSecurityManager().getUser()
+    <SpecialUser 'Anonymous User'>
+
 On tear-down, the transaction is rolled back:
 
     >>> z2.BASIC_SITE.testTearDown()
