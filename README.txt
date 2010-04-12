@@ -750,7 +750,7 @@ Python tests use the Python `unittest`_ module, or its cousin `unittest2`_
 for the testrunner to pick them up.
 
 For small packages, a single module called ``tests.py`` will normally contain
-all tests. For larger packages, it is common to have a ``tests`` module that
+all tests. For larger packages, it is common to have a ``tests`` package that
 contains a number of modules with tests. These need to start with the word
 ``test``, e.g. ``tests/test_foo.py`` or ``tests/test_bar.py``. Don't forget
 the ``__init__.py`` in the ``tests`` package, too!
@@ -942,8 +942,8 @@ tests to the suite: the list can contain be constructed from calls to
 
     Remember that if you add a ``test_suite()`` function to a module that
     also has ``TestCase``-derived python tests, those tests will no longer
-    be automatically picked up, so you need to add them to the test suite
-    explicitly.
+    be automatically picked up by ``zope.testing``, so you need to add them 
+    to the test suite explicitly.
 
 File doctests
 ~~~~~~~~~~~~~
@@ -961,7 +961,7 @@ with:
     ...     ])
     ...     return suite
 
-By default, the file is located relative to the module where the the test
+By default, the file is located relative to the module where the test
 suite is defined. You can use ``../`` (even on Windows) to reference the
 parent directory, which is sometimes useful if the doctest is inside a module
 in a ``tests`` package.
