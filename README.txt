@@ -54,7 +54,7 @@ Integration test
 Functional test
     An automated test that tests a feature in an "end-to-end" fashion. In a
     Zope context, that normally means that it invokes an action in the same
-    way that a user would, i.e. through a web request.Functional tests are
+    way that a user would, i.e. through a web request. Functional tests are
     normally slower to run than either unit or integration tests, and can be
     significantly slower to run. It is therefore common to have only a few
     functional tests for each major feature, relying on unit and integration
@@ -124,7 +124,7 @@ To use ``plone.testing`` in your own package, you need to add it as a
 dependency. Most people prefer to keep test-only dependencies separate, so
 that they do not need to be installed in scenarios (such as on a production
 server) where the tests will not be run. This can be achieved using a
-``tests`` extra.
+``test`` extra.
 
 In ``setup.py``, add or modify the ``extras_require`` option, like so::
 
@@ -156,7 +156,7 @@ You'll also need to add this part to the ``parts`` list, of course::
 In this example, have listed a single package to test, called ``my.package``,
 and asked for it to be installed with the ``[test]`` extra. This will install
 any regular dependencies (listed in the ``install_requires`` option in
-``setup.py``), as well as those in the list associated with the ``tests`` key
+``setup.py``), as well as those in the list associated with the ``test`` key
 in the ``extras_require`` option.
 
 Note that it becomes important to properly list your dependencies here,
