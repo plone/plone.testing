@@ -144,7 +144,7 @@ example, you could add the following to your ``buildout.cfg``::
     recipe = zc.recipe.testrunner
     eggs =
         my.package [test]
-    defaults = ['--exit-with-status', '--auto-color', '--auto-progress']
+    defaults = ['--auto-color', '--auto-progress']
 
 You'll also need to add this part to the ``parts`` list, of course::
 
