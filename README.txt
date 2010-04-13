@@ -207,7 +207,7 @@ path for the ``test`` part; usually ``parts/test``.
 If you always want test coverage, you can add the coverage options to the
 ``defaults`` line in ``buildout.cfg``::
 
-    defaults = ['--exit-with-status', '--auto-color', '--auto-progress', '--coverage', '../../coverage']
+    defaults = ['--auto-color', '--auto-progress', '--coverage', '../../coverage']
 
 The coverage reporter will print a summary to the console, indicating
 percentage coverage for each module, and write detailed information to the
@@ -328,7 +328,7 @@ The ``buildout.cfg`` for ``plone.testing`` looks like this::
     recipe = zc.recipe.testrunner
     eggs =
         plone.testing [test]
-    defaults = ['--exit-with-status', '--auto-color', '--auto-progress']
+    defaults = ['--auto-color', '--auto-progress']
 
     [coverage-report]
     recipe = zc.recipe.egg
