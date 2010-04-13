@@ -1561,7 +1561,7 @@ On set-up, the layer will configure a Zope environment with:
   ``zodbDB``. Zope is configured to use this database in a way that will
   also work if the ``zodbDB`` resource is shadowed using the pattern shown
   above in the description of the ``zodb.EMPTY_ZODB`` layer.
-* A fake hostname and port, exposed as the ``host`` and ``port`` resoruce,
+* A fake hostname and port, exposed as the ``host`` and ``port`` resource,
   respectively.
 * A minimal set of products installed (``Products.OFSP`` and
   ``Products.PluginIndexes``, both required for Zope to start up)
@@ -1736,8 +1736,7 @@ Several helper functions are available in the ``plone.testing.z2`` module.
     both manage the application root and close it for you. It is very useful
     in layer setup, however.
 ``installProduct(app, product, quiet=True)``
-    Install a Zope 2 style product, ensuring that it is available in the
-    product registry in the Zope 2 control panel and that its ``initialize()``
+    Install a Zope 2 style product, ensuring that its ``initialize()``
     function is called. The product name must be the full dotted name, e.g.
     ``plone.app.portlets`` or ``Products.CMFCore``. If ``quiet`` is true,
     duplicate registrations will be ignored silently, otherwise a message is
@@ -1752,7 +1751,7 @@ Several helper functions are available in the ``plone.testing.z2`` module.
 ``login(userFolder, userName)``
     Create a new security manager that simulates being logged in as the given
     user. ``userFolder`` is an ``acl_users`` object, e.g.
-    ``app['acl_user``']`` for the root user folder.
+    ``app['acl_users']`` for the root user folder.
 ``logout()``
     Simulate being the anonymous user by unsetting the security manager.
 ``setRoles(userFolder, userName, roles)``
