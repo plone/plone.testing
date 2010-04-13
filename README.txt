@@ -491,12 +491,12 @@ the layer class definition.
     >>> SPACE_SHIP = SpaceShip()
 
     **Note:** Since the layer is instantiated in module scope, it will be
-    created as soon as the ``testing`` module where it lives is imported. It
-    is therefore very important that the layer class is inexpensive and safe
-    to create. In general, you should avoid doing anything non-trivial in the
-    ``__init__()`` method of your layer class. All setup should happen in the
-    ``setUp()`` method. If you *do* implement ``__init__()``, be sure to call
-    the ``super`` version as well.
+    created as soon as the ``testing`` module is imported. It is therefore
+    very important that the layer class is inexpensive and safe to create. In
+    general, you should avoid doing anything non-trivial in the ``__init__()``
+    method of your layer class. All setup should happen in the ``setUp()``
+    method. If you *do* implement ``__init__()``, be sure to call the ``super``
+    version as well.
 
 The layer shown above did not have any base layers (dependencies). Here is an
 example of another layer that depends on it:
