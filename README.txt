@@ -282,7 +282,7 @@ Adding a test buildout to your package
 
 When creating re-usable, mostly stand-alone packages, it is often useful to be
 able to include a buildout with the package sources itself that can be used to
-create a testrunner. This is a popular approach for many Zope Toolkit
+create a test runner. This is a popular approach for many Zope Toolkit
 packages, for example. In fact, ``plone.testing`` itself uses this kind of
 layout.
 
@@ -533,10 +533,10 @@ require the ``SPACE_SHIP`` layer to be set up first.
       some cases it is useful to create copies of layers by instantiating the
       class more than once.
     * Subclassing an existing layer class is just straightforward OOP re-use:
-      the testrunner is not aware of the subclassing relationship.
+      the test runner is not aware of the subclassing relationship.
     * A layer *instance* can be associated with any number of layer *bases*,
       via its ``__bases__`` property. These bases are layer *instances*,
-      not classes. The testrunner will inspect the ``__bases__`` attribute of
+      not classes. The test runner will inspect the ``__bases__`` attribute of
       each layer instance it sets up to calculate layer pre-requisites and
       dependencies.
 
@@ -747,7 +747,7 @@ Python tests
 
 Python tests use the Python `unittest`_ module, or its cousin `unittest2`_
 (see below). They should be placed in a module or package called ``tests``
-for the testrunner to pick them up.
+for the test runner to pick them up.
 
 For small packages, a single module called ``tests.py`` will normally contain
 all tests. For larger packages, it is common to have a ``tests`` package that
@@ -982,7 +982,7 @@ It is possible to pass several tests to the suite, e.g.::
     ...     ])
     ...     return suite
 
-The testrunner will report each file as a separate test, i.e. the
+The test runner will report each file as a separate test, i.e. the
 ``DocFileSuite()`` above would add two tests to the overall suite. Conversely,
 a ``DocTestSuite()`` using a module with more than one docstring containing
 doctests will report one test for each eligible docstring.
