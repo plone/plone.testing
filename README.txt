@@ -1229,9 +1229,8 @@ Installing a Zope 2 product
 
 Some packages (including all those in the ``Products.*`` namespace) have the
 special status of being Zope 2 "products". These are recorded in a special
-registry viewable through the Zope Management Interface, and may have an
-``initialize()`` hook in their top-level ``__init__.py`` that needs to be
-called for the package to be fully configured.
+registry, and may have an ``initialize()`` hook in their top-level
+``__init__.py`` that needs to be called for the package to be fully configured.
 
 Zope 2 will find and execute any products during startup. For testing, we
 need to explicitly list the products to install. Provided you are using
