@@ -390,7 +390,7 @@ attributes:
     Called by the test runner when the layer is to be set up. This is called
     exactly once for each layer used during a test run.
 ``tearDown()``
-    Called by the test runner when the layer is to be down down. As with
+    Called by the test runner when the layer is to be torn down. As with
     ``setUp()``, this is called exactly once for each layer.
 ``testSetUp()``
     Called immediately before each test case that uses the layer is executed.
@@ -418,7 +418,7 @@ C, the order of execution might be::
 
     1.1.1. C.testSetUp()
     1.1.2. A.testSetUp()
-    1.1.3. [A test using layer A]
+    1.1.3. [One test using layer A]
     1.1.4. A.testTearDown()
     1.1.5. C.testTearDown()
 
@@ -433,7 +433,7 @@ C, the order of execution might be::
 
     1.3.1. C.testSetUp()
     1.3.2. B.testSetUp()
-    1.3.3. [A test using layer B]
+    1.3.3. [One test using layer B]
     1.3.4. B.testTearDown()
     1.3.5. C.testTearDown()
 
