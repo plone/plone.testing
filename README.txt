@@ -1281,6 +1281,10 @@ location slightly::
 
     from Products.Five.testbrowser import Browser
 
+or in Zope 2.13 and later::
+
+    from Testing.testbrowser import Browser
+
 Beyond that, the `zope.testbrowser`_ documentation should cover how to use
 the test browser.
 
