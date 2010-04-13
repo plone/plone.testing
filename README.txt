@@ -274,7 +274,7 @@ The available extras are:
     relevant layers and helpers are in the module ``plone.testing.ztk``.
 ``z2``
     Zope 2 testing. Depends on the ``Zope2`` egg, which includes all the
-    dependences of the Zope 2 application server. The relevant layers and
+    dependencies of the Zope 2 application server. The relevant layers and
     helpers are in the module ``plone.testing.z2``
 
 Adding a test buildout to your package
