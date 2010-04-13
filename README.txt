@@ -14,7 +14,7 @@ various types.
 
     **Note:** If you are working with Plone, there is a complementary package
     `plone.app.testing`_, which builds on ``plone.testing`` to provide
-    additional layers useful for testing Plone add-on products.
+    additional layers useful for testing Plone add-ons.
 
 If you are new to automated testing and test driven development, you should
 spend some time learning about those concepts. Some useful references include:
