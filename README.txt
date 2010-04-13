@@ -312,7 +312,7 @@ For example, ``plone.testing`` has the following layout::
 In ``setup.py``, the following arguments are required::
 
         packages=find_packages('src'),
-        package_dir = {'': 'src'},
+        package_dir={'': 'src'},
 
 This tells ``setuptools`` where to find the source code.
 

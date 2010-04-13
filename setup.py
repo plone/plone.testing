@@ -11,8 +11,8 @@ setup(name='plone.testing',
                        "Detailed documentation\n" +
                        "======================\n\n" +
                        open(os.path.join("src", "plone", "testing", "layer.txt")).read() + "\n\n" +
-                       open(os.path.join("src", "plone", "testing", "zca.txt")).read()   + "\n\n" +
-                       open(os.path.join("src", "plone", "testing", "ztk.txt")).read()   + "\n\n" +
+                       open(os.path.join("src", "plone", "testing", "zca.txt")).read() + "\n\n" +
+                       open(os.path.join("src", "plone", "testing", "ztk.txt")).read() + "\n\n" +
                        open(os.path.join("src", "plone", "testing", "zodb.txt")).read(),
       # Get more strings from
       # http://pypi.python.org/pypi?%3Aaction=list_classifiers
@@ -26,7 +26,7 @@ setup(name='plone.testing',
       url='http://pypi.python.org/pypi/plone.testing',
       license='GPL',
       packages=find_packages('src'),
-      package_dir = {'': 'src'},
+      package_dir={'': 'src'},
       namespace_packages=['plone'],
       include_package_data=True,
       zip_safe=False,
@@ -75,7 +75,7 @@ setup(name='plone.testing',
             ],
         'z2': [
                 'Zope2',
-            ]
+            ],
       },
       entry_points="""
       """,
