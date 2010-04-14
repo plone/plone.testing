@@ -250,7 +250,7 @@ class Startup(Layer):
       respectively.
     """
     
-    __bases__ = ()
+    defaultBases = ()
     
     threads = 1
     
@@ -576,7 +576,7 @@ class BasicSite(Layer):
     an anonymous user.
     """
     
-    __bases__ = (STARTUP,)
+    defaultBases = (STARTUP,)
     
     # Layer lifecycle
     
@@ -662,7 +662,7 @@ class Functional(BasicSite):
     semantics.
     """
     
-    __bases__ = (STARTUP,)
+    defaultBases = (STARTUP,)
     
     # Test lifecycle
     
@@ -736,7 +736,7 @@ class ZServer(Layer):
     it shares the same async loop.
     """
     
-    __bases__ = (FUNCTIONAL,)
+    defaultBases = (FUNCTIONAL,)
     
     host = 'localhost'
     port = 55001
@@ -825,7 +825,7 @@ class FTPServer(ZServer):
     ports. They will then share a main loop.
     """
     
-    __bases__ = (FUNCTIONAL,)
+    defaultBases = (FUNCTIONAL,)
     
     host = 'localhost'
     port = 55002

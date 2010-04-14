@@ -8,7 +8,7 @@ class Sandbox(Layer):
     test and torn down after each test.
     """
     
-    __bases__ = ()
+    defaultBases = ()
     
     def testSetUp(self):
         import zope.component.testing
@@ -29,7 +29,7 @@ class EventTesting(Layer):
     the event testing events list is emptied for each test.
     """
     
-    __bases__ = (SANDBOX,)
+    defaultBases = (SANDBOX,)
     
     def testSetUp(self):
         import zope.component.eventtesting
@@ -44,7 +44,7 @@ class ZCMLDirectives(Layer):
     ``configurationContext``.
     """
     
-    __bases__ = ()
+    defaultBases = ()
     
     def setUp(self):
         

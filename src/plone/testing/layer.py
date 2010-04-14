@@ -5,7 +5,7 @@ class ResourceManager(object):
     """Mixin class for resource managers.
     """
     
-    __bases__ = ()
+    __bases__ = () # must be set as an instance variable by subclass
     
     def __init__(self):
         self._resources = {}
@@ -132,7 +132,7 @@ class Layer(ResourceManager):
     # as bases for this layer. This may be overridden by passing a tuple
     # to the Layer constructor.
 
-    __bases__ = ()
+    defaultBases = ()
     
     def __init__(self, bases=None, name=None, module=None):
         """Create an instance of the layer. Normally this is done once, at
@@ -152,8 +152,9 @@ class Layer(ResourceManager):
         
         super(Layer, self).__init__()
         
-        if bases is not None:
-            self.__bases__ = tuple(bases)
+        if bases is None:
+            bases = self.defaultBases
+        self.__bases__ = tuple(bases)
         
         if name is None:
             name = self.__class__.__name__

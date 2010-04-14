@@ -502,7 +502,7 @@ The layer shown above did not have any base layers (dependencies). Here is an
 example of another layer that depends on it:
 
     >>> class ZIGSpaceShip(Layer):
-    ...     __bases__ = (SPACE_SHIP,)
+    ...     defaultBases = (SPACE_SHIP,)
     ...
     ...     def setUp(self):
     ...         print "Installing main canon"
@@ -510,9 +510,11 @@ example of another layer that depends on it:
     >>> ZIG = ZIGSpaceShip()
 
 Here, we have explicitly listed the base layers on which ``ZIGSpaceShip``
-depends, by setting the ``__bases__`` tuple.
+depends, in the ``defaultBases`` attribute. This is used by the ``Layer``
+base class to set the layer bases in a way that can also be overridden: see
+below.
 
-Note that we use the layer *instance* in the ``__bases__`` tuple, not the
+Note that we use the layer *instance* in the ``defaultBases`` tuple, not the
 class. Layer dependencies always pertain to specific layer instances. Above,
 we are really saying that *instances* of ``ZIGSpaceShip`` will, by default,
 require the ``SPACE_SHIP`` layer to be set up first.
@@ -535,10 +537,12 @@ require the ``SPACE_SHIP`` layer to be set up first.
     * Subclassing an existing layer class is just straightforward OOP re-use:
       the test runner is not aware of the subclassing relationship.
     * A layer *instance* can be associated with any number of layer *bases*,
-      via its ``__bases__`` property. These bases are layer *instances*,
-      not classes. The test runner will inspect the ``__bases__`` attribute of
-      each layer instance it sets up to calculate layer pre-requisites and
-      dependencies.
+      via its ``__bases__`` property (which is usually via the
+      ``defaultBases`` variable in the class body and/or overridden using the
+      ``bases`` argument to the ``Layer`` constructor). These bases are layer
+      *instances*, not classes. The test runner will inspect the ``__bases__``
+      attribute of each layer instance it sets up to calculate layer
+      pre-requisites and dependencies.
 
     Also note that the `zope.testing`_ documentation contains examples of
     layers that are "old-style" classes where the ``setUp()`` and
@@ -558,8 +562,8 @@ module, and you need to change the order in which layers are set up and torn
 down.
 
 Normally, of course, you would just re-use the layer instance, either directly
-in a test, or in the ``__bases__`` tuple of another layer, but if you need to
-change the bases, you can pass a new list of bases to the layer instance
+in a test, or in the ``defaultBases`` tuple of another layer, but if you need
+to change the bases, you can pass a new list of bases to the layer instance
 constructor:
 
     >>> class CATSMessage(Layer):
@@ -628,7 +632,7 @@ uses dictionary notation:
     ...         self.running = False
 
     >>> class ConstitutionClassSpaceShip(Layer):
-    ...     __bases__ = (SPACE_SHIP,)
+    ...     defaultBases = (SPACE_SHIP,)
     ...
     ...     def setUp(self):
     ...         self['warpDrive'] = WarpDrive(8.0)
@@ -639,7 +643,7 @@ uses dictionary notation:
     >>> CONSTITUTION_CLASS_SPACE_SHIP = ConstitutionClassSpaceShip()
 
     >>> class GalaxyClassSpaceShip(Layer):
-    ...     __bases__ = (CONSTITUTION_CLASS_SPACE_SHIP,)
+    ...     defaultBases = (CONSTITUTION_CLASS_SPACE_SHIP,)
     ...
     ...     def setUp(self):
     ...         # Upgrade the warp drive
@@ -1484,7 +1488,7 @@ based on ``EMPTY_ZODB``, you can use the following pattern::
     from plone.layer import zodb
 
     class MyLayer(Layer):
-        __bases__ = (zodb.EMPTY_ZODB,)
+        defaultBases = (zodb.EMPTY_ZODB,)
 
         def setUp(self):
 

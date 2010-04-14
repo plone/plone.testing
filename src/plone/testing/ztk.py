@@ -11,7 +11,7 @@ class Placeless(Layer):
     view, an empty vocabulary registry, and a new interaction per test.
     """
     
-    __bases__ = (zca.EVENT_TESTING,)
+    defaultBases = (zca.EVENT_TESTING,)
     
     def testSetUp(self):
         
@@ -57,7 +57,7 @@ class ZCMLDirectives(Layer):
     resource.
     """
     
-    __bases__ = (zca.ZCML_DIRECTIVES,)
+    defaultBases = (zca.ZCML_DIRECTIVES,)
     
     def setUp(self):
         from zope.configuration import xmlconfig

@@ -190,7 +190,7 @@ ZODB's stackable DemoStorage. For example:
     >>> import transaction
 
     >>> class ExpandedZODB(Layer):
-    ...     __bases__ = (POPULATED_ZODB,)
+    ...     defaultBases = (POPULATED_ZODB,)
     ...     
     ...     def setUp(self):
     ...         # Get the database from the base layer

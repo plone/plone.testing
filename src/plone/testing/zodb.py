@@ -19,7 +19,7 @@ class EmptyZODB(Layer):
     ``createStorage()`` and ``createDatabase()``.
     """
     
-    __bases__ = ()
+    defaultBases = ()
     
     def setUp(self):
         self['zodbDB'] = self.createDatabase(self.createStorage())

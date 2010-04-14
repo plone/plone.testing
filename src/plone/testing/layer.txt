@@ -29,7 +29,7 @@ the layer lifecycle methods does nothing.
 Just about the only reason to use this directly (i.e. not as a base class) is
 to group together other layers.
 
-    >>> SIMPLE_LAYER = Layer((NULL_LAYER,), name="Simple layer", module='plone.testing.tests')
+    >>> SIMPLE_LAYER = Layer(bases=(NULL_LAYER,), name="Simple layer", module='plone.testing.tests')
 
 Here, we've also set the module name directly. The default for all layers is
 to take the module name from the stack frame where the layer was instantiated.
@@ -86,13 +86,16 @@ The layer name and module are taken from the class.
     >>> BASE_LAYER.__module__
     '__builtin__'
 
-We can now create a new layer that has this one as a base. We'll also set the
-default name explicitly here by passing a name to the the super-constructor.
-This is mostly cosmetic, but may be desirable if the class name would be
-misleading in the test runner output.
+We can now create a new layer that has this one as a base. We can do this in
+the instance constructor, as shown above, but the most common pattern is to
+set the default bases in the class body, using the variable ``defaultBases``.
+
+We'll also set the default name explicitly here by passing a name to the the
+super-constructor. This is mostly cosmetic, but may be desirable if the class
+name would be misleading in the test runner output.
 
     >>> class ChildLayer(Layer):
-    ...     __bases__ = (BASE_LAYER,)
+    ...     defaultBases = (BASE_LAYER,)
     ...     
     ...     def __init__(self, bases=None, name='Child layer', module=None):
     ...         super(ChildLayer, self).__init__(bases, name, module)
@@ -104,6 +107,8 @@ misleading in the test runner output.
     ...         print "Tearing down child layer"
 
     >>> CHILD_LAYER = ChildLayer()
+
+Notice how the bases have now been set using the value in ``defaultBases``.
 
     >>> CHILD_LAYER.__bases__
     (<Layer '__builtin__.BaseLayer'>,)
@@ -124,7 +129,7 @@ The new list of bases is passed to the constructor. When creating a second
 instance of a layer (most layers are global singletons created only once),
 it's useful to give the new instance a unique name, too.
 
-    >>> NEW_CHILD_LAYER = ChildLayer((SIMPLE_LAYER, BASE_LAYER,), name='New child')
+    >>> NEW_CHILD_LAYER = ChildLayer(bases=(SIMPLE_LAYER, BASE_LAYER,), name='New child')
 
     >>> NEW_CHILD_LAYER.__bases__
     (<Layer 'plone.testing.tests.Simple layer'>, <Layer '__builtin__.BaseLayer'>)
@@ -178,7 +183,7 @@ under a key ``'foo'`` in their ``setUp()`` methods.
     >>> LAYER1 = Layer1()
 
     >>> class Layer2(Layer):
-    ...     __bases__ = (LAYER1,)
+    ...     defaultBases = (LAYER1,)
     ...     def setUp(self):
     ...         self['foo'] = 2
     ...     def tearDown(self):
@@ -193,7 +198,7 @@ under a key ``'foo'`` in their ``setUp()`` methods.
     >>> LAYER3 = Layer3()
 
     >>> class Layer4(Layer):
-    ...     __bases__ = (LAYER2, LAYER3,)
+    ...     defaultBases = (LAYER2, LAYER3,)
     ...     def setUp(self):
     ...         self['foo'] = 4
     ...     def tearDown(self):
@@ -308,7 +313,7 @@ First, we'll create some base layers. We want to demonstrate having two
     >>> RESOURCE_BASE_LAYER1 = ResourceBaseLayer1()
 
     >>> class ResourceBaseLayer2(Layer):
-    ...     __bases__ = (RESOURCE_BASE_LAYER1,)
+    ...     defaultBases = (RESOURCE_BASE_LAYER1,)
     ...     def testSetUp(self):
     ...         print self['resource']
     
@@ -327,7 +332,7 @@ First, we'll create some base layers. We want to demonstrate having two
 We'll then create the child layer that overrides this resource.
 
     >>> class ResourceChildLayer(Layer):
-    ...     __bases__ = (RESOURCE_BASE_LAYER2, RESOURCE_BASE_LAYER3)
+    ...     defaultBases = (RESOURCE_BASE_LAYER2, RESOURCE_BASE_LAYER3)
     ...     def setUp(self):
     ...         self['resource'] = "Child"
     ...     def testSetUp(self):
@@ -434,7 +439,7 @@ that was not explicitly created. These two layers break those roles:
     >>> BAD_LAYER1 = BadLayer1()
 
     >>> class BadLayer2(Layer):
-    ...     __bases__ = (BAD_LAYER1,)
+    ...     defaultBases = (BAD_LAYER1,)
     ...     def setUp(self):
     ...         self['foo'] = 1
     ...         self['bar'] = 2
