@@ -12,6 +12,9 @@ plone.testing TODO
     - would make for better tear-down of z2.STARTUP
     - would make it easier to load components and tear down properly in own layers
 
+* Ensure zope.testbrowser works - do we need any of the stuff in
+  functional.py in ZopeTestCase?
+
 * Define Plone layers (in plone.app.testing)
 
     - Should not have any content or non-standard products installed
@@ -22,5 +25,3 @@ plone.testing TODO
         - install product using portal_quickinstaller (discourage?)
         - create user
 
-* Ensure zope.testbrowser works - do we need any of the stuff in
-  functional.py in ZopeTestCase?
