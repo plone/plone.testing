@@ -248,14 +248,14 @@ don't use the relevant layers, you can safely ignore them.
 
 ``plone.testing`` does specify these dependencies, however, using the
 ``setuptools`` "extras" feature. You can depend on one or more extras in
-your own ``setup.py``'s ``install_requires`` or ``extras_require`` option
+your own ``setup.py`` ``install_requires`` or ``extras_require`` option
 using the same square bracket notation shown for the ``[test]`` buildout part
-above. For example, if you need both the ``zca`` and ``ztk`` extras, you can
-have the following in your ``setup.py``::
+above. For example, if you need both the ``zca`` and ``publisher`` extras, you
+can have the following in your ``setup.py``::
 
     extras_require = {
         'test': [
-                'plone.testing [zca, ztk]',
+                'plone.testing [zca, publisher]',
             ]
     },
 
@@ -268,10 +268,10 @@ The available extras are:
     Zope Component Architecture testing. Depends on core Zope Component
     Architecture packages such as ``zope.component`` and ``zope.event``. The
     relevant layers and helpers are in the module ``plone.testing.zca``.
-``ztk``
-    Zope Toolkit testing. Depends on some Zope Toolkit packages such as
-    ``zope.container``, ``zope.traversing`` and ``zope.password``. The
-    relevant layers and helpers are in the module ``plone.testing.ztk``.
+``publisher``
+    Zope Publisher testing. Depends on ``plone.app.publisher`` and sets up
+    ZCML directives. The relevant layers and helpers are in the module
+    ``plone.testing.publisher``.
 ``z2``
     Zope 2 testing. Depends on the ``Zope2`` egg, which includes all the
     dependencies of the Zope 2 application server. The relevant layers and
@@ -282,9 +282,8 @@ Adding a test buildout to your package
 
 When creating re-usable, mostly stand-alone packages, it is often useful to be
 able to include a buildout with the package sources itself that can be used to
-create a test runner. This is a popular approach for many Zope Toolkit
-packages, for example. In fact, ``plone.testing`` itself uses this kind of
-layout.
+create a test runner. This is a popular approach for many Zope packages, for
+example. In fact, ``plone.testing`` itself uses this kind of layout.
 
 To have a self-contained buildout in your package, the following is required:
 
@@ -1376,48 +1375,22 @@ had ``zca.ZCML_DIRECTIVES`` as a base, you could do:
 
 See above for more details about loading custom ZCML in a layer or test.
 
-Zope Toolkit
-------------
+Zope Publisher
+--------------
 
-The Zope Toolkit layers build on the Zope Component Architecture layers. They
-can be found in the module ``plone.testing.ztk``.
+The Zope Publisher layers build on the Zope Component Architecture layers.
+They can be found in the module ``plone.testing.publisher``.
 
-If you depend on this, you can use the ``[ztk]`` extra when depending on
+If you depend on this, you can use the ``[publisher]`` extra when depending on
 ``plone.testing``.
 
-Placeless setup
-~~~~~~~~~~~~~~~
+Publisher directives
+~~~~~~~~~~~~~~~~~~~~
 
 +------------+--------------------------------------------------+
-| Layer:     | ``plone.testing.ztk.PLACELESS``                  |
+| Layer:     | ``plone.testing.publisher.PUBLISHER_DIRECTIVES`` |
 +------------+--------------------------------------------------+
-| Class:     | ``plone.testing.ztk.Placeless``                  |
-+------------+--------------------------------------------------+
-| Bases:     | ``plone.testing.zca.EVENT_TESTING``              |
-+------------+--------------------------------------------------+
-| Resources: | None                                             |
-+------------+--------------------------------------------------+
-
-This layer sets up a minimal test fixture for testing code using the Zope
-Toolkit:
-
-* A name chooser is installed for ``zope.container``
-* A default ``IAbsoluteURL`` view is installed
-* The default password managers in ``zope.password`` are set up
-* The ``zope.Public`` permission is installed
-* A new interaction is started for each test, allowing basic security checks
-* ``zope.i18n`` is configured with basic charsets and languages
-
-As it is based on the ``zca.SANDBOX`` layer, the component architecture is set
-up and torn down before/after each test.
-
-ZCML directives
-~~~~~~~~~~~~~~~
-
-+------------+--------------------------------------------------+
-| Layer:     | ``plone.testing.ztk.ZCML_DIRECTIVES``            |
-+------------+--------------------------------------------------+
-| Class:     | ``plone.testing.ztk.ZCMLDirectives``             |
+| Class:     | ``plone.testing.publisher.PublisherDirectives``  |
 +------------+--------------------------------------------------+
 | Bases:     | ``plone.testing.zca.ZCML_DIRECTIVES``            |
 +------------+--------------------------------------------------+

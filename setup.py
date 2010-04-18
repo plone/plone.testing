@@ -12,7 +12,7 @@ setup(name='plone.testing',
                        "======================\n\n" +
                        open(os.path.join("src", "plone", "testing", "layer.txt")).read() + "\n\n" +
                        open(os.path.join("src", "plone", "testing", "zca.txt")).read() + "\n\n" +
-                       open(os.path.join("src", "plone", "testing", "ztk.txt")).read() + "\n\n" +
+                       open(os.path.join("src", "plone", "testing", "publisher.txt")).read() + "\n\n" +
                        open(os.path.join("src", "plone", "testing", "zodb.txt")).read(),
       # Get more strings from
       # http://pypi.python.org/pypi?%3Aaction=list_classifiers
@@ -39,13 +39,8 @@ setup(name='plone.testing',
         'test': [
                 'zope.component',
                 'zope.interface',
-                'zope.container',
-                'zope.i18n',
-                'zope.password',
                 'zope.publisher',
-                'zope.traversing',
                 'zope.security',
-                'zope.schema',
                 'zope.event',
                 'zope.configuration',
                 'zope.testbrowser',
@@ -61,16 +56,9 @@ setup(name='plone.testing',
                 'zope.event',
                 'zope.configuration',
             ],
-        'ztk': [
-                'zope.component',
-                'zope.interface',
-                'zope.container',
-                'zope.i18n',
-                'zope.password',
-                'zope.publisher',
-                'zope.traversing',
+        'publisher': [
+                'zope.configuration',
                 'zope.security',
-                'zope.schema',
                 'zope.app.publisher', # XXX: Can probably go away in Zope 2.13
             ],
         'z2': [
