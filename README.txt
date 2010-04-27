@@ -1368,7 +1368,7 @@ This allows custom ZCML to be loaded as described above.
 
 The ``configurationContext`` resource should be used when loading custom
 ZCML. For example, if you were writing a ``setUp()`` method in a layer that
-had ``zca.ZCML_DIRECTIVES`` as a base, you could do:
+had ``zca.ZCML_DIRECTIVES`` as a base, you could do::
 
     context = self['configurationContext']
     xmlconfig.string(someZCMLString, context=context)
