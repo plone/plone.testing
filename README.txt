@@ -1599,7 +1599,7 @@ changes, the test may modify the ZODB.
     The ``zopeApp()`` context manager will open a new connection to the Zope
     application root, accessible here as ``app``. Provided the code within
     the ``with`` block does not raise an exception, the transaction will be
-    committed and the database closed properly upon existing the block.
+    committed and the database closed properly upon exiting the block.
 
 Functional testing
 ~~~~~~~~~~~~~~~~~~
