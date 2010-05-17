@@ -5,8 +5,7 @@ Introduction
 
 ``plone.testing`` provides tools for writing unit and integration tests in a
 Zope and Plone environment. It is not tied to Plone, and it does not depend on
-Zope 2 (although it will provide some additional tools if you are using Zope
-2).
+Zope 2 (although it has some optional Zope 2-only features).
 
 ``plone.testing`` builds on `zope.testing`_, in particular its layers concept.
 This package also aims to promote some "good practice" for writing tests of
@@ -731,7 +730,7 @@ Writing tests
 
 Tests are usually written in one of two ways: As methods on a class that
 derives from ``unittest.TestCase`` (this is sometimes known as "Python tests"
-or "JUnit-style tests"); or using doctest syntax.
+or "JUnit-style tests"), or using doctest syntax.
 
 You should realise that although the relevant frameworks (``unittest``,
 ``unittest2`` and ``doctest``) often talk about unit testing, these tools are
@@ -895,6 +894,20 @@ the method or class where the docstring appears), or as a separate text file.
 In both cases, the standard `doctest`_ module is used. See its documentation
 for details about doctest syntax and conventions.
 
+Doctests are used in two different ways:
+
+* To test documentation. That is, to ensure that code examples contained in
+  documentation are valid and continue to work as the software is updated.
+* As a convenient syntax for writing tests.
+
+These two approaches use the same testing APIs and techniques. The difference
+is mostly about mindset. However, it is important to avoid falling into the
+trap that tests can substitute for good documentation or vice-a-versa. Tests
+usually need to systematically go through inputs and outputs and cover off a
+number of corner cases. Documentation should tell a compelling narrative and
+usually focus on the main usage scenarios. Trying to kill these two birds with
+one stone normally leaves you with an unappealing pile of stones and feathers.
+
 Docstring doctests
 ~~~~~~~~~~~~~~~~~~
 
@@ -948,12 +961,52 @@ tests to the suite: the list can contain be constructed from calls to
     be automatically picked up by ``zope.testing``, so you need to add them
     to the test suite explicitly.
 
+The example above illustrates a documentation-oriented doctest, where the
+doctest forms part of the docstring of a public module. The same syntax can
+be used for more systematic unit tests. For example, we could have a module
+``spaceship.tests.test_spaceship`` with a set of methods like::
+
+    def test_canOutrunKlingons_too_small():
+        """Klingons travel at warp 8.0
+
+        >>> from spaceship.utils import WarpDrive, canOutrunKlingons
+        >>> drive = WarpDrive(7.9)
+        >>> canOutrunKlingons(drive)
+        False
+        """
+    
+    def test_canOutrunKlingons_big():
+        """Klingons travel at warp 8.0
+        
+        >>> from spaceship.utils import WarpDrive, canOutrunKlingons
+        >>> drive = WarpDrive(8.1)
+        >>> canOutrunKlingons(drive)
+        True
+        """
+
+    def test_canOutrunKlingons_must_be_greater():
+        """Klingons travel at warp 8.0
+
+        >>> from spaceship.utils import WarpDrive, canOutrunKlingons
+        >>> drive = WarpDrive(8.0)
+        >>> canOutrunKlingons(drive)
+        False
+        """
+
+Here, we have created a number of small methods that have no body. They merely
+serve as a container for docstrings with doctests. Since the module has no
+globals, each test must import the code under test, which helps make import
+errors more explicit.
+
 File doctests
 ~~~~~~~~~~~~~
 
-Doctests contained in a file are similar. For example, if we had a file called
-``spaceship.txt`` with doctests, we could add it to the test suite above
-with:
+Doctests contained in a file are similar to those contained in docstrings.
+File doctests are better suited to narrative documentation covering the usage
+of an entire module or package.
+
+For example, if we had a file called ``spaceship.txt`` with doctests, we could
+add it to the test suite above with:
 
     >>> def test_suite():
     ...     suite = unittest.TestSuite()
