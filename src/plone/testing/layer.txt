@@ -425,7 +425,7 @@ Finally, we'll tear down the remaining layers..
     >>> RESOURCE_BASE_LAYER1.tearDown()
 
 Asymmetric deletion
--------------------
++++++++++++++++++++
 
 It is an error to create or shadow a resource in a set-up lifecycle method and
 not delete it again in the tear-down. It is also an error to delete a resource

@@ -965,32 +965,36 @@ The example above illustrates a documentation-oriented doctest, where the
 doctest forms part of the docstring of a public module. The same syntax can
 be used for more systematic unit tests. For example, we could have a module
 ``spaceship.tests.test_spaceship`` with a set of methods like::
-
+    
+    # It's often better to put the import into each method, but here we've
+    # imported the code under test at module level
+    from spaceship.utils import WarpDrive, canOutrunKlingons
+    
     def test_canOutrunKlingons_too_small():
         """Klingons travel at warp 8.0
 
-        >>> from spaceship.utils import WarpDrive, canOutrunKlingons
         >>> drive = WarpDrive(7.9)
         >>> canOutrunKlingons(drive)
         False
+        
         """
     
     def test_canOutrunKlingons_big():
         """Klingons travel at warp 8.0
         
-        >>> from spaceship.utils import WarpDrive, canOutrunKlingons
         >>> drive = WarpDrive(8.1)
         >>> canOutrunKlingons(drive)
         True
+        
         """
 
     def test_canOutrunKlingons_must_be_greater():
         """Klingons travel at warp 8.0
 
-        >>> from spaceship.utils import WarpDrive, canOutrunKlingons
         >>> drive = WarpDrive(8.0)
         >>> canOutrunKlingons(drive)
         False
+        
         """
 
 Here, we have created a number of small methods that have no body. They merely
@@ -1237,6 +1241,13 @@ When registering global components like this, it is important to avoid
 test leakage. The ``cleanup`` mechanism outlined above can be used to tear
 down the component registry between each test.
 
+Alternatively, you can "stack" a new global component registry using the
+``zca.pushGlobalRegistry()`` and ``zca.popGlobalRegistry()`` helpers. This
+makes it possible to set up and tear down components that are specific to a
+given layer, and even allow tests to safely call the global component API
+(or load ZCML - see below) with proper tear-down. See the layer reference
+below for details.
+
 Loading ZCML
 ------------
 
@@ -1427,6 +1438,47 @@ had ``zca.ZCML_DIRECTIVES`` as a base, you could do::
     xmlconfig.string(someZCMLString, context=context)
 
 See above for more details about loading custom ZCML in a layer or test.
+
+Helper functions
+~~~~~~~~~~~~~~~~
+
+The following helper functions are available in the ``plone.testing.zca``
+module.
+
+``pushGlobalRegistry(new=None)``
+    Create or obtain a stack of global component registries, and push a new
+    registry to the top of the stack. The net result is that
+    ``zope.component.getGlobalSiteManager()`` and (an un-hooked)
+    ``getSiteManager()`` will return the new registry instead of the default,
+    module-scope one. From this point onwards, calls to ``provideAdapter()``,
+    ``provideUtility()`` and other functions that modify the global registry
+    will use the new registry.
+    
+    If ``new`` is not given, a new registry is created that has the previous
+    global registry (site manager) as its sole base. This has the effect that
+    registrations in the previous default global registry are still available,
+    but new registrations are confined to the new registry.
+    
+    **Warning**: If you call this function, you *must* reciprocally call
+    ``popGlobalRegistry()``. That is, if you "push" a registry during layer
+    ``setUp()``, you must "pop" it during ``tearDown()``. If you "push" during
+    ``testSetUp()``, you must "pop" during ``testTearDown()``. If the calls
+    to push and pop are not balanced, you will leave your global registry in
+    a mess, which is not pretty.
+    
+    Returns the new default global site manager. Also causes the site manager
+    hook from ``zope.site`` to be reset, clearing any local site managers as
+    appropriate.
+    
+``popGlobalRegistry()``
+    Pop the global site registry, restoring the previous registry to be the
+    default.
+    
+    Please heed the warning above: push and pop must be balanced.
+    
+    Returns the new default global site manager. Also causes the site manager
+    hook from ``zope.site`` to be reset, clearing any local site managers as
+    appropriate.
 
 Zope Publisher
 --------------

@@ -539,6 +539,11 @@ class Startup(Layer):
         ``configurationContext`` which can be used to load further ZCML.
         """
         
+        # Push a new global registry so that we can cleanly tear down all ZCML
+        from plone.testing import zca
+        zca.pushGlobalRegistry()
+        
+        # Load Five's ZCML, which configures the basics of Zope
         from zope.configuration import xmlconfig
         import Products.Five
         
@@ -548,11 +553,12 @@ class Startup(Layer):
         """Tear down the component registry and delete the
         ``configurationContext`` resource.
         """
-        
-        from zope.component.globalregistry import base
-        base.__init__('base')
-        
+        # Delete the configuration context
         del self['configurationContext']
+        
+        # Zap all globally loaded ZCML
+        from plone.testing import zca
+        zca.popGlobalRegistry()
 
 STARTUP = Startup()
 
