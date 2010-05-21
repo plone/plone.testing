@@ -7,6 +7,8 @@ from plone.testing import Layer
 _REGISTRIES = []
 
 def loadRegistry(name):
+    """Unpickling helper
+    """
     for reg in reversed(_REGISTRIES):
         if reg.__name__ == name:
             return reg
@@ -31,7 +33,10 @@ def pushGlobalRegistry(new=None):
     
     # The first time we're called, we need to put the default global
     # registry at the bottom of the stack, and then patch the class to use
-    # the stack loading for pickling
+    # the stack for loading pickles. Otherwise, we end up with POSKey and
+    # pickling errors when dealing with persistent registries that have the
+    # global registry (globalregistry.base) as a baes
+
     if len(_REGISTRIES) == 0:
         _REGISTRIES.append(current)
         globalregistry.BaseGlobalComponents._old__reduce__ = globalregistry.BaseGlobalComponents.__reduce__
