@@ -14,7 +14,7 @@ TEST_USER_PASSWORD = 'secret'
 TEST_USER_ROLE = 'test_role_1_'
 TEST_USER_PERMISSIONS = ['Access contents information', 'View']
 
-def installProduct(app, productName, quiet=True):
+def installProduct(app, productName, quiet=False):
     """Install the Zope 2 product with the given name, so that it will show
     up in the Zope 2 control panel and have its ``initialize()`` hook called.
     
@@ -67,10 +67,10 @@ def installProduct(app, productName, quiet=True):
                 break
     
     if not found and not quiet:
-        sys.stderr.write("Could not install product %s" % productName)
+        sys.stderr.write("Could not install product %s\n" % productName)
         sys.stderr.flush()
 
-def uninstallProduct(app, productName, quiet=True):
+def uninstallProduct(app, productName, quiet=False):
     """Uninstall the given Zope 2 product. This is the inverse of
     ``installProduct()`` above.
     """
@@ -132,7 +132,7 @@ def uninstallProduct(app, productName, quiet=True):
         del _INSTALLED_PRODUCTS[productName]
     
     if not found and not quiet:
-        sys.stderr.write("Could not install product %s" % productName)
+        sys.stderr.write("Could not install product %s\n" % productName)
         sys.stderr.flush()
 
 def login(userFolder, userName):
@@ -543,11 +543,26 @@ class Startup(Layer):
         from plone.testing import zca
         zca.pushGlobalRegistry()
         
-        # Load Five's ZCML, which configures the basics of Zope
-        from zope.configuration import xmlconfig
-        import Products.Five
+        # Load something akin to the default site.zcml without actually auto-
+        # loading products
         
-        self['configurationContext'] = xmlconfig.file('configure.zcml', Products.Five)
+        from zope.configuration import xmlconfig
+        context = xmlconfig.string("""\
+<configure
+    xmlns="http://namespaces.zope.org/zope"
+    xmlns:meta="http://namespaces.zope.org/meta"
+    xmlns:five="http://namespaces.zope.org/five">
+
+    <include package="Products.Five" />
+    <meta:redefinePermission from="zope2.Public" to="zope.Public" />
+
+    <securityPolicy component="Products.Five.security.FiveSecurityPolicy" />
+
+</configure>
+""")
+        
+        # Save the context for other layers/tests
+        self['configurationContext'] = context
     
     def tearDownZCML(self):
         """Tear down the component registry and delete the
@@ -604,7 +619,7 @@ class BasicSite(Layer):
     
     def setUpDefaultContent(self):
         
-        with zopeApp() as app:        
+        with zopeApp() as app:
             app.manage_addFolder(TEST_FOLDER_NAME)
             folder = app[TEST_FOLDER_NAME]
             folder._addRole(TEST_USER_ROLE)

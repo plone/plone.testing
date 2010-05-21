@@ -3,9 +3,14 @@
 
 from plone.testing import Layer
 
-# Contains a stack of previously installed global registries (but not the
-# current one)
-_REGISTRY_STACK = []
+# Contains a stack of installed global registries (but not the default one)
+_REGISTRIES = []
+
+def loadRegistry(name):
+    for reg in reversed(_REGISTRIES):
+        if reg.__name__ == name:
+            return reg
+    raise KeyError(name)
 
 def pushGlobalRegistry(new=None):
     """Set a new global component registry that uses the current registry as
@@ -13,27 +18,44 @@ def pushGlobalRegistry(new=None):
     restore the original state.
     
     If ``new`` is not given, a new registry is created. If given, you must
-    provide a ``zope.component.registry.Components`` object.
+    provide a ``zope.component.globalregistry.BaseGlobalComponents`` object.
     
     Returns the new registry.
     """
     
-    global _REGISTRY_STACK
-    
     from zope.component import _api
     from zope.component import globalregistry
-    from zope.component.registry import Components
     
     # Save the current top of the stack in a registry
     current = globalregistry.base
-    _REGISTRY_STACK.append(current)
+    
+    # The first time we're called, we need to put the default global
+    # registry at the bottom of the stack, and then patch the class to use
+    # the stack loading for pickling
+    if len(_REGISTRIES) == 0:
+        _REGISTRIES.append(current)
+        globalregistry.BaseGlobalComponents._old__reduce__ = globalregistry.BaseGlobalComponents.__reduce__
+        globalregistry.BaseGlobalComponents.__reduce__ = lambda self: (loadRegistry, (self.__name__,))
     
     if new is None:
-        new = Components(name='stacked-test-%d' % len(_REGISTRY_STACK), bases=(current,))
+        name = 'test-stack-%d' % len(_REGISTRIES)
+        new = globalregistry.BaseGlobalComponents(name=name, bases=(current,))
     
-    # Monkey patch this into the three (!) places where zope.component references
-    # it as a module global variable
-    _api.base = globalregistry.base = globalregistry.globalSiteManager = new
+    _REGISTRIES.append(new)
+    
+    # Monkey patch this into the three (!) places where zope.component
+    # references it as a module global variable
+    _api.base = new
+    globalregistry.base = new
+    globalregistry.globalSiteManager = new
+    
+    # And the one in five.localsitemanager, if applicable
+    try:
+        from five import localsitemanager
+    except ImportError:
+        pass
+    else:
+        localsitemanager.base = new
     
     # Reset the site manager hook so that getSiteManager() returns the base
     # again
@@ -41,10 +63,12 @@ def pushGlobalRegistry(new=None):
     getSiteManager.reset()
     
     try:
-        from zope.site.hooks import setSite
-        setSite()
+        from zope.site.hooks import setSite, setHooks
     except ImportError:
         pass
+    else:
+        setSite()
+        setHooks()
     
     return new
 
@@ -53,13 +77,32 @@ def popGlobalRegistry():
     set with ``pushGlobalRegistry()``.
     """
     
-    global _REGISTRY_STACK
-    
     from zope.component import _api
     from zope.component import globalregistry
     
-    previous = _REGISTRY_STACK.pop()
-    _api.base = globalregistry.base = globalregistry.globalSiteManager = previous
+    if not _REGISTRIES or not _REGISTRIES[-1] is globalregistry.base:
+        raise ValueError(u"popGlobalRegistry() called out of sync with pushGlobalRegistry()")
+    
+    current = _REGISTRIES.pop()
+    previous = current.__bases__[0]
+    
+    # If we only have the default registry on the stack, return it to its
+    # original state and empty the stack
+    if len(_REGISTRIES) == 1:
+        assert _REGISTRIES[0] is previous
+        _REGISTRIES.pop()
+        globalregistry.BaseGlobalComponents.__reduce__ = globalregistry.BaseGlobalComponents._old__reduce__
+    
+    _api.base = previous
+    globalregistry.base = previous
+    globalregistry.globalSiteManager = previous
+    
+    try:
+        from five import localsitemanager
+    except ImportError:
+        pass
+    else:
+        localsitemanager.base = previous
     
     # Reset the site manager hook so that getSiteManager() returns the base
     # again
@@ -67,10 +110,12 @@ def popGlobalRegistry():
     getSiteManager.reset()
     
     try:
-        from zope.site.hooks import setSite
-        setSite()
+        from zope.site.hooks import setSite, setHooks
     except ImportError:
         pass
+    else:
+        setSite()
+        setHooks()
     
     return previous
 
