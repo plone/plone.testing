@@ -159,6 +159,10 @@ def setRoles(userFolder, userName, roles):
     """
     
     userFolder.userFolderEditUser(userName, None, list(roles), [])
+    
+    from AccessControl import getSecurityManager
+    if userName == getSecurityManager().getUser().getId():
+        login(userFolder, userName)
 
 def addRequestContainer(app, environ=None):
     """Add the request container with a fake request to the app object's
