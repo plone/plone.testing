@@ -183,10 +183,10 @@ a base layer sets up some data for one set of tests, and a child layer
 extends this, temporarily, with more data.
 
 This can be achieved using layer bases and resource shadowing, combined with
-ZODB's stackable DemoStorage. For example:
+ZODB's stackable DemoStorage. There is even a helper function available:
 
     >>> from plone.testing import Layer
-    >>> from ZODB.DB import DB
+    >>> from plone.testing import zodb
     >>> import transaction
 
     >>> class ExpandedZODB(Layer):
@@ -195,20 +195,12 @@ ZODB's stackable DemoStorage. For example:
     ...     def setUp(self):
     ...         # Get the database from the base layer
     ...         
-    ...         db = self['zodbDB']
-    ...         storage = db.storage
+    ...         self['zodbDB'] = db = zodb.stackDemoStorage(self.get('zodbDB'))
     ...         
-    ...         newStorage = storage.push()
-    ...         newDB = DB(newStorage)
-    ...         
-    ...         conn = newDB.open()
+    ...         conn = db.open()
     ...         conn.root()['additionalData'] = "Some new data"
     ...         transaction.commit()
     ...         conn.close()
-    ...         
-    ...         # Shadow the database with our new database that uses
-    ...         # the new storage
-    ...         self['zodbDB'] = newDB
     ...         
     ...     def tearDown(self):
     ...         # Close the database and delete the shadowed copy

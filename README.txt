@@ -1571,11 +1571,7 @@ based on ``EMPTY_ZODB``, you can use the following pattern::
         def setUp(self):
 
             import transaction
-            from ZODB.DemoStorage import DemoStorage
-            from ZODB.DB import DB
-
-            storage = DemoStorage(base=self['zodbDB'].storage)
-            self['zodbDB'] = db = DB(storage)
+            self['zodbDB'] = db = zodb.stackDemoStorage(self.get('zodbDB'))
 
             conn = db.open()
             root = conn.root()
@@ -1596,6 +1592,30 @@ is added to this storage and committed during layer setup. (The base layer
 test set-up/tear-down will still begin and abort a new transaction for each
 *test*). On layer tear-down, the database is closed and the resource popped,
 leaving the original ``zodbDB`` database with the original, pristine storage.
+
+Helper functions
+~~~~~~~~~~~~~~~~
+
+One helper function is available in the ``plone.testing.zodb`` module.
+
+``stackDemoStorage(db=None)``
+    Create a new ``DemoStorage`` using the storage from the passed-in database
+    as a base. If ``db`` is None, a brand new storage is created.
+    
+    The usual pattern is::
+    
+        def setUp(self):
+            self['zodbDB'] = zodb.stackDemoStorage(self.get('zodbDB'))
+        
+        def tearDown(self):
+            self['zodbDB'].close()
+            del self['zodbDB']
+
+    This will shadow the ``zodbDB`` resource with an isolated
+    ``DemoStorage``, creating a new one if that resource does not already
+    exist. All existing data continues to be available, but new changes are
+    written to the stacked storage. On tear-down, the stacked database is
+    closed and the resource removed, leaving the original data.
 
 Zope 2
 ------
@@ -1696,8 +1716,6 @@ changes, the test may modify the ZODB.
     Once you've shadowed the ``zodbDB`` resource, you can do::
 
         ...
-        self['zodbDB'] = db
-
         with z2.zopeApp() as app:
             # modify the Zope application root
 
@@ -1815,9 +1833,9 @@ Several helper functions are available in the ``plone.testing.z2`` module.
 
     Note that ``zopeApp()`` should *not* normally be used in tests or test
     set-up/tear-down, because the ``BASIC_SITE`` and ``FUNCTIONAL`` layers
-    both manage the application root and close it for you. It is very useful
-    in layer setup, however.
-``installProduct(app, product, quiet=True)``
+    both manage the application root (as the ``app`` resource) and close it
+    for you. It is very useful in layer setup, however.
+``installProduct(app, product, quiet=False)``
     Install a Zope 2 style product, ensuring that its ``initialize()``
     function is called. The product name must be the full dotted name, e.g.
     ``plone.app.portlets`` or ``Products.CMFCore``. If ``quiet`` is true,
@@ -1826,7 +1844,7 @@ Several helper functions are available in the ``plone.testing.z2`` module.
 
     To get hold of the application root, passed as the ``app`` argument, you
     would normally use the ``zopeApp()`` context manager outlined above.
-``uninstallProduct(app, product, quiet=True)``
+``uninstallProduct(app, product, quiet=False)``
     This is the reciprocal of ``installProduct()``, normally used during layer
     tear-down. Again, you should use ``zopeApp()`` to obtain the application
     root.

@@ -4,6 +4,7 @@
 import contextlib
 
 from plone.testing import Layer
+from plone.testing import zodb
 
 _INSTALLED_PRODUCTS = {}
 
@@ -425,19 +426,10 @@ class Startup(Layer):
         import Zope2.Startup.datatypes
         import App.config
         
-        from ZODB.DemoStorage import DemoStorage
-        from ZODB.DB import DB
-        
         # Layer a new storage for Zope 2 on top of the one from the base
         # layer, if there is one.
         
-        db = self.get('zodbDB', None) # from base layer
-        if db is not None:
-            storage = DemoStorage(base=db.storage)
-        else:
-            storage = DemoStorage()
-        
-        self['zodbDB'] = db = DB(storage)
+        self['zodbDB'] = zodb.stackDemoStorage(self.get('zodbDB'))
         
         # Create a facade for the database object that will delegate to the
         # correct underlying database. This allows resource shadowing to work
@@ -602,18 +594,15 @@ class BasicSite(Layer):
     # Layer lifecycle
     
     def setUp(self):
-        from ZODB.DemoStorage import DemoStorage
-        from ZODB.DB import DB
         
         # Stack a new DemoStorage on top of the one from STARTUP.
-        storage = DemoStorage(base=self['zodbDB'].storage)
-        self['zodbDB'] = DB(storage)
+        self['zodbDB'] = zodb.stackDemoStorage(self.get('zodbDB'))
         
         self.setUpDefaultContent()
     
     def tearDown(self):
-        # Zap the stacked ZODB
         
+        # Zap the stacked ZODB
         self['zodbDB'].close()
         del self['zodbDB']
     
@@ -689,10 +678,6 @@ class Functional(BasicSite):
     
     def testSetUp(self):
         import Zope2
-        
-        from ZODB.DemoStorage import DemoStorage
-        from ZODB.DB import DB
-        
         import transaction
         
         # Stack yet another demo storage.
@@ -702,8 +687,7 @@ class Functional(BasicSite):
         # track of the original so that we can restore it on tear-down.
         
         self._baseDB = self['zodbDB']
-        storage = DemoStorage(base=self._baseDB.storage)
-        self['zodbDB'] = DB(storage)
+        self['zodbDB'] = zodb.stackDemoStorage(self.get('zodbDB'))
         
         # Save the app
         
