@@ -135,7 +135,7 @@ def login(userFolder, userName):
     
     from AccessControl.SecurityManagement import newSecurityManager
     
-    user = userFolder.getUserById(userName)
+    user = userFolder.getUser(userName)
     if not hasattr(user, 'aq_base'):
         user = user.__of__(userFolder)
     newSecurityManager(None, user)
@@ -154,7 +154,7 @@ def setRoles(userFolder, userName, roles):
     userFolder.userFolderEditUser(userName, None, list(roles), [])
     
     from AccessControl import getSecurityManager
-    if userName == getSecurityManager().getUser().getId():
+    if userName == getSecurityManager().getUser().getUserName():
         login(userFolder, userName)
 
 def addRequestContainer(app, environ=None):
