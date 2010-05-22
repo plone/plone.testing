@@ -3,14 +3,15 @@
 
 from plone.testing import Layer
 
-def stackDemoStorage(db=None):
+def stackDemoStorage(db=None, name=None):
     """Create a new DemoStorage that has the given database as a base.
     ``db`` may be none, in which case a base demo storage will be created.
+    ``name`` is optional, but can be used to name the storage.
     
     The usual pattern in a layer is::
     
         def setUp(self):
-            self['zodbDB'] = stackDemoStorage(self.get('zodbDB'))
+            self['zodbDB'] = stackDemoStorage(self.get('zodbDB'), name='mylayer')
         
         def tearDown(self):
             self['zodbDB'].close()
@@ -21,9 +22,9 @@ def stackDemoStorage(db=None):
     from ZODB.DB import DB
     
     if db is not None:
-        storage = DemoStorage(base=db.storage)
+        storage = DemoStorage(name=name, base=db.storage)
     else:
-        storage = DemoStorage()
+        storage = DemoStorage(name=name)
     
     return DB(storage)
 
@@ -79,7 +80,7 @@ class EmptyZODB(Layer):
         """
         
         from ZODB.DemoStorage import DemoStorage
-        return DemoStorage()
+        return DemoStorage(name='EmptyZODB')
     
     def createDatabase(self, storage):
         """Create a new database from the given storage.

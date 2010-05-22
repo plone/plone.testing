@@ -8,13 +8,6 @@ from plone.testing import zodb
 
 _INSTALLED_PRODUCTS = {}
 
-# Constants for names used in layer setup
-TEST_FOLDER_NAME = 'test_folder_1_'
-TEST_USER_NAME = 'test_user_1_'
-TEST_USER_PASSWORD = 'secret'
-TEST_USER_ROLE = 'test_role_1_'
-TEST_USER_PERMISSIONS = ['Access contents information', 'View']
-
 def installProduct(app, productName, quiet=False):
     """Install the Zope 2 product with the given name, so that it will show
     up in the Zope 2 control panel and have its ``initialize()`` hook called.
@@ -238,6 +231,8 @@ def zopeApp(db=None, connection=None, environ=None):
             connection.close()
 
 
+# Startup layer - you probably don't want to use this one directly
+
 class Startup(Layer):
     """This layer does what ZopeLite and ZopeTestCase's base.TestCase did:
     start up a minimal Zope instance and manages the application and
@@ -433,7 +428,7 @@ class Startup(Layer):
         # Layer a new storage for Zope 2 on top of the one from the base
         # layer, if there is one.
         
-        self['zodbDB'] = zodb.stackDemoStorage(self.get('zodbDB'))
+        self['zodbDB'] = zodb.stackDemoStorage(self.get('zodbDB'), name='Startup')
         
         # Create a facade for the database object that will delegate to the
         # correct underlying database. This allows resource shadowing to work
@@ -573,55 +568,19 @@ class Startup(Layer):
 
 STARTUP = Startup()
 
-class BasicSite(Layer):
+# Basic integration and functional test and layers. These are the simplest
+# Zope 2 layers that are generally useful
+
+class IntegrationTest(Layer):
     """This layer extends ``STARTUP`` to add rollback of the transaction
-    after each test. It also sets up some basic content:
+    after each test.
     
-    * A folder in the app root with the name ``z2.TEST_FOLDER_NAME``
-    * A user named ``z2.TEST_USER_NAME`` with password
-    ``z2.TEST_USER_PASSWORD`` in a local user folder inside the test folder.
-    * A role granted to this user named ``z2.TEST_USER_ROLE``
-    * ``View`` and ``Access contents information`` granted to this role
-    
-    The extra content is created in a stacked DemoStorage, shadowing the
-    ``zodbDB`` resource.
-    
-    The folder is available as a resource ``folder``. The application root is
-    available as the resource ``app``.
-    
-    The test user is "logged in" for each test. Use ``logout()`` to simulate
-    an anonymous user.
+    The application root is available as the resource ``app`` and the request
+    is available as the resource ``request``, set up and torn down for each
+    test.
     """
     
     defaultBases = (STARTUP,)
-    
-    # Layer lifecycle
-    
-    def setUp(self):
-        
-        # Stack a new DemoStorage on top of the one from STARTUP.
-        self['zodbDB'] = zodb.stackDemoStorage(self.get('zodbDB'))
-        
-        self.setUpDefaultContent()
-    
-    def tearDown(self):
-        
-        # Zap the stacked ZODB
-        self['zodbDB'].close()
-        del self['zodbDB']
-    
-    def setUpDefaultContent(self):
-        
-        with zopeApp() as app:
-            app.manage_addFolder(TEST_FOLDER_NAME)
-            folder = app[TEST_FOLDER_NAME]
-            folder._addRole(TEST_USER_ROLE)
-            folder.manage_addUserFolder()
-        
-            userFolder = folder['acl_users']
-            userFolder.userFolderAddUser(TEST_USER_NAME, TEST_USER_PASSWORD, [TEST_USER_ROLE], [])
-        
-            folder.manage_role(TEST_USER_ROLE, TEST_USER_PERMISSIONS)
     
     # Test lifecycle
     
@@ -629,8 +588,7 @@ class BasicSite(Layer):
         import Zope2
         import transaction
         
-        # Open a new app and save it as the resource ``app``. Also fetch
-        # the test folder and save that.
+        # Open a new app and save it as the resource ``app``.
         
         environ = {
             'SERVER_NAME': self['host'],
@@ -642,12 +600,9 @@ class BasicSite(Layer):
         # Start a transaction
         transaction.begin()
         
-        # Log in as the test user
-        login(app[TEST_FOLDER_NAME]['acl_users'], TEST_USER_NAME)
-        
         # Save resources for tests to access
         self['app'] = app
-        self['folder'] = app[TEST_FOLDER_NAME]
+        self['request'] = app.REQUEST
     
     def testTearDown(self):
         import transaction
@@ -657,23 +612,23 @@ class BasicSite(Layer):
         
         # Close the database connection and the request
         app = self['app']
-        app._p_jar.close()
         app.REQUEST.close()
+        app._p_jar.close()
         
         # Delete the resources
+        del self['request']
         del self['app']
-        del self['folder']
+    
+INTEGRATION_TEST = IntegrationTest()
 
-BASIC_SITE = BasicSite()
-
-class Functional(BasicSite):
-    """An alternative take on ``BasicSite`` suitable for functional testing.
+class FunctionalTest(Layer):
+    """An alternative to ``INTEGRATION_TEST`` suitable for functional testing.
     This one pushes and pops a ``DemoStorage`` layer for each test. The
     net result is that a test may commit safely.
     
-    The same fixture is set up, but it's not actually shared with
-    ``BASIC_SITE``, because that layer has different database management
-    semantics.
+    As with ``INTEGRATION_TEST``, the application root is available as the
+    resource ``app`` and the request is available as the resource ``request``,
+    set up and torn down for each test.
     """
     
     defaultBases = (STARTUP,)
@@ -684,14 +639,11 @@ class Functional(BasicSite):
         import Zope2
         import transaction
         
-        # Stack yet another demo storage.
-        
         # Override zodbDB from the layer setup. Since it was set up by
         # this layer, we can't just assign a new shadow. We therefore keep
         # track of the original so that we can restore it on tear-down.
         
-        self._baseDB = self['zodbDB']
-        self['zodbDB'] = zodb.stackDemoStorage(self.get('zodbDB'))
+        self['zodbDB'] = zodb.stackDemoStorage(self.get('zodbDB'), name='FunctionalTest')
         
         # Save the app
         
@@ -705,13 +657,9 @@ class Functional(BasicSite):
         # Start a transaction
         transaction.begin()
         
-        # Log in as the test user
-        
-        login(app[TEST_FOLDER_NAME]['acl_users'], TEST_USER_NAME)
-        
         # Save resources for the test
         self['app'] = app
-        self['folder'] = app[TEST_FOLDER_NAME]
+        self['request'] = app.REQUEST
     
     def testTearDown(self):
         import transaction
@@ -721,18 +669,19 @@ class Functional(BasicSite):
         
         # Close the database connection and the request
         app = self['app']
-        app._p_jar.close()
         app.REQUEST.close()
+        app._p_jar.close()
         
         del self['app']
-        del self['folder']
+        del self['request']
         
         # Close and discard the database
         self['zodbDB'].close()
-        self['zodbDB'] = self._baseDB
-        del self._baseDB
+        del self['zodbDB']
 
-FUNCTIONAL = Functional()
+FUNCTIONAL_TEST = FunctionalTest()
+
+# More advanced functional testing - running ZServer and FTP server
 
 class ZServer(Layer):
     """Start a ZServer that accesses the fixture managed by the ``FUNCTIONAL``
@@ -745,7 +694,7 @@ class ZServer(Layer):
     it shares the same async loop.
     """
     
-    defaultBases = (FUNCTIONAL,)
+    defaultBases = (FUNCTIONAL_TEST,)
     
     host = 'localhost'
     port = 55001
@@ -834,7 +783,7 @@ class FTPServer(ZServer):
     ports. They will then share a main loop.
     """
     
-    defaultBases = (FUNCTIONAL,)
+    defaultBases = (FUNCTIONAL_TEST,)
     
     host = 'localhost'
     port = 55002

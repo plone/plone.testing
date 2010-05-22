@@ -1276,7 +1276,8 @@ a new configuration machine will be created every time ``string()`` is called.
 It therefore becomes necessary to explicitly ``<include />`` the files that
 contains the directives you want to use (the one in ``zope.component`` is a
 common example). Layers that set up ZCML configuration may expose a resource
-which can be passed as the ``context`` parameter - see below.
+which can be passed as the ``context`` parameter, usually called
+``configurationContext`` - see below.
 
 To load the configuration for a particular package, use ``xmlconfig.file()``:
 
@@ -1571,7 +1572,7 @@ based on ``EMPTY_ZODB``, you can use the following pattern::
         def setUp(self):
 
             import transaction
-            self['zodbDB'] = db = zodb.stackDemoStorage(self.get('zodbDB'))
+            self['zodbDB'] = db = zodb.stackDemoStorage(self.get('zodbDB'), name='MyLayer')
 
             conn = db.open()
             root = conn.root()
@@ -1598,14 +1599,18 @@ Helper functions
 
 One helper function is available in the ``plone.testing.zodb`` module.
 
-``stackDemoStorage(db=None)``
+``stackDemoStorage(db=None, name=None)``
     Create a new ``DemoStorage`` using the storage from the passed-in database
     as a base. If ``db`` is None, a brand new storage is created.
+    
+    A ``name`` can be given to uniquely identify the storage. It is optional,
+    but it is often useful for debugging purposes to pass the name of the
+    layer.
     
     The usual pattern is::
     
         def setUp(self):
-            self['zodbDB'] = zodb.stackDemoStorage(self.get('zodbDB'))
+            self['zodbDB'] = zodb.stackDemoStorage(self.get('zodbDB'), name='MyLayer')
         
         def tearDown(self):
             self['zodbDB'].close()
@@ -1674,46 +1679,39 @@ On set-up, the layer will configure a Zope environment with:
 Note that unlike a "real" Zope site, products in the ``Products.*`` namespace
 are not automatically loaded, nor is any ZCML.
 
-Basic site
-~~~~~~~~~~
+Integration test
+~~~~~~~~~~~~~~~~
 
 +------------+--------------------------------------------------+
-| Layer:     | ``plone.testing.z2.BASIC_SITE``                  |
+| Layer:     | ``plone.testing.z2.INTEGRATION_TEST``            |
 +------------+--------------------------------------------------+
-| Class:     | ``plone.testing.z2.BasicSite``                   |
+| Class:     | ``plone.testing.z2.IntegrationTest``             |
 +------------+--------------------------------------------------+
 | Bases:     | ``plone.testing.z2.STARTUP``                     |
 +------------+--------------------------------------------------+
 | Resources: | ``app``                                          |
 |            +--------------------------------------------------+
-|            | ``folder``                                       |
+|            | ``request``                                      |
 +------------+--------------------------------------------------+
 
-This layer is intended for integration testing. It sets up a persistent
-fixture with:
-
-* A basic folder. The name of the folder is in the constant
-  ``z2.TEST_FOLDER_NAME``.
-* A user named ``z2.TEST_USER_NAME`` with password ``z2.TEST_USER_PASSWORD``
-  in a local user folder inside the test folder.
-* A role granted to this user named ``z2.TEST_USER_ROLE``
-* The ``View`` and ``Access contents information`` granted to this role
+This layer is intended for integration testing.
 
 For each test, it exposes the Zope application root as the resource ``app``.
 This is wrapped in the request container, so you can do ``app.REQUEST`` to
-acquire a fake request. The test folder is available as the resource
-``folder``.
+acquire a fake request, but the request is also available as the resource
+``request``.
 
 A new transaction is begun for each test and rolled back on test tear-down,
 meaning that so long as the code under test does not explicitly commit any
 changes, the test may modify the ZODB.
 
     *Hint:* If you want to set up a persistent test fixture in a layer based
-    on this one (or ``z2.FUNCTIONAL``), you can stack a new ``DemoStorage`` in
-    a shadowing ``zodbDB`` resource, using the pattern described above for the
-    ``zodb.EMPTY_ZODB`` layer.
+    on this one (or ``z2.FUNCTIONAL_TEST``), you can stack a new
+    ``DemoStorage`` in a shadowing ``zodbDB`` resource, using the pattern
+    described above for the ``zodb.EMPTY_ZODB`` layer.
 
-    Once you've shadowed the ``zodbDB`` resource, you can do::
+    Once you've shadowed the ``zodbDB`` resource, you can do (e.g. in your
+    layer's ``setUp()`` method)::
 
         ...
         with z2.zopeApp() as app:
@@ -1728,26 +1726,25 @@ Functional testing
 ~~~~~~~~~~~~~~~~~~
 
 +------------+--------------------------------------------------+
-| Layer:     | ``plone.testing.z2.FUNCTIONAL``                  |
+| Layer:     | ``plone.testing.z2.FUNCTIONAL_TEST``             |
 +------------+--------------------------------------------------+
-| Class:     | ``plone.testing.z2.Functional``                  |
+| Class:     | ``plone.testing.z2.FunctionalTest``              |
 +------------+--------------------------------------------------+
 | Bases:     | ``plone.testing.z2.STARTUP``                     |
 +------------+--------------------------------------------------+
 | Resources: | ``app``                                          |
 |            +--------------------------------------------------+
-|            | ``folder``                                       |
+|            | ``request``                                      |
 +------------+--------------------------------------------------+
 
 As its name implies, this layer is intended mainly for functional end-to-end
 testing using tools like `zope.testbrowser`_.
 
-This layer is very similar to ``BASIC_SITE`` (in fact it is implemented as
-a subclass of that layer class), but is not based on it. It sets up the same
-fixture and exposes the same resources. However, instead of using a simple
-transaction abort to isolate the ZODB between tests, it uses a stacked
-``DemoStorage`` for each test. This is slower, but allows test code to perform
-and explicit commit, as will usually happen in a functional test.
+This layer is very similar to ``INTEGRATION_TEST``, but is not based on it. It
+sets up the same fixture and exposes the same resources. However, instead of
+using a simple transaction abort to isolate the ZODB between tests, it uses a
+stacked ``DemoStorage`` for each test. This is slower, but allows test code to
+perform and explicit commit, as will usually happen in a functional test.
 
 HTTP ZServer thread
 ~~~~~~~~~~~~~~~~~~~
@@ -1832,9 +1829,9 @@ Several helper functions are available in the ``plone.testing.z2`` module.
     environment values as ``environ``.
 
     Note that ``zopeApp()`` should *not* normally be used in tests or test
-    set-up/tear-down, because the ``BASIC_SITE`` and ``FUNCTIONAL`` layers
-    both manage the application root (as the ``app`` resource) and close it
-    for you. It is very useful in layer setup, however.
+    set-up/tear-down, because the ``INTEGRATOIN_TEST`` and ``FUNCTIONAL_TEST``
+    layers both manage the application root (as the ``app`` resource) and
+    close it for you. It is very useful in layer setup, however.
 ``installProduct(app, product, quiet=False)``
     Install a Zope 2 style product, ensuring that its ``initialize()``
     function is called. The product name must be the full dotted name, e.g.
@@ -1864,8 +1861,9 @@ Several helper functions are available in the ``plone.testing.z2`` module.
     non-default values, pass a dictionary as ``environ``.
 
     Note that this method is rarely used, because both the ``zopeApp()``
-    context manager and the layer set-up/tear-down for ``z2.BASIC_SITE`` and
-    ``z2.FUNCTIONAL`` will wrap the ``app`` object before exposing it.
+    context manager and the layer set-up/tear-down for ``z2.INTEGRATION_TEST``
+    and ``z2.FUNCTIONAL_TEST`` will wrap the ``app`` object before exposing
+    it.
 
 .. _zope.testing: http://pypi.python.org/pypi/zope.testing
 .. _zope.testbrowser: http://pypi.python.org/pypi/zope.testbrowser

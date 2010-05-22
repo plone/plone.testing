@@ -16,7 +16,8 @@ Startup
 sandbox environment that is suitable for testing. It does not have any
 bases.
 
-**Note**: You should probably use at least ``BASIC_SITE`` for any real test.
+**Note**: You should probably use at least ``INTEGRATION_TEST`` for any real
+test.
     
     >>> "%s.%s" % (z2.STARTUP.__module__, z2.STARTUP.__name__,)
     'plone.testing.z2.Startup'
@@ -48,7 +49,7 @@ default ZODB.
     <ZODB.DB.DB object at ...>
     
     >>> z2.STARTUP['zodbDB'].storage
-    DemoStorage('MappingStorage', 'MappingStorage')
+    Startup
 
 In addition, the resources ``host`` and ``port`` are set to the default
 hostname and port that are used for URLs generated from Zope. These are
@@ -99,11 +100,37 @@ manager):
     Traceback (most recent call last):
     ...
     Exception: Test error
+
+It is common to combine the ``zopeApp()`` context manager with a stacked
+``DemoStorage`` to set up a layer-specific fixture. As a sketch::
     
-Note that you would normally *not* use the ``z2.zopeApp()`` in a test or in
-a ``testSetUp()`` or ``testTearDown()`` method. The ``BASIC_SITE`` and
-``FUNCTIONAL`` layers manage the application object for you, exposing them as
-the resource ``app`` - see below.
+    from plone.testing import Layer, z2, zodb
+    
+    class MyLayer(Layer):
+        defaultBases = (INTEGRATION_TEST,) # see below
+        
+        def setUp(self):
+            self['zodbDB'] = zodb.stackDemoStorage(self.get('zodbDB'), name='MyLayer')
+            with z2.zopeApp() as app:
+                
+                # Set up a fixture, e.g.:
+                app.manage_addFolder('folder1')
+                folder = app['folder1']
+                folder._addRole('role1')
+                folder.manage_addUserFolder()
+                
+                userFolder = folder['acl_users']
+                userFolder.userFolderAddUser('user1', 'secret', ['role1'], [])
+                folder.manage_role('role1', ('Access contents information',))
+        
+        def tearDown(self):
+            self['zodbDB'].close()
+            del self['zodbDB']
+
+Note that you would normally *not* use the ``z2.zopeApp()`` in a test or in a
+``testSetUp()`` or ``testTearDown()`` method. The ``INTEGRATION_TEST`` and
+``FUNCTIONAL_TEST`` layers manage the application object for you, exposing
+them as the resource ``app`` (see below).
 
 After layer setup, the global component registry contains a number of
 components needed by Zope.
@@ -120,7 +147,7 @@ See ``zca.txt`` for details about how to use ``zope.configuration`` for this
 purpose.
 
 The ``STARTUP`` layer does not perform any specific test setup or tear-down.
-That is left up to the ``BASIC_SITE`` and ``FUNCTIONAL`` layers.
+That is left up to the ``INTEGRATION_TEST`` and ``FUNCTIONAL_TEST`` layers.
 
     >>> z2.STARTUP.testSetUp()
     >>> z2.STARTUP.testTearDown()
@@ -141,150 +168,77 @@ Layer tear-down resets the environment.
     >>> list(getSiteManager().registeredAdapters())
     []
 
-Basic site
-~~~~~~~~~~
+Integration test
+~~~~~~~~~~~~~~~~
 
-``BASIC_SITE`` is intended for Zope 2 integration testing. It extends
-``STARTUP``, adding a minimal test fixture to the database: A folder is
-created with its own user folder, which in turn has a user and a custom role.
-A transaction is begun before and rolled back after each test. Two resources,
-``app`` and ``folder``, are available during testing as well, and should be
-used for all access to persistent Zope objects.
+``INTEGRATION_TEST`` is intended for Zope 2 integration testing. It extends
+``STARTUP`` to ensure that a transaction is begun before and rolled back after
+each test. Two resources, ``app`` and ``request``, are available during
+testing as well.
+
+``app`` is the application root. In a test, you should use this instead of
+the ``zopeApp`` context manager (which remains the weapon of choice for 
+setting up persistent fixtures), because the ``app`` resource is part of the
+transaction managed by the layer.
+
+``request`` is a test request. It is the same as ``app.REQUEST``.
     
-    >>> "%s.%s" % (z2.BASIC_SITE.__module__, z2.BASIC_SITE.__name__,)
-    'plone.testing.z2.BasicSite'
+    >>> "%s.%s" % (z2.INTEGRATION_TEST.__module__, z2.INTEGRATION_TEST.__name__,)
+    'plone.testing.z2.IntegrationTest'
 
-    >>> z2.BASIC_SITE.__bases__
+    >>> z2.INTEGRATION_TEST.__bases__
     (<Layer 'plone.testing.z2.Startup'>,)
 
     >>> options = runner.get_options([], [])
     >>> setupLayers = {}
-    >>> runner.setup_layer(options, z2.BASIC_SITE, setupLayers)
+    >>> runner.setup_layer(options, z2.INTEGRATION_TEST, setupLayers)
     Set up plone.testing.z2.Startup in ... seconds.
-    Set up plone.testing.z2.BasicSite in ... seconds.
-
-After layer setup, the ``zodbDB`` resource from the ``STARTUP`` layer is
-shadowed with a database instance that uses a stacked ``DemoStorage``. This
-keeps the persistent aspects of the test fixture separate from the underlying
-ZODB from the ``STARTUP`` layer.
-
-    >>> z2.BASIC_SITE['zodbDB']
-    <ZODB.DB.DB object at ...>
-    
-    >>> z2.BASIC_SITE['zodbDB'].storage
-    DemoStorage("DemoStorage('MappingStorage', 'MappingStorage')", 'MappingStorage')
-    
-    **Hint:** If you base a layer on ``BASIC_SITE`` and want to set up your
-    own persistent fixture, you can follow the same pattern that
-    ``BASIC_SITE`` uses to add a fixture on top of ``STARTUP``:
-
-        def setUp(self):
-        
-            from ZODB.DemoStorage import DemoStorage
-            from ZODB.DB import DB
-        
-            # Stack a new DemoStorage on top of the one from the base layer.
-            storage = DemoStorage(base=self['zodbDB'].storage)
-            self['zodbDB'] = DB(storage)
-            
-            with zopeApp() as app:
-                # do something with app here
-                # it will use the new database
-        
-        def tearDown(self):
-            # Zap all changes to the stacked demo storage and let the next
-            # layer start afresh
-            self['zodbDB'].close()
-            del self['zodbDB']
-    
-    The ``zopeApp()`` context manager returns a request-wrapped app object,
-    making sure it is properly closed after the ``with`` block, and that the
-    transaction is committed if there if no error.
-    
-    Note that you should **not** use this in a test, because the test setup
-    will take care of managing the connections for you. Use the ``app``
-    resource instead.
-
-The application root now contains a test folder. Several constants in the
-``z2`` module define various aspects of the test fixture:
-
-    >>> z2.TEST_FOLDER_NAME
-    'test_folder_1_'
-    
-    >>> z2.TEST_USER_NAME
-    'test_user_1_'
-    
-    >>> z2.TEST_USER_PASSWORD
-    'secret'
-    
-    >>> z2.TEST_USER_ROLE
-    'test_role_1_'
-    
-    >>> z2.TEST_USER_PERMISSIONS
-    ['Access contents information', 'View']
-
-We can see this in the fixture:
-
-    >>> with z2.zopeApp() as app:
-    ...     print app.objectIds()
-    ...     folder = app[z2.TEST_FOLDER_NAME]
-    ...     print folder.objectIds()
-    ...     user = folder['acl_users'].getUserById(z2.TEST_USER_NAME)
-    ...     print user.getId()
-    ...     print user.getRolesInContext(app[z2.TEST_FOLDER_NAME])
-    ...     print [p['name'] for p in folder.permissionsOfRole(z2.TEST_USER_ROLE) if p['selected']]
-    ['acl_users', 'Control_Panel', 'test_folder_1_']
-    ['acl_users']
-    test_user_1_
-    ['test_role_1_', 'Authenticated']
-    ['Access contents information', 'View']
+    Set up plone.testing.z2.IntegrationTest in ... seconds.
 
 Let's now simulate a test. On test setup, the ``app`` resource is made
 available. In a test, you should always use this to access the application
-root. The ``folder`` resource can also be used to access the test folder.
+root.
 
     >>> z2.STARTUP.testSetUp()
-    >>> z2.BASIC_SITE.testSetUp()
+    >>> z2.INTEGRATION_TEST.testSetUp()
 
 The test may now inspect and modify the environment.
 
-    >>> folder = z2.BASIC_SITE['folder'] # would normally be self.layer['folder']
-    >>> folder.manage_addFolder('subfolder')
-    >>> folder.objectIds()
-    ['acl_users', 'subfolder']
+    >>> app = z2.INTEGRATION_TEST['app'] # would normally be self.layer['app']
+    >>> app.manage_addFolder('folder1')
+    >>> app.objectIds()
+    ['acl_users', 'Control_Panel', 'folder1']
+
+The request is also available:
+
+    >>> z2.INTEGRATION_TEST['request'] # would normally be self.layer['request']
+    <HTTPRequest, URL=http://nohost>
+
+We can create a user and simulate logging in as that user, using the
+``z2.login()`` helper:
     
-    >>> z2.BASIC_SITE['app'].objectIds() # would normally be self.layer['app']
-    ['acl_users', 'Control_Panel', 'test_folder_1_']
-    
-During the test, we are "logged" in as the test user.
+    >>> app._addRole('role1')
+    >>> app['acl_users'].userFolderAddUser('user1', 'secret', ['role1'], [])
+    >>> z2.login(app['acl_users'], 'user1')
+
+The first argument to ``z2.login()`` is the user folder that contains the
+relevant user. The second argument is the user's name. There is no need to 
+give the password.
 
     >>> from AccessControl import getSecurityManager
     >>> getSecurityManager().getUser()
-    <User 'test_user_1_'>
+    <User 'user1'>
     
-It is possible to create and log in as another user. The latter is achieved
-using the ``z2.login()`` helper.
-
-    >>> folder['acl_users'].userFolderAddUser('test_user_2_', 'secret', [z2.TEST_USER_ROLE], [])
-    >>> z2.login(folder['acl_users'], 'test_user_2_')
+You can change the roles of a user using the ``z2.setRoles()`` helper:
     
-    >>> getSecurityManager().getUser()
-    <User 'test_user_2_'>
+    >>> sorted(getSecurityManager().getUser().getRolesInContext(app))
+    ['Authenticated', 'role1']
     
-    >>> getSecurityManager().getUser().getRolesInContext(folder)
-    ['test_role_1_', 'Authenticated']
-    
-We can also change the roles using the ``z2.setRoles()`` helper:
-
-    >>> z2.setRoles(folder['acl_users'], 'test_user_2_', [])
-    >>> getSecurityManager().getUser().getRolesInContext(folder)
+    >>> z2.setRoles(app['acl_users'], 'user1', [])
+    >>> getSecurityManager().getUser().getRolesInContext(app)
     ['Authenticated']
     
-    >>> z2.setRoles(folder['acl_users'], 'test_user_2_', [z2.TEST_USER_ROLE])
-    >>> getSecurityManager().getUser().getRolesInContext(folder)
-    ['test_role_1_', 'Authenticated']
-
-You can test as the anonymous user by using ``z2.logout()``:
+To become the anonymous user again, use ``z2.logout()``:
 
     >>> z2.logout()
     >>> getSecurityManager().getUser()
@@ -292,163 +246,109 @@ You can test as the anonymous user by using ``z2.logout()``:
 
 On tear-down, the transaction is rolled back:
 
-    >>> z2.BASIC_SITE.testTearDown()
+    >>> z2.INTEGRATION_TEST.testTearDown()
     >>> z2.STARTUP.testTearDown()
 
-    >>> 'app' in z2.BASIC_SITE
+    >>> 'app' in z2.INTEGRATION_TEST
     False
     
-    >>> 'folder' in z2.BASIC_SITE
+    >>> 'request' in z2.INTEGRATION_TEST
     False
     
     >>> with z2.zopeApp() as app:
     ...     print app.objectIds()
-    ...     print app[z2.TEST_FOLDER_NAME].objectIds()
-    ['acl_users', 'Control_Panel', 'test_folder_1_']
-    ['acl_users']
-    
-When the ``BASIC_SITE`` layer is torn down, the persistent fixture is removed,
-but the original database remains.
-
-    >>> runner.tear_down_unneeded(options, [z2.STARTUP], setupLayers)
-    Tear down plone.testing.z2.BasicSite in ... seconds.
-
-    >>> with z2.zopeApp() as app:
-    ...     app.objectIds()
     ['acl_users', 'Control_Panel']
     
-We can tear that down too:
+Let's tear down the layers
 
     >>> runner.tear_down_unneeded(options, [], setupLayers)
+    Tear down plone.testing.z2.IntegrationTest in ... seconds.
     Tear down plone.testing.z2.Startup in ... seconds.
 
 Functional testing
 ~~~~~~~~~~~~~~~~~~
 
-The ``FUNCTIONAL`` layer is very similar to ``BASIC_SITE``, and exposes
-the same fixture and resources. However, it has different transaction
-semantics. ``BASIC_SITE`` creates a single database storage, and rolls back
-the transaction after each test. ``FUNCTIONAL`` creates a whole new database
-storage (stacked on top of the basic fixture) for each test. This allows
-testing of code that performs an explicit commit, which is usually required
-for end-to-end testing. The downside is that the set-up and tear-down of each 
-test takes longer.
+The ``FUNCTIONAL_TEST`` layer is very similar to ``INTEGRATION_TEST``, and
+exposes the same fixture and resources. However, it has different transaction
+semantics. ``INTEGRATION_TEST`` creates a single database storage, and rolls
+back the transaction after each test. ``FUNCTIONAL_TEST`` creates a whole new
+database storage (stacked on top of the basic fixture) for each test. This
+allows testing of code that performs an explicit commit, which is usually
+required for end-to-end testing. The downside is that the set-up and tear-down
+of each test takes longer.
 
-Like ``BASIC_SITE``, ``FUNCTIONAL`` is based on ``STARTUP``.
+Like ``INTEGRATION_TEST``, ``FUNCTIONAL_TEST`` is based on ``STARTUP``.
     
-    >>> "%s.%s" % (z2.FUNCTIONAL.__module__, z2.FUNCTIONAL.__name__,)
-    'plone.testing.z2.Functional'
+    >>> "%s.%s" % (z2.FUNCTIONAL_TEST.__module__, z2.FUNCTIONAL_TEST.__name__,)
+    'plone.testing.z2.FunctionalTest'
 
-    >>> z2.FUNCTIONAL.__bases__
+    >>> z2.FUNCTIONAL_TEST.__bases__
     (<Layer 'plone.testing.z2.Startup'>,)
 
     >>> options = runner.get_options([], [])
     >>> setupLayers = {}
-    >>> runner.setup_layer(options, z2.FUNCTIONAL, setupLayers)
+    >>> runner.setup_layer(options, z2.FUNCTIONAL_TEST, setupLayers)
     Set up plone.testing.z2.Startup in ... seconds.
-    Set up plone.testing.z2.Functional in ... seconds.
+    Set up plone.testing.z2.FunctionalTest in ... seconds.
 
-After layer setup, the ``zodbDB`` resource from the ``STARTUP`` layer is
-shadowed with a database instance that uses a stacked ``DemoStorage``. This
-keeps the persistent aspects of the test fixture separate from the underlying
-Zope object.
-
-    >>> z2.FUNCTIONAL['zodbDB']
-    <ZODB.DB.DB object at ...>
-    
-    >>> z2.FUNCTIONAL['zodbDB'].storage
-    DemoStorage("DemoStorage('MappingStorage', 'MappingStorage')", 'MappingStorage')
-    
-    **Hint:** You can use the ``z2.zopeApp()`` context manager for test setup
-    in your own layer based on ``FUNCTIONAL`` - see above.
-
-The test fixture is the same as the ``BASIC_SITE`` one.
-
-    >>> with z2.zopeApp() as app:
-    ...     print app.objectIds()
-    ...     folder = app[z2.TEST_FOLDER_NAME]
-    ...     print folder.objectIds()
-    ...     user = folder['acl_users'].getUserById(z2.TEST_USER_NAME)
-    ...     print user.getId()
-    ...     print user.getRolesInContext(app[z2.TEST_FOLDER_NAME])
-    ...     print [p['name'] for p in folder.permissionsOfRole(z2.TEST_USER_ROLE) if p['selected']]
-    ['acl_users', 'Control_Panel', 'test_folder_1_']
-    ['acl_users']
-    test_user_1_
-    ['test_role_1_', 'Authenticated']
-    ['Access contents information', 'View']
-    
 Let's now simulate a test. On test setup, the ``app`` resource is made
 available. In a test, you should always use this to access the application
-root. The ``folder`` resource can also be used to access the test folder.
+root. The ``request`` resource can be used to access the test request.
 
     >>> z2.STARTUP.testSetUp()
-    >>> z2.FUNCTIONAL.testSetUp()
+    >>> z2.FUNCTIONAL_TEST.testSetUp()
 
 The test may now inspect and modify the environment. It may also
 commit things.
 
-    >>> folder = z2.FUNCTIONAL['folder'] # would normally be self.layer['folder']
-    >>> folder.manage_addFolder('subfolder')
-    >>> folder.objectIds()
-    ['acl_users', 'subfolder']
-    
-    >>> z2.FUNCTIONAL['app'].objectIds() # would normally be self.layer['app']
-    ['acl_users', 'Control_Panel', 'test_folder_1_']
+    >>> app = z2.FUNCTIONAL_TEST['app'] # would normally be self.layer['app']
+    >>> app.manage_addFolder('folder1')
+    >>> app.objectIds()
+    ['acl_users', 'Control_Panel', 'folder1']
     
     >>> import transaction
     >>> transaction.commit()
     
 On tear-down, the database is torn down.
 
-    >>> z2.FUNCTIONAL.testTearDown()
+    >>> z2.FUNCTIONAL_TEST.testTearDown()
     >>> z2.STARTUP.testTearDown()
 
-    >>> 'app' in z2.FUNCTIONAL
+    >>> 'app' in z2.FUNCTIONAL_TEST
     False
     
-    >>> 'folder' in z2.FUNCTIONAL
+    >>> 'request' in z2.FUNCTIONAL_TEST
     False
     
     >>> with z2.zopeApp() as app:
     ...     print app.objectIds()
-    ...     print app[z2.TEST_FOLDER_NAME].objectIds()
-    ['acl_users', 'Control_Panel', 'test_folder_1_']
-    ['acl_users']
-    
-When the ``FUNCTIONAL`` layer is torn down, the persistent fixture is removed,
-but the original database remains.
-
-    >>> runner.tear_down_unneeded(options, [z2.STARTUP], setupLayers)
-    Tear down plone.testing.z2.Functional in ... seconds.
-
-    >>> with z2.zopeApp() as app:
-    ...     app.objectIds()
     ['acl_users', 'Control_Panel']
     
-We can tear that down too:
+Let's tear down the layer:
 
     >>> runner.tear_down_unneeded(options, [], setupLayers)
+    Tear down plone.testing.z2.FunctionalTest in ... seconds.
     Tear down plone.testing.z2.Startup in ... seconds.
 
 HTTP server
 ~~~~~~~~~~~
 
-The ``ZSERVER`` layer extends ``FUNCTIONAL`` to start up a single-threaded
-Zope server in a separate thread. This makes it possible to connect to the
-test instance using a web browser or a testing tool like Selenium or Windmill.
+The ``ZSERVER`` layer extends ``FUNCTIONAL_TEST`` to start up a
+single-threaded Zope server in a separate thread. This makes it possible to
+connect to the test instance using a web browser or a testing tool like
+Selenium or Windmill.
 
     >>> "%s.%s" % (z2.ZSERVER.__module__, z2.ZSERVER.__name__,)
     'plone.testing.z2.ZServer'
 
     >>> z2.ZSERVER.__bases__
-    (<Layer 'plone.testing.z2.Functional'>,)
+    (<Layer 'plone.testing.z2.FunctionalTest'>,)
 
     >>> options = runner.get_options([], [])
     >>> setupLayers = {}
     >>> runner.setup_layer(options, z2.ZSERVER, setupLayers)
     Set up plone.testing.z2.Startup in ... seconds.
-    Set up plone.testing.z2.Functional in ... seconds.
+    Set up plone.testing.z2.FunctionalTest in ... seconds.
     Set up plone.testing.z2.ZServer in ... seconds.
 
 After layer setup, the resources ``host`` and ``port`` are available, and
@@ -466,7 +366,7 @@ Let's now simulate a test. Test setup does nothing beyond what the base layers
 do.
 
     >>> z2.STARTUP.testSetUp()
-    >>> z2.FUNCTIONAL.testSetUp()
+    >>> z2.FUNCTIONAL_TEST.testSetUp()
     >>> z2.ZSERVER.testSetUp()
     
 It is common in a test to use the Python API to change the state of the server
@@ -475,8 +375,8 @@ to look at the results. Bear in mind that the server is running in a separate
 thread, with a separate security manager, so calls to ``z2.login()`` and
 ``z2.logout()``, for instance, do not affect the server thread.
     
-    >>> folder = z2.ZSERVER['folder'] # would normally be self.layer['folder']
-    >>> folder.manage_addFolder('subfolder')
+    >>> app = z2.ZSERVER['app'] # would normally be self.layer['app']
+    >>> app.manage_addFolder('folder1')
 
 Note that we need to commit the transaction before it will show up in the
 other thread.
@@ -485,30 +385,40 @@ other thread.
 
 We can now look for this new object through the server.
 
-    >>> folder_url = folder.absolute_url()
-    >>> folder_url
-    'http://localhost:55001/test_folder_1_'
+    >>> app_url = app.absolute_url()
+    >>> app_url
+    'http://localhost:55001'
     
     >>> import urllib2
-    >>> conn = urllib2.urlopen(folder_url + '/subfolder', timeout=5)
+    >>> conn = urllib2.urlopen(app_url + '/folder1', timeout=5)
     >>> print conn.read()
-    <Folder at subfolder>
+    <Folder at folder1>
     >>> conn.close()
 
 Test tear-down does nothing beyond what the base layers do.
-
+    
     >>> z2.ZSERVER.testTearDown()
-    >>> z2.FUNCTIONAL.testTearDown()
+    >>> z2.FUNCTIONAL_TEST.testTearDown()
     >>> z2.STARTUP.testTearDown()
+
+    >>> 'app' in z2.ZSERVER
+    False
+    
+    >>> 'request' in z2.ZSERVER
+    False
+    
+    >>> with z2.zopeApp() as app:
+    ...     print app.objectIds()
+    ['acl_users', 'Control_Panel']
 
 When the server is torn down, the ZServer thread is stopped.
 
     >>> runner.tear_down_unneeded(options, [], setupLayers)
     Tear down plone.testing.z2.ZServer in ... seconds.
-    Tear down plone.testing.z2.Functional in ... seconds.
+    Tear down plone.testing.z2.FunctionalTest in ... seconds.
     Tear down plone.testing.z2.Startup in ... seconds.
 
-    >>> conn = urllib2.urlopen(folder_url + '/subfolder', timeout=5)
+    >>> conn = urllib2.urlopen(app_url + '/folder1', timeout=5)
     Traceback (most recent call last):
     ...
     URLError: <urlopen error [Errno 61] Connection refused>
@@ -526,19 +436,19 @@ starts an FTP server instead of an HTTP server.
     and overriding the ``setUpServer()`` and ``tearDownServer()`` hooks to set
     up and close both servers. See the code for an example.
 
-The ``FTP_SERVER`` layer is based on the ``FUNCTIONAL`` layer.
+The ``FTP_SERVER`` layer is based on the ``FUNCTIONAL_TEST`` layer.
 
     >>> "%s.%s" % (z2.FTP_SERVER.__module__, z2.FTP_SERVER.__name__,)
     'plone.testing.z2.FTPServer'
 
     >>> z2.FTP_SERVER.__bases__
-    (<Layer 'plone.testing.z2.Functional'>,)
+    (<Layer 'plone.testing.z2.FunctionalTest'>,)
 
     >>> options = runner.get_options([], [])
     >>> setupLayers = {}
     >>> runner.setup_layer(options, z2.FTP_SERVER, setupLayers)
     Set up plone.testing.z2.Startup in ... seconds.
-    Set up plone.testing.z2.Functional in ... seconds.
+    Set up plone.testing.z2.FunctionalTest in ... seconds.
     Set up plone.testing.z2.FTPServer in ... seconds.
 
 After layer setup, the resources ``host`` and ``port`` are available, and
@@ -556,18 +466,17 @@ Let's now simulate a test. Test setup does nothing beyond what the base layers
 do.
 
     >>> z2.STARTUP.testSetUp()
-    >>> z2.FUNCTIONAL.testSetUp()
+    >>> z2.FUNCTIONAL_TEST.testSetUp()
     >>> z2.FTP_SERVER.testSetUp()
     
 As with ``ZSERVER``, we will set up some content for the test and then access
 it over the FTP port.
 
-    >>> folder = z2.FTP_SERVER['folder'] # would normally be self.layer['folder']
-    >>> folder.manage_addFolder('subfolder')
+    >>> app = z2.FTP_SERVER['app'] # would normally be self.layer['app']
+    >>> app.manage_addFolder('folder1')
 
 We'll also create a user in the root user folder to make FTP access easier.
 
-    >>> app = z2.FTP_SERVER['app'] # would normally be self.layer['app']
     >>> app['acl_users'].userFolderAddUser('admin', 'secret', ['Manager'], ())
 
 Note that we need to commit the transaction before it will show up in the
@@ -577,7 +486,7 @@ other thread.
 
 We can now look for this new object through the server.
 
-    >>> folder_path = folder.absolute_url_path()
+    >>> app_path = app.absolute_url_path()
     
     >>> import ftplib
     >>> ftpClient = ftplib.FTP()
@@ -587,14 +496,14 @@ We can now look for this new object through the server.
     >>> ftpClient.login('admin', 'secret')
     '230 Login successful.'
 
-    >>> ftpClient.cwd(folder_path)
+    >>> ftpClient.cwd(app_path)
     '250 CWD command successful.'
     
     >>> ftpClient.retrlines('LIST')
-    drwxrwx---   1 Zope         Zope        0 ... .
-    d---------   1 Zope         Zope        0 ... ..
-    --w--w----   1 Zope         Zope        0 ... acl_users
-    drwxrwx---   1 test_user_1_ Zope        0 ... subfolder
+    drwxrwx---   1 Zope     Zope            0 ... .
+    drwxrwx---   1 Zope     Zope            0 ... Control_Panel
+    --w--w----   1 Zope     Zope            0 ... acl_users
+    drwxrwx---   1 Zope     Zope            0 ... folder1
     '226 Transfer complete'
 
     >>> ftpClient.quit()
@@ -603,14 +512,24 @@ We can now look for this new object through the server.
 Test tear-down does nothing beyond what the base layers do.
 
     >>> z2.FTP_SERVER.testTearDown()
-    >>> z2.FUNCTIONAL.testTearDown()
+    >>> z2.FUNCTIONAL_TEST.testTearDown()
     >>> z2.STARTUP.testTearDown()
+
+    >>> 'app' in z2.ZSERVER
+    False
+    
+    >>> 'request' in z2.ZSERVER
+    False
+    
+    >>> with z2.zopeApp() as app:
+    ...     print app.objectIds()
+    ['acl_users', 'Control_Panel']
 
 When the server is torn down, the FTP thread is stopped.
 
     >>> runner.tear_down_unneeded(options, [], setupLayers)
     Tear down plone.testing.z2.FTPServer in ... seconds.
-    Tear down plone.testing.z2.Functional in ... seconds.
+    Tear down plone.testing.z2.FunctionalTest in ... seconds.
     Tear down plone.testing.z2.Startup in ... seconds.
 
     >>> ftpClient.connect(host, port, timeout=5)

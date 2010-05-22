@@ -40,7 +40,7 @@ Layer setup creates the database, but not a connection.
 
     >>> db = zodb.EMPTY_ZODB['zodbDB']
     >>> db.storage
-    DemoStorage('MappingStorage', 'MappingStorage')
+    EmptyZODB
 
     >>> zodb.EMPTY_ZODB.get('zodbConnection', None) is None
     True
@@ -195,7 +195,7 @@ ZODB's stackable DemoStorage. There is even a helper function available:
     ...     def setUp(self):
     ...         # Get the database from the base layer
     ...         
-    ...         self['zodbDB'] = db = zodb.stackDemoStorage(self.get('zodbDB'))
+    ...         self['zodbDB'] = db = zodb.stackDemoStorage(self.get('zodbDB'), name='ExpandedZODB')
     ...         
     ...         conn = db.open()
     ...         conn.root()['additionalData'] = "Some new data"
@@ -226,7 +226,7 @@ Let's simulate a test run again to show how this would work.
     
     >>> db = EXPANDED_ZODB['zodbDB']
     >>> db.storage
-    DemoStorage('My storage', 'MappingStorage')
+    ExpandedZODB
 
     >>> EXPANDED_ZODB.get('zodbConnection', None) is None
     True
