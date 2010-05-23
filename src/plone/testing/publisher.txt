@@ -53,6 +53,7 @@ configuration.
     >>> options = runner.get_options([], [])
     >>> setupLayers = {}
     >>> runner.setup_layer(options, publisher.PUBLISHER_DIRECTIVES, setupLayers)
+    Set up plone.testing.zca.LayerCleanup in ... seconds.
     Set up plone.testing.zca.ZCMLDirectives in ... seconds.
     Set up plone.testing.publisher.PublisherDirectives in ... seconds.
 
@@ -97,9 +98,9 @@ The permission and view are now registered:
     ...   and x.name==u"plone.testing-test"]
     [<class 'zope.app.publisher.browser.viewmeta.plone.testing-test'>]
 
-Note that you'd normally combine this layer with the ``zca.SANDBOX`` or
-``publisher.PLACELESS`` layers to automatically tear down the component
-architecture between each test. Here, we need to do it manually.
+Note that you'd normally combine this layer with the ``zca.UNIT_TESTING`` or a
+similar layer to automatically tear down the component architecture between
+each test. Here, we need to do it manually.
 
     >>> from zope.component.testing import tearDown
     >>> tearDown()
@@ -109,6 +110,7 @@ Layer tear-down does nothing.
     >>> runner.tear_down_unneeded(options, [], setupLayers)
     Tear down plone.testing.publisher.PublisherDirectives in ... seconds.
     Tear down plone.testing.zca.ZCMLDirectives in ... seconds.
+    Tear down plone.testing.zca.LayerCleanup in ... seconds.
 
     >>> zca.ZCML_DIRECTIVES.get('configurationContext', None) is None
     True

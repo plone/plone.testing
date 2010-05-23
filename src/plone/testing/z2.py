@@ -5,6 +5,7 @@ import contextlib
 
 from plone.testing import Layer
 from plone.testing import zodb
+from plone.testing import zca
 
 _INSTALLED_PRODUCTS = {}
 
@@ -250,7 +251,7 @@ class Startup(Layer):
       respectively.
     """
     
-    defaultBases = ()
+    defaultBases = (zca.LAYER_CLEANUP,)
     
     threads = 1
     
@@ -571,7 +572,7 @@ STARTUP = Startup()
 # Basic integration and functional test and layers. These are the simplest
 # Zope 2 layers that are generally useful
 
-class IntegrationTest(Layer):
+class IntegrationTesting(Layer):
     """This layer extends ``STARTUP`` to add rollback of the transaction
     after each test.
     
@@ -619,14 +620,14 @@ class IntegrationTest(Layer):
         del self['request']
         del self['app']
     
-INTEGRATION_TEST = IntegrationTest()
+INTEGRATION_TESTING = IntegrationTesting()
 
-class FunctionalTest(Layer):
-    """An alternative to ``INTEGRATION_TEST`` suitable for functional testing.
+class FunctionalTesting(Layer):
+    """An alternative to ``INTEGRATION_TESTING`` suitable for functional testing.
     This one pushes and pops a ``DemoStorage`` layer for each test. The
     net result is that a test may commit safely.
     
-    As with ``INTEGRATION_TEST``, the application root is available as the
+    As with ``INTEGRATION_TESTING``, the application root is available as the
     resource ``app`` and the request is available as the resource ``request``,
     set up and torn down for each test.
     """
@@ -679,7 +680,7 @@ class FunctionalTest(Layer):
         self['zodbDB'].close()
         del self['zodbDB']
 
-FUNCTIONAL_TEST = FunctionalTest()
+FUNCTIONAL_TESTING = FunctionalTesting()
 
 # More advanced functional testing - running ZServer and FTP server
 
@@ -694,7 +695,7 @@ class ZServer(Layer):
     it shares the same async loop.
     """
     
-    defaultBases = (FUNCTIONAL_TEST,)
+    defaultBases = (FUNCTIONAL_TESTING,)
     
     host = 'localhost'
     port = 55001
@@ -783,7 +784,7 @@ class FTPServer(ZServer):
     ports. They will then share a main loop.
     """
     
-    defaultBases = (FUNCTIONAL_TEST,)
+    defaultBases = (FUNCTIONAL_TESTING,)
     
     host = 'localhost'
     port = 55002

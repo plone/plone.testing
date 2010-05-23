@@ -14,6 +14,8 @@ def loadRegistry(name):
             return reg
     raise KeyError(name)
 
+# Helper functions
+
 def pushGlobalRegistry(new=None):
     """Set a new global component registry that uses the current registry as
     a a base. If you use this, you *must* call ``popGlobalRegistry()`` to
@@ -36,7 +38,7 @@ def pushGlobalRegistry(new=None):
     # the stack for loading pickles. Otherwise, we end up with POSKey and
     # pickling errors when dealing with persistent registries that have the
     # global registry (globalregistry.base) as a baes
-
+    
     if len(_REGISTRIES) == 0:
         _REGISTRIES.append(current)
         globalregistry.BaseGlobalComponents._old__reduce__ = globalregistry.BaseGlobalComponents.__reduce__
@@ -124,9 +126,11 @@ def popGlobalRegistry():
     
     return previous
 
-class Sandbox(Layer):
-    """Zope Component Architecture sandbox: The ZCA is cleared for each
-    test and torn down after each test.
+# Layers
+
+class UnitTesting(Layer):
+    """Zope Component Architecture unit testing sandbox: The ZCA is cleared
+    for each test and torn down after each test.
     """
     
     defaultBases = ()
@@ -139,7 +143,7 @@ class Sandbox(Layer):
         import zope.component.testing
         zope.component.testing.tearDown()
 
-SANDBOX = Sandbox()
+UNIT_TESTING = UnitTesting()
 
 class EventTesting(Layer):
     """Set up event testing for each test. This allows use of the helper
@@ -150,13 +154,30 @@ class EventTesting(Layer):
     the event testing events list is emptied for each test.
     """
     
-    defaultBases = (SANDBOX,)
+    defaultBases = (UNIT_TESTING,)
     
     def testSetUp(self):
         import zope.component.eventtesting
         zope.component.eventtesting.setUp()
     
 EVENT_TESTING = EventTesting()
+
+class LayerCleanup(Layer):
+    """A base layer which uses ``zope.testing.cleanup`` to restore the
+    state of the environment on test setup and cleanup.
+    """
+    
+    defaultBases = ()
+    
+    def setUp(self):
+        import zope.testing.cleanup
+        zope.testing.cleanup.cleanUp()
+    
+    def tearDown(self):
+        import zope.testing.cleanup
+        zope.testing.cleanup.cleanUp()
+
+LAYER_CLEANUP = LayerCleanup()
 
 class ZCMLDirectives(Layer):
     """Enables the use of the basic ZCML directives from ``zope.component``.
@@ -165,7 +186,7 @@ class ZCMLDirectives(Layer):
     ``configurationContext``.
     """
     
-    defaultBases = ()
+    defaultBases = (LAYER_CLEANUP,)
     
     def setUp(self):
         

@@ -192,7 +192,7 @@ class Layer(ResourceManager):
         pass
 
 def layered(suite, layer):
-    """Add the given layer to each suite in the list of suites passed
+    """Add the given layer to the given suite and return the suite
     """
     
     suite.layer = layer

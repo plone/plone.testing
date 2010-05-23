@@ -9,18 +9,19 @@ For testing, we need a testrunner
 
     >>> from zope.testing.testrunner import runner
 
-Sandbox layer
-~~~~~~~~~~~~~
+Unit testing
+~~~~~~~~~~~~
 
-The ``SANDBOX`` layer is used to set up a clean component registry between
-each test. It uses ``zope.testing.cleanup`` to clean up all global state.
+The ``UNIT_TESTING`` layer is used to set up a clean component registry
+between each test. It uses ``zope.testing.cleanup`` to clean up all global
+state.
 
 It has no bases:
 
-    >>> "%s.%s" % (zca.SANDBOX.__module__, zca.SANDBOX.__name__,)
-    'plone.testing.zca.Sandbox'
+    >>> "%s.%s" % (zca.UNIT_TESTING.__module__, zca.UNIT_TESTING.__name__,)
+    'plone.testing.zca.UnitTesting'
 
-    >>> zca.SANDBOX.__bases__
+    >>> zca.UNIT_TESTING.__bases__
     ()
 
 The component registry is cleaned up between each test.
@@ -44,8 +45,8 @@ Layer setup does nothing.
 
     >>> options = runner.get_options([], [])
     >>> setupLayers = {}
-    >>> runner.setup_layer(options, zca.SANDBOX, setupLayers)
-    Set up plone.testing.zca.Sandbox in ... seconds.
+    >>> runner.setup_layer(options, zca.UNIT_TESTING, setupLayers)
+    Set up plone.testing.zca.UnitTesting in ... seconds.
 
 Let's now simulate a test. Before any test setup has happened, our previously
 registered utility is still there.
@@ -55,7 +56,7 @@ registered utility is still there.
 
 On test setup, it disappears.
 
-    >>> zca.SANDBOX.testSetUp()
+    >>> zca.UNIT_TESTING.testSetUp()
 
     >>> queryUtility(Interface, name="test-dummy") is None
     True
@@ -68,7 +69,7 @@ The test would now execute. It may register some components.
 
 On test tear-down, this disappears.
 
-    >>> zca.SANDBOX.testTearDown()
+    >>> zca.UNIT_TESTING.testTearDown()
 
     >>> queryUtility(Interface, name="test-dummy") is None
     True
@@ -76,19 +77,19 @@ On test tear-down, this disappears.
 Layer tear-down does nothing.
 
     >>> runner.tear_down_unneeded(options, [], setupLayers)
-    Tear down plone.testing.zca.Sandbox in ... seconds.
+    Tear down plone.testing.zca.UnitTesting in ... seconds.
 
 Event testing
 ~~~~~~~~~~~~~
 
-The ``EVENT_TESTING`` layer extends the ``SANDBOX`` layer to add the necessary
-registrations for ``zope.component.eventtesting`` to work.
+The ``EVENT_TESTING`` layer extends the ``UNIT_TESTING`` layer to add the
+necessary registrations for ``zope.component.eventtesting`` to work.
 
     >>> "%s.%s" % (zca.EVENT_TESTING.__module__, zca.EVENT_TESTING.__name__,)
     'plone.testing.zca.EventTesting'
 
     >>> zca.EVENT_TESTING.__bases__
-    (<Layer 'plone.testing.zca.Sandbox'>,)
+    (<Layer 'plone.testing.zca.UnitTesting'>,)
 
 Before the test, the component registry is empty and ``getEvents()`` returns
 nothing, even if an event is fired.
@@ -110,12 +111,12 @@ Layer setup does nothing.
     >>> options = runner.get_options([], [])
     >>> setupLayers = {}
     >>> runner.setup_layer(options, zca.EVENT_TESTING, setupLayers)
-    Set up plone.testing.zca.Sandbox in ... seconds.
+    Set up plone.testing.zca.UnitTesting in ... seconds.
     Set up plone.testing.zca.EventTesting in ... seconds.
 
 Let's now simulate a test. On test setup, the event testing list is emptied.
     
-    >>> zca.SANDBOX.testSetUp()
+    >>> zca.UNIT_TESTING.testSetUp()
     >>> zca.EVENT_TESTING.testSetUp()
 
     >>> getEvents()
@@ -131,7 +132,7 @@ the event testing list.
 On test tear-down, the list is emptied again
 
     >>> zca.EVENT_TESTING.testTearDown()
-    >>> zca.SANDBOX.testTearDown()
+    >>> zca.UNIT_TESTING.testTearDown()
 
     >>> getEvents()
     []
@@ -140,19 +141,91 @@ Layer tear-down does nothing.
 
     >>> runner.tear_down_unneeded(options, [], setupLayers)
     Tear down plone.testing.zca.EventTesting in ... seconds.
-    Tear down plone.testing.zca.Sandbox in ... seconds.
+    Tear down plone.testing.zca.UnitTesting in ... seconds.
+
+Layer cleanup
+~~~~~~~~~~~~~
+
+The ``LAYER_CLEANUP`` layer is used to set up a clean component registry
+at the set-up and tear-down of a layer. It uses ``zope.testing.cleanup`` to
+clean up all global state.
+
+It has no bases:
+
+    >>> "%s.%s" % (zca.LAYER_CLEANUP.__module__, zca.LAYER_CLEANUP.__name__,)
+    'plone.testing.zca.LayerCleanup'
+
+    >>> zca.LAYER_CLEANUP.__bases__
+    ()
+
+The component registry is cleaned up on layer set-up and tear-down (but not
+between tests).
+
+    >>> from zope.interface import Interface
+    >>> from zope.component import provideUtility
+    
+    >>> class DummyUtility(object):
+    ...     def __init__(self, name):
+    ...         self.name = name
+    ...     def __repr__(self):
+    ...         return "<%s>" % self.name
+
+    >>> provideUtility(DummyUtility("Dummy"), provides=Interface, name="test-dummy")
+
+    >>> from zope.component import queryUtility
+    >>> queryUtility(Interface, name="test-dummy")
+    <Dummy>
+
+    >>> options = runner.get_options([], [])
+    >>> setupLayers = {}
+    >>> runner.setup_layer(options, zca.LAYER_CLEANUP, setupLayers)
+    Set up plone.testing.zca.LayerCleanup in ... seconds.
+
+    >>> queryUtility(Interface, name="test-dummy") is None
+    True
+
+A sub-layer may register additional components:
+
+    >>> provideUtility(DummyUtility("Dummy2"), provides=Interface, name="test-dummy2")
+
+Let's now simulate a test. Test setup and tear-down does nothing.
+
+    >>> zca.LAYER_CLEANUP.testSetUp()
+
+    >>> queryUtility(Interface, name="test-dummy") is None
+    True
+    >>> queryUtility(Interface, name="test-dummy2")
+    <Dummy2>
+
+    >>> zca.LAYER_CLEANUP.testTearDown()
+
+    >>> queryUtility(Interface, name="test-dummy") is None
+    True
+    >>> queryUtility(Interface, name="test-dummy2")
+    <Dummy2>
+
+On tear-down, the registry is cleaned again.
+
+    >>> runner.tear_down_unneeded(options, [], setupLayers)
+    Tear down plone.testing.zca.LayerCleanup in ... seconds.
+
+    >>> queryUtility(Interface, name="test-dummy") is None
+    True
+    >>> queryUtility(Interface, name="test-dummy2") is None
+    True
 
 Basic ZCML directives
 ~~~~~~~~~~~~~~~~~~~~~
 
 The ``ZCML_DIRECTIVES`` layer creates a ZCML configuration context with the
-basic ``zope.component`` directives available.
+basic ``zope.component`` directives available. It extends the
+``LAYER_CLEANUP`` layer.
 
     >>> "%s.%s" % (zca.ZCML_DIRECTIVES.__module__, zca.ZCML_DIRECTIVES.__name__,)
     'plone.testing.zca.ZCMLDirectives'
 
     >>> zca.ZCML_DIRECTIVES.__bases__
-    ()
+    (<Layer 'plone.testing.zca.LayerCleanup'>,)
 
 Before the test, we cannot use e.g. a ``<utility />`` directive without
 loading the necessary ``meta.zcml`` files.
@@ -173,6 +246,7 @@ configuration.
     >>> options = runner.get_options([], [])
     >>> setupLayers = {}
     >>> runner.setup_layer(options, zca.ZCML_DIRECTIVES, setupLayers)
+    Set up plone.testing.zca.LayerCleanup in ... seconds.
     Set up plone.testing.zca.ZCMLDirectives in ... seconds.
 
 Let's now simulate a test that uses this configuration context to load the
@@ -192,10 +266,10 @@ The utility is now registered:
     >>> queryUtility(Interface, name="test-dummy")
     <Dummy utility>
 
-    >>> zca.SANDBOX.testTearDown()
+    >>> zca.UNIT_TESTING.testTearDown()
 
-Note that normally, we'd combine this with the ``SANDBOX`` layer to tear down
-the component architecture as well.
+Note that normally, we'd combine this with the ``UNIT_TESTING`` layer to tear
+down the component architecture as well.
 
 Layer tear-down deletes the configuration context.
 
@@ -208,13 +282,13 @@ Layer tear-down deletes the configuration context.
 Configuration registry sandboxing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-For simple unit tests, the full cleanup performed between each test using
-the ``SANDBOX`` layer is undoubtedly the safest and most convenient way to
+For simple unit tests, the full cleanup performed between each test using the
+``UNIT_TESTING`` layer is undoubtedly the safest and most convenient way to
 ensure proper isolation of tests using the global component architecture.
 However, if you are writing a complex layer that sets up a lot of components,
 you may wish to keep some components registered at the layer level, whilst
-still allowing tests and sub-layers to register their own components
-in isolation.
+still allowing tests and sub-layers to register their own components in
+isolation.
 
 This is a tricky problem, because the default ZCML directives and APIs
 (``provideAdapter()``, ``provideUtility()`` and so on) explicitly work on

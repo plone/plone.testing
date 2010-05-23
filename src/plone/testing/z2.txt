@@ -13,17 +13,18 @@ Startup
 ~~~~~~~
 
 ``STARTUP`` is the base layer for all Zope 2 testing. It sets up a Zope 2
-sandbox environment that is suitable for testing. It does not have any
-bases.
+sandbox environment that is suitable for testing. It extends the 
+``zca.LAYER_CLEANUP`` layer to maximise the chances of having and leaving a
+pristine environment.
 
-**Note**: You should probably use at least ``INTEGRATION_TEST`` for any real
-test.
+**Note**: You should probably use at least ``INTEGRATION_TESTING`` for any
+real test.
     
     >>> "%s.%s" % (z2.STARTUP.__module__, z2.STARTUP.__name__,)
     'plone.testing.z2.Startup'
 
     >>> z2.STARTUP.__bases__
-    ()
+    (<Layer 'plone.testing.zca.LayerCleanup'>,)
 
 On layer setup, Zope is initialised using a lightweight process. This involves
 certain patches to global modules that Zope manages, to reduce setup time,
@@ -40,6 +41,7 @@ Let's just verify that we have an empty component registry before the test:
     >>> options = runner.get_options([], [])
     >>> setupLayers = {}
     >>> runner.setup_layer(options, z2.STARTUP, setupLayers)
+    Set up plone.testing.zca.LayerCleanup in ... seconds.
     Set up plone.testing.z2.Startup in ... seconds.
 
 After layer setup, the ``zodbDB`` resource is available, pointing to the
@@ -107,7 +109,7 @@ It is common to combine the ``zopeApp()`` context manager with a stacked
     from plone.testing import Layer, z2, zodb
     
     class MyLayer(Layer):
-        defaultBases = (INTEGRATION_TEST,) # see below
+        defaultBases = (INTEGRATION_TESTING,) # see below
         
         def setUp(self):
             self['zodbDB'] = zodb.stackDemoStorage(self.get('zodbDB'), name='MyLayer')
@@ -128,8 +130,8 @@ It is common to combine the ``zopeApp()`` context manager with a stacked
             del self['zodbDB']
 
 Note that you would normally *not* use the ``z2.zopeApp()`` in a test or in a
-``testSetUp()`` or ``testTearDown()`` method. The ``INTEGRATION_TEST`` and
-``FUNCTIONAL_TEST`` layers manage the application object for you, exposing
+``testSetUp()`` or ``testTearDown()`` method. The ``INTEGRATION_TESTING`` and
+``FUNCTIONAL_TESTING`` layers manage the application object for you, exposing
 them as the resource ``app`` (see below).
 
 After layer setup, the global component registry contains a number of
@@ -147,7 +149,8 @@ See ``zca.txt`` for details about how to use ``zope.configuration`` for this
 purpose.
 
 The ``STARTUP`` layer does not perform any specific test setup or tear-down.
-That is left up to the ``INTEGRATION_TEST`` and ``FUNCTIONAL_TEST`` layers.
+That is left up to the ``INTEGRATION_TESTING`` and ``FUNCTIONAL_TESTING``
+layers.
 
     >>> z2.STARTUP.testSetUp()
     >>> z2.STARTUP.testTearDown()
@@ -156,6 +159,7 @@ Layer tear-down resets the environment.
 
     >>> runner.tear_down_unneeded(options, [], setupLayers)
     Tear down plone.testing.z2.Startup in ... seconds.
+    Tear down plone.testing.zca.LayerCleanup in ... seconds.
 
     >>> import Zope2
     >>> Zope2._began_startup
@@ -171,7 +175,7 @@ Layer tear-down resets the environment.
 Integration test
 ~~~~~~~~~~~~~~~~
 
-``INTEGRATION_TEST`` is intended for Zope 2 integration testing. It extends
+``INTEGRATION_TESTING`` is intended for Zope 2 integration testing. It extends
 ``STARTUP`` to ensure that a transaction is begun before and rolled back after
 each test. Two resources, ``app`` and ``request``, are available during
 testing as well.
@@ -183,35 +187,36 @@ transaction managed by the layer.
 
 ``request`` is a test request. It is the same as ``app.REQUEST``.
     
-    >>> "%s.%s" % (z2.INTEGRATION_TEST.__module__, z2.INTEGRATION_TEST.__name__,)
-    'plone.testing.z2.IntegrationTest'
+    >>> "%s.%s" % (z2.INTEGRATION_TESTING.__module__, z2.INTEGRATION_TESTING.__name__,)
+    'plone.testing.z2.IntegrationTesting'
 
-    >>> z2.INTEGRATION_TEST.__bases__
+    >>> z2.INTEGRATION_TESTING.__bases__
     (<Layer 'plone.testing.z2.Startup'>,)
 
     >>> options = runner.get_options([], [])
     >>> setupLayers = {}
-    >>> runner.setup_layer(options, z2.INTEGRATION_TEST, setupLayers)
+    >>> runner.setup_layer(options, z2.INTEGRATION_TESTING, setupLayers)
+    Set up plone.testing.zca.LayerCleanup in ... seconds.
     Set up plone.testing.z2.Startup in ... seconds.
-    Set up plone.testing.z2.IntegrationTest in ... seconds.
+    Set up plone.testing.z2.IntegrationTesting in ... seconds.
 
 Let's now simulate a test. On test setup, the ``app`` resource is made
 available. In a test, you should always use this to access the application
 root.
 
     >>> z2.STARTUP.testSetUp()
-    >>> z2.INTEGRATION_TEST.testSetUp()
+    >>> z2.INTEGRATION_TESTING.testSetUp()
 
 The test may now inspect and modify the environment.
 
-    >>> app = z2.INTEGRATION_TEST['app'] # would normally be self.layer['app']
+    >>> app = z2.INTEGRATION_TESTING['app'] # would normally be self.layer['app']
     >>> app.manage_addFolder('folder1')
     >>> app.objectIds()
     ['acl_users', 'Control_Panel', 'folder1']
 
 The request is also available:
 
-    >>> z2.INTEGRATION_TEST['request'] # would normally be self.layer['request']
+    >>> z2.INTEGRATION_TESTING['request'] # would normally be self.layer['request']
     <HTTPRequest, URL=http://nohost>
 
 We can create a user and simulate logging in as that user, using the
@@ -246,13 +251,13 @@ To become the anonymous user again, use ``z2.logout()``:
 
 On tear-down, the transaction is rolled back:
 
-    >>> z2.INTEGRATION_TEST.testTearDown()
+    >>> z2.INTEGRATION_TESTING.testTearDown()
     >>> z2.STARTUP.testTearDown()
 
-    >>> 'app' in z2.INTEGRATION_TEST
+    >>> 'app' in z2.INTEGRATION_TESTING
     False
     
-    >>> 'request' in z2.INTEGRATION_TEST
+    >>> 'request' in z2.INTEGRATION_TESTING
     False
     
     >>> with z2.zopeApp() as app:
@@ -262,46 +267,48 @@ On tear-down, the transaction is rolled back:
 Let's tear down the layers
 
     >>> runner.tear_down_unneeded(options, [], setupLayers)
-    Tear down plone.testing.z2.IntegrationTest in ... seconds.
+    Tear down plone.testing.z2.IntegrationTesting in ... seconds.
     Tear down plone.testing.z2.Startup in ... seconds.
+    Tear down plone.testing.zca.LayerCleanup in ... seconds.
 
 Functional testing
 ~~~~~~~~~~~~~~~~~~
 
-The ``FUNCTIONAL_TEST`` layer is very similar to ``INTEGRATION_TEST``, and
-exposes the same fixture and resources. However, it has different transaction
-semantics. ``INTEGRATION_TEST`` creates a single database storage, and rolls
-back the transaction after each test. ``FUNCTIONAL_TEST`` creates a whole new
-database storage (stacked on top of the basic fixture) for each test. This
-allows testing of code that performs an explicit commit, which is usually
-required for end-to-end testing. The downside is that the set-up and tear-down
-of each test takes longer.
+The ``FUNCTIONAL_TESTING`` layer is very similar to ``INTEGRATION_TESTING``,
+and exposes the same fixture and resources. However, it has different
+transaction semantics. ``INTEGRATION_TESTING`` creates a single database
+storage, and rolls back the transaction after each test.
+``FUNCTIONAL_TESTING`` creates a whole new database storage (stacked on top of
+the basic fixture) for each test. This allows testing of code that performs an
+explicit commit, which is usually required for end-to-end testing. The
+downside is that the set-up and tear-down of each test takes longer.
 
-Like ``INTEGRATION_TEST``, ``FUNCTIONAL_TEST`` is based on ``STARTUP``.
+Like ``INTEGRATION_TESTING``, ``FUNCTIONAL_TESTING`` is based on ``STARTUP``.
     
-    >>> "%s.%s" % (z2.FUNCTIONAL_TEST.__module__, z2.FUNCTIONAL_TEST.__name__,)
-    'plone.testing.z2.FunctionalTest'
+    >>> "%s.%s" % (z2.FUNCTIONAL_TESTING.__module__, z2.FUNCTIONAL_TESTING.__name__,)
+    'plone.testing.z2.FunctionalTesting'
 
-    >>> z2.FUNCTIONAL_TEST.__bases__
+    >>> z2.FUNCTIONAL_TESTING.__bases__
     (<Layer 'plone.testing.z2.Startup'>,)
 
     >>> options = runner.get_options([], [])
     >>> setupLayers = {}
-    >>> runner.setup_layer(options, z2.FUNCTIONAL_TEST, setupLayers)
+    >>> runner.setup_layer(options, z2.FUNCTIONAL_TESTING, setupLayers)
+    Set up plone.testing.zca.LayerCleanup in ... seconds.
     Set up plone.testing.z2.Startup in ... seconds.
-    Set up plone.testing.z2.FunctionalTest in ... seconds.
+    Set up plone.testing.z2.FunctionalTesting in ... seconds.
 
 Let's now simulate a test. On test setup, the ``app`` resource is made
 available. In a test, you should always use this to access the application
 root. The ``request`` resource can be used to access the test request.
 
     >>> z2.STARTUP.testSetUp()
-    >>> z2.FUNCTIONAL_TEST.testSetUp()
+    >>> z2.FUNCTIONAL_TESTING.testSetUp()
 
 The test may now inspect and modify the environment. It may also
 commit things.
 
-    >>> app = z2.FUNCTIONAL_TEST['app'] # would normally be self.layer['app']
+    >>> app = z2.FUNCTIONAL_TESTING['app'] # would normally be self.layer['app']
     >>> app.manage_addFolder('folder1')
     >>> app.objectIds()
     ['acl_users', 'Control_Panel', 'folder1']
@@ -311,13 +318,13 @@ commit things.
     
 On tear-down, the database is torn down.
 
-    >>> z2.FUNCTIONAL_TEST.testTearDown()
+    >>> z2.FUNCTIONAL_TESTING.testTearDown()
     >>> z2.STARTUP.testTearDown()
 
-    >>> 'app' in z2.FUNCTIONAL_TEST
+    >>> 'app' in z2.FUNCTIONAL_TESTING
     False
     
-    >>> 'request' in z2.FUNCTIONAL_TEST
+    >>> 'request' in z2.FUNCTIONAL_TESTING
     False
     
     >>> with z2.zopeApp() as app:
@@ -327,13 +334,14 @@ On tear-down, the database is torn down.
 Let's tear down the layer:
 
     >>> runner.tear_down_unneeded(options, [], setupLayers)
-    Tear down plone.testing.z2.FunctionalTest in ... seconds.
+    Tear down plone.testing.z2.FunctionalTesting in ... seconds.
     Tear down plone.testing.z2.Startup in ... seconds.
+    Tear down plone.testing.zca.LayerCleanup in ... seconds.
 
 HTTP server
 ~~~~~~~~~~~
 
-The ``ZSERVER`` layer extends ``FUNCTIONAL_TEST`` to start up a
+The ``ZSERVER`` layer extends ``FUNCTIONAL_TESTING`` to start up a
 single-threaded Zope server in a separate thread. This makes it possible to
 connect to the test instance using a web browser or a testing tool like
 Selenium or Windmill.
@@ -342,13 +350,14 @@ Selenium or Windmill.
     'plone.testing.z2.ZServer'
 
     >>> z2.ZSERVER.__bases__
-    (<Layer 'plone.testing.z2.FunctionalTest'>,)
+    (<Layer 'plone.testing.z2.FunctionalTesting'>,)
 
     >>> options = runner.get_options([], [])
     >>> setupLayers = {}
     >>> runner.setup_layer(options, z2.ZSERVER, setupLayers)
+    Set up plone.testing.zca.LayerCleanup in ... seconds.
     Set up plone.testing.z2.Startup in ... seconds.
-    Set up plone.testing.z2.FunctionalTest in ... seconds.
+    Set up plone.testing.z2.FunctionalTesting in ... seconds.
     Set up plone.testing.z2.ZServer in ... seconds.
 
 After layer setup, the resources ``host`` and ``port`` are available, and
@@ -366,7 +375,7 @@ Let's now simulate a test. Test setup does nothing beyond what the base layers
 do.
 
     >>> z2.STARTUP.testSetUp()
-    >>> z2.FUNCTIONAL_TEST.testSetUp()
+    >>> z2.FUNCTIONAL_TESTING.testSetUp()
     >>> z2.ZSERVER.testSetUp()
     
 It is common in a test to use the Python API to change the state of the server
@@ -398,7 +407,7 @@ We can now look for this new object through the server.
 Test tear-down does nothing beyond what the base layers do.
     
     >>> z2.ZSERVER.testTearDown()
-    >>> z2.FUNCTIONAL_TEST.testTearDown()
+    >>> z2.FUNCTIONAL_TESTING.testTearDown()
     >>> z2.STARTUP.testTearDown()
 
     >>> 'app' in z2.ZSERVER
@@ -415,8 +424,9 @@ When the server is torn down, the ZServer thread is stopped.
 
     >>> runner.tear_down_unneeded(options, [], setupLayers)
     Tear down plone.testing.z2.ZServer in ... seconds.
-    Tear down plone.testing.z2.FunctionalTest in ... seconds.
+    Tear down plone.testing.z2.FunctionalTesting in ... seconds.
     Tear down plone.testing.z2.Startup in ... seconds.
+    Tear down plone.testing.zca.LayerCleanup in ... seconds.
 
     >>> conn = urllib2.urlopen(app_url + '/folder1', timeout=5)
     Traceback (most recent call last):
@@ -436,19 +446,20 @@ starts an FTP server instead of an HTTP server.
     and overriding the ``setUpServer()`` and ``tearDownServer()`` hooks to set
     up and close both servers. See the code for an example.
 
-The ``FTP_SERVER`` layer is based on the ``FUNCTIONAL_TEST`` layer.
+The ``FTP_SERVER`` layer is based on the ``FUNCTIONAL_TESTING`` layer.
 
     >>> "%s.%s" % (z2.FTP_SERVER.__module__, z2.FTP_SERVER.__name__,)
     'plone.testing.z2.FTPServer'
 
     >>> z2.FTP_SERVER.__bases__
-    (<Layer 'plone.testing.z2.FunctionalTest'>,)
+    (<Layer 'plone.testing.z2.FunctionalTesting'>,)
 
     >>> options = runner.get_options([], [])
     >>> setupLayers = {}
     >>> runner.setup_layer(options, z2.FTP_SERVER, setupLayers)
+    Set up plone.testing.zca.LayerCleanup in ... seconds.
     Set up plone.testing.z2.Startup in ... seconds.
-    Set up plone.testing.z2.FunctionalTest in ... seconds.
+    Set up plone.testing.z2.FunctionalTesting in ... seconds.
     Set up plone.testing.z2.FTPServer in ... seconds.
 
 After layer setup, the resources ``host`` and ``port`` are available, and
@@ -466,7 +477,7 @@ Let's now simulate a test. Test setup does nothing beyond what the base layers
 do.
 
     >>> z2.STARTUP.testSetUp()
-    >>> z2.FUNCTIONAL_TEST.testSetUp()
+    >>> z2.FUNCTIONAL_TESTING.testSetUp()
     >>> z2.FTP_SERVER.testSetUp()
     
 As with ``ZSERVER``, we will set up some content for the test and then access
@@ -512,7 +523,7 @@ We can now look for this new object through the server.
 Test tear-down does nothing beyond what the base layers do.
 
     >>> z2.FTP_SERVER.testTearDown()
-    >>> z2.FUNCTIONAL_TEST.testTearDown()
+    >>> z2.FUNCTIONAL_TESTING.testTearDown()
     >>> z2.STARTUP.testTearDown()
 
     >>> 'app' in z2.ZSERVER
@@ -529,8 +540,9 @@ When the server is torn down, the FTP thread is stopped.
 
     >>> runner.tear_down_unneeded(options, [], setupLayers)
     Tear down plone.testing.z2.FTPServer in ... seconds.
-    Tear down plone.testing.z2.FunctionalTest in ... seconds.
+    Tear down plone.testing.z2.FunctionalTesting in ... seconds.
     Tear down plone.testing.z2.Startup in ... seconds.
+    Tear down plone.testing.zca.LayerCleanup in ... seconds.
 
     >>> ftpClient.connect(host, port, timeout=5)
     Traceback (most recent call last):

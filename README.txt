@@ -1369,13 +1369,13 @@ The Zope Component Architecture layers are found in the module
 ``plone.testing.zca``. If you depend on this, you can use the ``[zca]`` extra
 when depending on ``plone.testing``.
 
-Sandbox
-~~~~~~~
+Unit testing
+~~~~~~~~~~~~
 
 +------------+--------------------------------------------------+
-| Layer:     | ``plone.testing.zca.SANDBOX``                    |
+| Layer:     | ``plone.testing.zca.UNIT_TESTING``               |
 +------------+--------------------------------------------------+
-| Class:     | ``plone.testing.zca.Sandbox``                    |
+| Class:     | ``plone.testing.zca.UnitTesting``                |
 +------------+--------------------------------------------------+
 | Bases:     | None                                             |
 +------------+--------------------------------------------------+
@@ -1402,17 +1402,34 @@ Event testing
 +------------+--------------------------------------------------+
 | Class:     | ``plone.testing.zca.EventTesting``               |
 +------------+--------------------------------------------------+
-| Bases:     | ``plone.testing.zca.SANDBOX``                    |
+| Bases:     | ``plone.testing.zca.UNIT_TESTING``               |
 +------------+--------------------------------------------------+
 | Resources: | None                                             |
 +------------+--------------------------------------------------+
 
-This layer extends the ``zca.SANDBOX`` layer to enable the ``eventtesting``
-support from ``zope.component``. Using this layer, you can import and use
-``zope.component.eventtesting.getEvent`` to inspect events fired by the code
-under test.
+This layer extends the ``zca.UNIT_TESTING`` layer to enable the
+``eventtesting`` support from ``zope.component``. Using this layer, you can
+import and use ``zope.component.eventtesting.getEvent`` to inspect events
+fired by the code under test.
 
 See above for details.
+
+Layer cleanup
+~~~~~~~~~~~~~
+
++------------+--------------------------------------------------+
+| Layer:     | ``plone.testing.zca.LAYER_CLEANUP``              |
++------------+--------------------------------------------------+
+| Class:     | ``plone.testing.zca.LayerCleanup``               |
++------------+--------------------------------------------------+
+| Bases:     | None                                             |
++------------+--------------------------------------------------+
+| Resources: | None                                             |
++------------+--------------------------------------------------+
+
+This layer calls the cleanup functions from ``zope.testing.cleanup`` on setup
+and tear-down (but not between each test). It is useful as a base layer for
+other layers that need as pristine an environment as possible.
 
 Basic ZCML directives
 ~~~~~~~~~~~~~~~~~~~~~
@@ -1422,7 +1439,7 @@ Basic ZCML directives
 +------------+--------------------------------------------------+
 | Class:     | ``plone.testing.zca.ZCMLDirectives``             |
 +------------+--------------------------------------------------+
-| Bases:     | None                                             |
+| Bases:     | ``plone.testing.zca.LAYER_CLEANUP``              |
 +------------+--------------------------------------------------+
 | Resources: | ``configurationContext``                         |
 +------------+--------------------------------------------------+
@@ -1640,7 +1657,7 @@ Startup
 +------------+--------------------------------------------------+
 | Class:     | ``plone.testing.z2.Startup``                     |
 +------------+--------------------------------------------------+
-| Bases:     | None                                             |
+| Bases:     | ``plone.testing.zca.LAYER_CLEANUP``              |
 +------------+--------------------------------------------------+
 | Resources: | ``zodbDB``                                       |
 |            +--------------------------------------------------+
@@ -1683,7 +1700,7 @@ Integration test
 ~~~~~~~~~~~~~~~~
 
 +------------+--------------------------------------------------+
-| Layer:     | ``plone.testing.z2.INTEGRATION_TEST``            |
+| Layer:     | ``plone.testing.z2.INTEGRATION_TESTING``         |
 +------------+--------------------------------------------------+
 | Class:     | ``plone.testing.z2.IntegrationTest``             |
 +------------+--------------------------------------------------+
@@ -1706,7 +1723,7 @@ meaning that so long as the code under test does not explicitly commit any
 changes, the test may modify the ZODB.
 
     *Hint:* If you want to set up a persistent test fixture in a layer based
-    on this one (or ``z2.FUNCTIONAL_TEST``), you can stack a new
+    on this one (or ``z2.FUNCTIONAL_TESTING``), you can stack a new
     ``DemoStorage`` in a shadowing ``zodbDB`` resource, using the pattern
     described above for the ``zodb.EMPTY_ZODB`` layer.
 
@@ -1726,7 +1743,7 @@ Functional testing
 ~~~~~~~~~~~~~~~~~~
 
 +------------+--------------------------------------------------+
-| Layer:     | ``plone.testing.z2.FUNCTIONAL_TEST``             |
+| Layer:     | ``plone.testing.z2.FUNCTIONAL_TESTING``          |
 +------------+--------------------------------------------------+
 | Class:     | ``plone.testing.z2.FunctionalTest``              |
 +------------+--------------------------------------------------+
@@ -1740,11 +1757,11 @@ Functional testing
 As its name implies, this layer is intended mainly for functional end-to-end
 testing using tools like `zope.testbrowser`_.
 
-This layer is very similar to ``INTEGRATION_TEST``, but is not based on it. It
-sets up the same fixture and exposes the same resources. However, instead of
-using a simple transaction abort to isolate the ZODB between tests, it uses a
-stacked ``DemoStorage`` for each test. This is slower, but allows test code to
-perform and explicit commit, as will usually happen in a functional test.
+This layer is very similar to ``INTEGRATION_TESTING``, but is not based on it.
+It sets up the same fixture and exposes the same resources. However, instead
+of using a simple transaction abort to isolate the ZODB between tests, it uses
+a stacked ``DemoStorage`` for each test. This is slower, but allows test code
+to perform and explicit commit, as will usually happen in a functional test.
 
 HTTP ZServer thread
 ~~~~~~~~~~~~~~~~~~~
@@ -1829,9 +1846,10 @@ Several helper functions are available in the ``plone.testing.z2`` module.
     environment values as ``environ``.
 
     Note that ``zopeApp()`` should *not* normally be used in tests or test
-    set-up/tear-down, because the ``INTEGRATOIN_TEST`` and ``FUNCTIONAL_TEST``
-    layers both manage the application root (as the ``app`` resource) and
-    close it for you. It is very useful in layer setup, however.
+    set-up/tear-down, because the ``INTEGRATOIN_TEST`` and
+    ``FUNCTIONAL_TESTING`` layers both manage the application root (as the
+    ``app`` resource) and close it for you. It is very useful in layer setup,
+    however.
 ``installProduct(app, product, quiet=False)``
     Install a Zope 2 style product, ensuring that its ``initialize()``
     function is called. The product name must be the full dotted name, e.g.
@@ -1861,9 +1879,9 @@ Several helper functions are available in the ``plone.testing.z2`` module.
     non-default values, pass a dictionary as ``environ``.
 
     Note that this method is rarely used, because both the ``zopeApp()``
-    context manager and the layer set-up/tear-down for ``z2.INTEGRATION_TEST``
-    and ``z2.FUNCTIONAL_TEST`` will wrap the ``app`` object before exposing
-    it.
+    context manager and the layer set-up/tear-down for
+    ``z2.INTEGRATION_TESTING`` and ``z2.FUNCTIONAL_TESTING`` will wrap the
+    ``app`` object before exposing it.
 
 .. _zope.testing: http://pypi.python.org/pypi/zope.testing
 .. _zope.testbrowser: http://pypi.python.org/pypi/zope.testbrowser
