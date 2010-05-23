@@ -1090,6 +1090,11 @@ to the ``DocTestSuite()`` and ``DocFileSuite()`` constructors. Instead,
 you have to set a ``layer`` attribute on the suite after it has been
 constructed.
 
+Furthermore, to use layer resources in a doctest, we need access to the layer
+instance. The easiest way to do this is to pass it as a glob, conventionally
+called 'layer'. This makes a global name 'layer' available in the doctest
+itself, giving access to the test's layer instance.
+
 To make it easier to do this, ``plone.testing`` comes with a helper function
 called ``layered()``. Its first argument is a test suite. The second argument
 is the layer.
@@ -1109,14 +1114,14 @@ This is equivalent to:
     >>> def test_suite():
     ...     suite = unittest.TestSuite()
     ...
-    ...     spaceshipUtilTests = doctest.DocTestSuite('spaceship.utils')
+    ...     spaceshipUtilTests = doctest.DocTestSuite('spaceship.utils', globs={'layer': CONSTITUTION_CLASS_SPACE_SHIP})
     ...     spaceshipUtilTests.layer = CONSTITUTION_CLASS_SPACE_SHIP
     ...     suite.addTest(spaceshipUtilTests)
     ...
     ...     return suite
 
-In this example, we've opted to use ``addTest()`` to add a single suite,
-instead of using ``addTests()`` to add multiple suites in one go.
+(In this example, we've opted to use ``addTest()`` to add a single suite,
+instead of using ``addTests()`` to add multiple suites in one go.)
 
 Zope testing tools
 ==================

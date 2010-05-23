@@ -522,3 +522,11 @@ This does the same as the sample above.
     1
     >>> tests[0].layer is DOCTEST_LAYER
     True
+
+In addition, a 'layer' glob is added to each test in the suite. This allows
+the test to access layer resources.
+
+    >>> len(list(tests[0]))
+    1
+    >>> list(tests[0])[0]._dt_test.globs['layer'] is DOCTEST_LAYER
+    True

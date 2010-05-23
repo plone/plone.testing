@@ -191,9 +191,22 @@ class Layer(ResourceManager):
     def testTearDown(self):
         pass
 
-def layered(suite, layer):
-    """Add the given layer to the given suite and return the suite
-    """
+def layered(suite, layer, addLayerToDoctestGlobs=True):
+    """Add the given layer to the given suite and return the suite.
     
+    If ``addLayerToDoctestGlobs`` is ``True``, the layer will be added to the
+    globs (global namespace) of any doctests in the suite, under the name
+    ``layer``, provided no such glob exists already.
+    """
     suite.layer = layer
+    
+    if addLayerToDoctestGlobs:
+        from doctest import DocTestCase
+        
+        for test in suite:
+            if isinstance(test, DocTestCase):
+                globs = test._dt_test.globs
+                if not 'layer' in globs:
+                    globs['layer'] = layer
+    
     return suite
