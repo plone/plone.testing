@@ -1340,9 +1340,10 @@ Functional testing
 ------------------
 
 For functional tests that aim to simulate the browser, you can use
-`zope.testbrowser`_ in a Python test or doctest.
+`zope.testbrowser`_ in a Python test or doctest::
 
     >>> from zope.testbrowser.browser import Browser
+    >>> browser = Browser()
 
 This provides a simple API to simulate browser input, without actually running
 a web server thread or scripting a live browser (as tools such as Windmill
@@ -1350,16 +1351,21 @@ and Selenium do). The downside is that it is not possible to test JavaScript-
 dependent behaviour.
 
 If you are testing a Zope 2 application, you need to change the import
-location slightly::
+location slightly, and pass the application root to the method::
 
-    from Products.Five.testbrowser import Browser
+    from plone.testing.z2 import Browser
+    browser = Browser(app)
 
-or in Zope 2.13 and later::
-
-    from Testing.testbrowser import Browser
+You can get the application root from the ``app`` resource in any of the
+Zope 2 layers in this package.
 
 Beyond that, the `zope.testbrowser`_ documentation should cover how to use
 the test browser.
+
+    **Hint:** The test browser will usually commit at the end of a request. To
+    avoid test fixture contamination, you should use a layer that fully
+    isolates each test, such as the ``z2.INTEGRATION_TESTING`` layer described
+    below.
 
 Layer reference
 ===============
@@ -1760,7 +1766,8 @@ Functional testing
 +------------+--------------------------------------------------+
 
 As its name implies, this layer is intended mainly for functional end-to-end
-testing using tools like `zope.testbrowser`_.
+testing using tools like `zope.testbrowser`_. See also the ``Browser`` object
+as described under "Helper functions" below.
 
 This layer is very similar to ``INTEGRATION_TESTING``, but is not based on it.
 It sets up the same fixture and exposes the same resources. However, instead
@@ -1887,6 +1894,27 @@ Several helper functions are available in the ``plone.testing.z2`` module.
     context manager and the layer set-up/tear-down for
     ``z2.INTEGRATION_TESTING`` and ``z2.FUNCTIONAL_TESTING`` will wrap the
     ``app`` object before exposing it.
+``Browser(app)``
+    Obtain a test browser client, for use with `zope.testbrowser`_. You should
+    use this in conjunction with the ``z2.FUNCTIONAL_TESTING`` layer or a
+    derivative. You must pass the app root, usually obtained from the ``app``
+    resource of the layer, e.g.::
+    
+        app = self.layer['app']
+        browser = z2.Browser(app)
+    
+    You can then use ``browser`` as described in the `zope.testbrowser`_
+    documentation.
+    
+    Bear in mind that the test browser runs separately from the test fixture.
+    In particular, calls to helpers such as ``login()`` or ``logout()`` do
+    not affect the state that the test browser sees. If you want to set up
+    a persistent fixture (e.g. test content), you can do so before creating
+    the test browser, but you will need to explicitly commit your changes,
+    with::
+    
+        import transaction
+        transaction.commit()
 
 .. _zope.testing: http://pypi.python.org/pypi/zope.testing
 .. _zope.testbrowser: http://pypi.python.org/pypi/zope.testbrowser

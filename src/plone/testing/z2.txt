@@ -338,6 +338,72 @@ Let's tear down the layer:
     Tear down plone.testing.z2.Startup in ... seconds.
     Tear down plone.testing.zca.LayerCleanup in ... seconds.
 
+The test browser
+~~~~~~~~~~~~~~~~
+
+The ``FUNCTIONAL_TESTING`` layer is also the basis for functional testing
+using ``zope.testbrowser``. This simulates a web browser, allowing an
+application to be tested "end-to-end" via its user-facing interface.
+
+To use the test browser with the ``FUNCTIONAL_TESTING`` layer, we need to use
+a custom browser client, which ensures that the test browser uses the correct
+ZODB and is appropriately isolated from the test code.
+
+    >>> options = runner.get_options([], [])
+    >>> setupLayers = {}
+    >>> runner.setup_layer(options, z2.FUNCTIONAL_TESTING, setupLayers)
+    Set up plone.testing.zca.LayerCleanup in ... seconds.
+    Set up plone.testing.z2.Startup in ... seconds.
+    Set up plone.testing.z2.FunctionalTesting in ... seconds.
+
+Let's simulate a test:
+
+    >>> z2.STARTUP.testSetUp()
+    >>> z2.FUNCTIONAL_TESTING.testSetUp()
+
+In the test, we can create a test browser client like so::
+
+    >>> app = z2.FUNCTIONAL_TESTING['app'] # would normally be self.layer['app']
+    >>> browser = z2.Browser(app)
+
+We can add to the test fixture in the test. For those changes to be visible to
+the test browser, however, we need to commit the transaction.
+
+    >>> app.manage_addFolder('folder1')
+    >>> import transaction; transaction.commit()
+    
+We can now view this via the test browser:
+
+    >>> browser.open(app.absolute_url() + '/folder1')
+
+    >>> 'folder1' in browser.contents
+    True
+
+See the ``zope.testbrowser`` documentation for more information about how to
+use the browser client.
+
+On tear-down, the database is torn down.
+
+    >>> z2.FUNCTIONAL_TESTING.testTearDown()
+    >>> z2.STARTUP.testTearDown()
+
+    >>> 'app' in z2.FUNCTIONAL_TESTING
+    False
+    
+    >>> 'request' in z2.FUNCTIONAL_TESTING
+    False
+    
+    >>> with z2.zopeApp() as app:
+    ...     print app.objectIds()
+    ['acl_users', 'Control_Panel']
+    
+Let's tear down the layer:
+
+    >>> runner.tear_down_unneeded(options, [], setupLayers)
+    Tear down plone.testing.z2.FunctionalTesting in ... seconds.
+    Tear down plone.testing.z2.Startup in ... seconds.
+    Tear down plone.testing.zca.LayerCleanup in ... seconds.
+
 HTTP server
 ~~~~~~~~~~~
 
