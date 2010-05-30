@@ -769,6 +769,11 @@ class ZServer(Layer):
         separate thread.
         """
         
+        # Reset a possibly hooked site manager, to ensure that component 
+        # registry stacking is not lost between threads
+        from zope.component import getSiteManager
+        getSiteManager.reset()
+        
         import asyncore
         
         # Poll

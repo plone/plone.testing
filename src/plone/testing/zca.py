@@ -14,6 +14,14 @@ def loadRegistry(name):
             return reg
     raise KeyError(name)
 
+def _hookRegistry(reg):
+    from zope.component import _api
+    from zope.component import globalregistry
+    
+    _api.base = reg
+    globalregistry.base = reg
+    globalregistry.globalSiteManager = reg
+
 # Helper functions
 
 def pushGlobalRegistry(new=None):
@@ -27,7 +35,6 @@ def pushGlobalRegistry(new=None):
     Returns the new registry.
     """
     
-    from zope.component import _api
     from zope.component import globalregistry
     
     # Save the current top of the stack in a registry
@@ -52,9 +59,7 @@ def pushGlobalRegistry(new=None):
     
     # Monkey patch this into the three (!) places where zope.component
     # references it as a module global variable
-    _api.base = new
-    globalregistry.base = new
-    globalregistry.globalSiteManager = new
+    _hookRegistry(new)
     
     # And the one in five.localsitemanager, if applicable
     try:
@@ -84,7 +89,6 @@ def popGlobalRegistry():
     set with ``pushGlobalRegistry()``.
     """
     
-    from zope.component import _api
     from zope.component import globalregistry
     
     if not _REGISTRIES or not _REGISTRIES[-1] is globalregistry.base:
@@ -100,9 +104,7 @@ def popGlobalRegistry():
         _REGISTRIES.pop()
         globalregistry.BaseGlobalComponents.__reduce__ = globalregistry.BaseGlobalComponents._old__reduce__
     
-    _api.base = previous
-    globalregistry.base = previous
-    globalregistry.globalSiteManager = previous
+    _hookRegistry(previous)
     
     try:
         from five import localsitemanager
