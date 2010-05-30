@@ -7,6 +7,12 @@ from plone.testing import Layer
 from plone.testing import zodb
 from plone.testing import zca
 
+try:
+    from plone.testing._z2_testbrowser import Browser
+except ImportError:
+    # Just in case zope.testbrowser causes an import error, don't break
+    pass
+
 _INSTALLED_PRODUCTS = {}
 
 def installProduct(app, productName, quiet=False):
@@ -187,7 +193,6 @@ def addRequestContainer(app, environ=None):
     requestcontainer = RequestContainer(REQUEST=req)
     return app.__of__(requestcontainer)
 
-
 @contextlib.contextmanager
 def zopeApp(db=None, connection=None, environ=None):
     """Context manager for working with the Zope2 app::
@@ -230,12 +235,6 @@ def zopeApp(db=None, connection=None, environ=None):
         
         if closeConn:
             connection.close()
-
-
-try:
-    from plone.testing._z2_testbrowser import Browser
-except ImportError:
-    pass
 
 # Startup layer - you probably don't want to use this one directly
 

@@ -28,23 +28,16 @@ class Zope2MechanizeBrowser(mechanize.Browser):
     default_others     = ['_http_error', '_http_request_upgrade', '_http_default_error']
     default_features   = ['_redirect', '_cookies', '_referer', '_refresh','_equiv', '_basicauth', '_digestauth' ]
     
-    inherited_handlers = [
-            '_unknown', '_http_error', '_http_request_upgrade', '_http_default_error', 
-            '_basicauth','_digestauth', '_redirect', '_cookies', '_referer',
-            '_refresh', '_equiv', '_gzip'
-        ]
-    
-    def __init__(self, app, *args, **kwargs):
+    def __init__(self, app, *args, **kws):
         
         def httpHandlerFactory():
             return Zope2HTTPHandler(app)
         
-        self.handler_classes = {"http": httpHandlerFactory}
-        
-        for name in self.inherited_handlers:
-            self.handler_classes[name] = mechanize.Browser.handler_classes[name]
-        
-        mechanize.Browser.__init__(self, *args, **kwargs)
+        self.handler_classes = mechanize.Browser.handler_classes.copy()
+        self.handler_classes["http"] = httpHandlerFactory
+        self.default_others = [cls for cls in self.default_others 
+                               if cls in mechanize.Browser.handler_classes]
+        mechanize.Browser.__init__(self, *args, **kws)
 
 class Zope2HTTPHandler(urllib2.HTTPHandler):
     """A protocol handler that uses the Zope 2 publisher to talk HTTP
