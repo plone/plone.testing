@@ -232,6 +232,11 @@ def zopeApp(db=None, connection=None, environ=None):
             connection.close()
 
 
+try:
+    from plone.testing._z2_testbrowser import Browser
+except ImportError:
+    pass
+
 # Startup layer - you probably don't want to use this one directly
 
 class Startup(Layer):
