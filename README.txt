@@ -1160,7 +1160,7 @@ cleanups:
 
     >>> cleanup.cleanUp()
 
-This call could be placed in a ``setUp()`` and/or ``tearDow()`` method in a
+This call could be placed in a ``setUp()`` and/or ``tearDown()`` method in a
 test class, for example.
 
 Event testing
