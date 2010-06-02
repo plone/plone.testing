@@ -1279,7 +1279,7 @@ locations) explicitly here, using the ``package`` attribute of the
 Also note that unless the optional second argument (``context``) is passed,
 a new configuration machine will be created every time ``string()`` is called.
 It therefore becomes necessary to explicitly ``<include />`` the files that
-contains the directives you want to use (the one in ``zope.component`` is a
+contain the directives you want to use (the one in ``zope.component`` is a
 common example). Layers that set up ZCML configuration may expose a resource
 which can be passed as the ``context`` parameter, usually called
 ``configurationContext`` - see below.
