@@ -392,6 +392,8 @@ attributes:
     ``setUp()``, this is called exactly once for each layer.
 ``testSetUp()``
     Called immediately before each test case that uses the layer is executed.
+    This is useful for setting up aspects of the fixture that are managed on
+    a per-test basis, as opposed to fixture shared among all tests.
 ``testTearDown()``
     Called immediately after each test case that uses the layer is executed.
     This is a chance to perform any post-test cleanup to ensure the fixture
@@ -599,7 +601,9 @@ Here, we have created a "no-op" layer with two bases: ``CATS_MESSAGE`` and
 
 Please note that when using ``Layer`` directly like this, the ``name``
 argument is required. This is to allow the test runner to identify the layer
-correctly.
+correctly. Normally, the class name of the layer is used as a basis for the
+name, but when using the ``Layer`` base class directly, this is unlikely to be
+unique or descriptive.
 
 Layer resources
 ---------------
@@ -1242,16 +1246,18 @@ global components instantly. The three most commonly used functions are:
 
 See the `zope.component`_ documentation for details about how to use these.
 
-When registering global components like this, it is important to avoid
-test leakage. The ``cleanup`` mechanism outlined above can be used to tear
-down the component registry between each test.
+When registering global components like this, it is important to avoid test
+leakage. The ``cleanup`` mechanism outlined above can be used to tear down the
+component registry between each test. See also the
+``plone.testing.zca.UNIT_TESTING`` layer, described below, which performs this
+cleanup automatically via the ``testSetUp()``/``testTearDown()`` mechanism.
 
 Alternatively, you can "stack" a new global component registry using the
-``zca.pushGlobalRegistry()`` and ``zca.popGlobalRegistry()`` helpers. This
-makes it possible to set up and tear down components that are specific to a
-given layer, and even allow tests to safely call the global component API
-(or load ZCML - see below) with proper tear-down. See the layer reference
-below for details.
+``plone.testing.zca.pushGlobalRegistry()`` and
+``plone.testing.zca.popGlobalRegistry()`` helpers. This makes it possible to
+set up and tear down components that are specific to a given layer, and even
+allow tests to safely call the global component API (or load ZCML - see below)
+with proper tear-down. See the layer reference below for details.
 
 Loading ZCML
 ------------
