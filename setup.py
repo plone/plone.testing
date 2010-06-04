@@ -65,7 +65,7 @@ setup(name='plone.testing',
                 'Zope2',
                 'zope.site',
                 'zope.testbrowser',
-                'zope.publisher.http',
+                'zope.publisher',
             ],
       },
       entry_points="""
