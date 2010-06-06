@@ -226,10 +226,11 @@ def zopeApp(db=None, connection=None, environ=None):
     
     try:
         yield app
-        transaction.commit()
     except:
         transaction.abort()
         raise
+    else:
+        transaction.commit()
     finally:
         app.REQUEST.close()
         
@@ -262,7 +263,6 @@ class Startup(Layer):
     # Layer lifecycle
     
     def setUp(self):
-        
         self.setUpDebugMode()
         self.setUpClientCache()
         self.setUpPatches()
