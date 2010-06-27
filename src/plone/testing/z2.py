@@ -529,6 +529,15 @@ class Startup(Layer):
         with zopeApp() as app:
             uninstallProduct(app, 'Products.PluginIndexes')
             uninstallProduct(app, 'Products.OFSP')
+        
+        # It's possible for Five's _register_monkies and _meta_type_regs
+        # global variables to contain duplicates. This causes an unecessary
+        # error in the LayerCleanup layer's tear-down. Guard against that
+        # here
+        
+        from Products.Five import fiveconfigure
+        fiveconfigure._register_monkies = list(set(fiveconfigure._register_monkies))
+        fiveconfigure._meta_type_regs = list(set(fiveconfigure._meta_type_regs))
     
     def setUpZCML(self):
         """Load the basic ZCML configuration from Five. Exposes a resource
