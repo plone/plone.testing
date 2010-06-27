@@ -128,6 +128,54 @@ def popGlobalRegistry():
     
     return previous
 
+def stackConfigurationContext(context=None):
+    """Return a new ``ConfigurationMachine`` configuration context that 
+    is a clone of the passed-in context. If no context is passed in, a fresh
+    configuration context is returned.
+    """
+    
+    from copy import deepcopy
+    
+    from zope.interface import Interface
+    from zope.interface.adapter import AdapterRegistry
+    
+    from zope.configuration.config import ConfigurationMachine
+    from zope.configuration.xmlconfig import registerCommonDirectives
+    
+    clone = ConfigurationMachine()
+    
+    if context is None:
+        registerCommonDirectives(clone)
+        return clone
+    
+    # Copy over simple attributes
+    clone.info         = deepcopy(context.info)
+    clone.i18n_strings = deepcopy(context.i18n_strings)
+    clone.package      = deepcopy(context.package)
+    clone.basepath     = deepcopy(context.basepath)
+    clone.includepath  = deepcopy(context.includepath)
+    
+    clone._seen_files  = deepcopy(context._seen_files)
+    clone._features    = deepcopy(context._features)
+    
+    # Note: We don't copy ``stack`` or ``actions`` since these are used during
+    # ZCML file processing only
+    
+    # Copy over documentation registry
+    clone._docRegistry = [tuple(list(entry))for entry in context._docRegistry]
+    
+    # Copy over the directive registry
+    for key, registry in context._registry.items():
+        newRegistry = clone._registry.setdefault(key, AdapterRegistry())
+        for adapterRegistration in registry._adapters:
+            if adapterRegistration not in newRegistry._adapters:
+                for interface, info in adapterRegistration.items():
+                    if Interface in info:
+                        factory = info[Interface][u'']
+                        newRegistry.register([interface], Interface, '', factory)
+    
+    return clone
+    
 # Layers
 
 class UnitTesting(Layer):
@@ -195,7 +243,8 @@ class ZCMLDirectives(Layer):
         from zope.configuration import xmlconfig
         import zope.component
         
-        self['configurationContext'] = xmlconfig.file('meta.zcml', zope.component)
+        self['configurationContext'] = context = stackConfigurationContext(self.get('configurationContext'))
+        xmlconfig.file('meta.zcml', zope.component, context=context)
     
     def tearDown(self):
         del self['configurationContext']

@@ -542,8 +542,10 @@ class Startup(Layer):
         # Load something akin to the default site.zcml without actually auto-
         # loading products
         
+        self['configurationContext'] = context = zca.stackConfigurationContext(self.get('configurationContext'))
+        
         from zope.configuration import xmlconfig
-        context = xmlconfig.string("""\
+        xmlconfig.string("""\
 <configure
     xmlns="http://namespaces.zope.org/zope"
     xmlns:meta="http://namespaces.zope.org/meta"
@@ -555,16 +557,13 @@ class Startup(Layer):
     <securityPolicy component="Products.Five.security.FiveSecurityPolicy" />
 
 </configure>
-""")
-        
-        # Save the context for other layers/tests
-        self['configurationContext'] = context
+""", context=context)
     
     def tearDownZCML(self):
         """Tear down the component registry and delete the
         ``configurationContext`` resource.
         """
-        # Delete the configuration context
+        # Delete the (possibly stacked) configuration context
         del self['configurationContext']
         
         # Zap all globally loaded ZCML

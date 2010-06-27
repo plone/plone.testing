@@ -1471,12 +1471,22 @@ This registers a minimal set of ZCML directives, principally those found in
 the ``zope.component`` package, and makes available a configuration context.
 This allows custom ZCML to be loaded as described above.
 
-The ``configurationContext`` resource should be used when loading custom
-ZCML. For example, if you were writing a ``setUp()`` method in a layer that
-had ``zca.ZCML_DIRECTIVES`` as a base, you could do::
+The ``configurationContext`` resource should be used when loading custom ZCML.
+To ensure isolation, you should stack this using the
+``stackConfigurationContext()`` helper. For example, if you were writing a
+``setUp()`` method in a layer that had ``zca.ZCML_DIRECTIVES`` as a base, you
+could do::
 
-    context = self['configurationContext']
+    self['configurationContext'] = context = zca.stackConfigurationContext(self.get('configurationContext'))
     xmlconfig.string(someZCMLString, context=context)
+
+This will create a new configuration context with the state of the base
+layer's context. On tear-down, you should delete the layer-specific resource::
+
+    del self['configurationContext']
+
+*Note:* If you fail to do this, you may get problems if your layer is torn
+down and then needs to be set up again later.
 
 See above for more details about loading custom ZCML in a layer or test.
 
@@ -1485,6 +1495,27 @@ Helper functions
 
 The following helper functions are available in the ``plone.testing.zca``
 module.
+
+``stackConfigurationContext(context=None)``
+    Create and return a copy of the passed-in ZCML configuration context, or a
+    brand new context if it is ``None``.
+    
+    The purpose of this is to ensure that if a layer loads some ZCML files
+    (using the ``zope.configuration`` API during) its ``setUp()``, the state
+    of the configuration registry (which includes registered directives as
+    well as a list of already imported files, which will not be loaded again
+    even if explicitly included) can be torn down during ``tearDown()``.
+    
+    The usual pattern is to keep the configuration context in a layer resource
+    called ``configurationContext``. In ``setUp()``, you would then use::
+    
+        self['configurationContext'] = context = zca.stackConfigurationContext(self.get('configurationContext'))
+        
+        # use 'context' to load some ZCML
+    
+    In ``tearDown()``, you can then simply do::
+        
+        del self['configurationContext']
 
 ``pushGlobalRegistry(new=None)``
     Create or obtain a stack of global component registries, and push a new
@@ -1550,12 +1581,9 @@ This allows browser views, browser pages and other UI components to be
 registered, as well as the definition of new permissions.
 
 As with ``zca.ZCML_DIRECTIVES``, you should use the ``configurationContext``
-resource when loading ZCML strings or files.
-
-    **Warning:** This layer does not properly tear down the
-    ``configurationContext`` resource. After layer tear-down, the additional
-    directives installed on layer setup are still present in the configuration
-    context.
+resource when loading ZCML strings or files, and the
+``stackConfigurationRegistry()`` helper to create a layer-specific version
+of this resource resource. See above.
 
 ZODB
 ----
@@ -1698,12 +1726,12 @@ layer.
 
 On set-up, the layer will configure a Zope environment with:
 
-* Debug mode enabled
-* ZEO client cache disabled
+* Debug mode enabled.
+* ZEO client cache disabled.
 * Some patches installed, which speed up Zope startup by disabling the help
-  system and some other superfluous aspects of Zope
+  system and some other superfluous aspects of Zope.
 * One thread (this only really affects the ``ZSERVER`` and ``FTP_SERVER``
-  layers)
+  layers).
 * A pristine database using ``DemoStorage``, exposed as the resource
   ``zodbDB``. Zope is configured to use this database in a way that will
   also work if the ``zodbDB`` resource is shadowed using the pattern shown
@@ -1711,10 +1739,12 @@ On set-up, the layer will configure a Zope environment with:
 * A fake hostname and port, exposed as the ``host`` and ``port`` resource,
   respectively.
 * A minimal set of products installed (``Products.OFSP`` and
-  ``Products.PluginIndexes``, both required for Zope to start up)
-* A ZCML configuration context, exposed as the resource
-  ``configurationContext``
-* A minimal set of global Zope components configured
+  ``Products.PluginIndexes``, both required for Zope to start up).
+* A stacked ZCML configuration context, exposed as the resource
+  ``configurationContext``. As illustrated above, you should use the
+  ``zca.stackConfigurationContext()`` helper to stack your own configuration
+  context if you use this.
+* A minimal set of global Zope components configured.
 
 Note that unlike a "real" Zope site, products in the ``Products.*`` namespace
 are not automatically loaded, nor is any ZCML.

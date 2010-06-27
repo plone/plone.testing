@@ -18,8 +18,8 @@ class PublisherDirectives(Layer):
     def setUp(self):
         from zope.configuration import xmlconfig
         
-        # From the zca.ZCML_DIRECTIVES base layer
-        context = self['configurationContext']
+        # Stack a new configuration context
+        self['configurationContext'] = context = zca.stackConfigurationContext(self.get('configurationContext'))
 
         import zope.security
         xmlconfig.file('meta.zcml', zope.security, context=context)
@@ -30,7 +30,7 @@ class PublisherDirectives(Layer):
         xmlconfig.file('meta.zcml', zope.app.publisher, context=context)
     
     def tearDown(self):
-        # XXX: No proper tear-down
-        pass
+        # Zap the stacked configuration context
+        del self['configurationContext']
 
 PUBLISHER_DIRECTIVES = PublisherDirectives()
