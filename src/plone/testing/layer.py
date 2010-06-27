@@ -141,7 +141,10 @@ class Layer(ResourceManager):
         Pass a tuple of bases to override the default set of bases.
         
         Pass a name to override the layer name. By default, it is the
-        name of the layer class.
+        name of the layer class. NOTE: Each layer requires a unique name,
+        so if you instantiate the layer class more than once, you need to
+        supply a new, unique name. As a precaution, the name is required
+        if bases is given.
         
         Pass a module to override the layer module. By default, it is the
         module of the layer class.
@@ -149,6 +152,9 @@ class Layer(ResourceManager):
         
         if self.__class__ is Layer and name is None:
             raise ValueError('The "name" argument is required when instantiating `Layer` directly')
+        
+        if name is None and bases is not None:
+            raise ValueError('The "name" argument is required when overriding bases with the `bases` argument')
         
         super(Layer, self).__init__()
         

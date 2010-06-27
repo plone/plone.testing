@@ -576,7 +576,13 @@ constructor:
 
     >>> CATS_MESSAGE = CATSMessage()
 
-    >>> ZERO_WING = ZIGSpaceShip((SPACE_SHIP, CATS_MESSAGE,))
+    >>> ZERO_WING = ZIGSpaceShip(bases=(SPACE_SHIP, CATS_MESSAGE,), name="ZIGSpaceShip:CATSMessage")
+
+Please note that when overriding bases like this, the ``name`` argument is
+required. This is because each layer (using in a given test run) must have
+a unique name. The default is to use the layer class name, but this obviously
+only works for one instantiation. Therefore, ``plone.testing`` requires a
+name when setting ``bases`` explicitly.
 
 Please take great care when changing layer bases like this. The layer
 implementation may make assumptions about the test fixture that was set up
@@ -594,7 +600,7 @@ Sometimes, it is useful to be able to combine several layers into one, without
 adding any new fixture. One way to do this is to use the ``Layer`` class
 directly and instantiate it with new bases:
 
-    >>> COMBI_LAYER = Layer((CATS_MESSAGE, SPACE_SHIP,), name="Combi")
+    >>> COMBI_LAYER = Layer(bases=(CATS_MESSAGE, SPACE_SHIP,), name="Combi")
 
 Here, we have created a "no-op" layer with two bases: ``CATS_MESSAGE`` and
 ``SPACE_SHIP``, named ``Combi``.
