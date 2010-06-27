@@ -703,8 +703,8 @@ FUNCTIONAL_TESTING = FunctionalTesting()
 # More advanced functional testing - running ZServer and FTP server
 
 class ZServer(Layer):
-    """Start a ZServer that accesses the fixture managed by the ``FUNCTIONAL``
-    layer.
+    """Start a ZServer that accesses the fixture managed by the
+    ``FUNCTIONAL_TESTING`` layer.
     
     The host and port are available as the resources ``host`` and ``port``,
     respectively.
