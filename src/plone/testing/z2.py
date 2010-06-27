@@ -296,6 +296,12 @@ class Startup(Layer):
         self._debugMode = config.debug_mode
         config.debug_mode = False
         App.config.setConfiguration(config)
+        
+        # Set a flag so that other code can know that we are running tests.
+        # Some of the speed-related patches in Plone use this, for instance.
+        # The name is a BBB artefact from ZopeTestCase :
+        import os
+        os.environ['ZOPETESTCASE'] = '1'
     
     def tearDownDebugMode(self):
         """Return the debug mode flag to its previous state
