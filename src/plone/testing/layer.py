@@ -151,16 +151,20 @@ class Layer(ResourceManager):
         """
         
         if self.__class__ is Layer and name is None:
-            raise ValueError('The "name" argument is required when instantiating `Layer` directly')
+            raise ValueError('The `name` argument is required when instantiating `Layer` directly')
         
         if name is None and bases is not None:
-            raise ValueError('The "name" argument is required when overriding bases with the `bases` argument')
+            raise ValueError('The `name`` argument is required when overriding bases with the `bases` argument')
         
         super(Layer, self).__init__()
         
         if bases is None:
             bases = self.defaultBases
-        self.__bases__ = tuple(bases)
+        
+        try:
+            self.__bases__ = tuple(bases)
+        except (KeyError, TypeError,):
+            raise ValueError('The `bases` argument must be a sequence.')
         
         if name is None:
             name = self.__class__.__name__

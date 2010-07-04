@@ -53,7 +53,7 @@ when using a subclass):
     >>> Layer((SIMPLE_LAYER,))
     Traceback (most recent call last):
     ...
-    ValueError: The "name" argument is required when instantiating `Layer` directly
+    ValueError: The `name` argument is required when instantiating `Layer` directly
 
     >>> class NullLayer(Layer):
     ...     pass

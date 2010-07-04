@@ -592,11 +592,26 @@ STARTUP = Startup()
 
 class IntegrationTesting(Layer):
     """This layer extends ``STARTUP`` to add rollback of the transaction
-    after each test.
+    after each test. It does not manage a fixture and has no layer lifecyle,
+    only a test lifecycle.
     
     The application root is available as the resource ``app`` and the request
     is available as the resource ``request``, set up and torn down for each
     test.
+    
+    Hint: If you want to create your own fixture on top of ``STARTUP``,
+    create a new layer that has ``STARTUP`` as a base. Then instantiate
+    this layer with your new "fixture" layer as a base, e.g.::
+        
+        from plone.testing import z2
+        from plone.testing import Layer
+        
+        class MyFixture(Layer):
+            
+            ...
+        
+        MY_FIXTURE = MyFixture(bases=(z2.STARTUP,), name='MyFixture')
+        MY_INTEGRATION_TESTING = z2.IntegrationTesting(bases=(MY_FIXTURE,), name='MyFixture:Integration')
     """
     
     defaultBases = (STARTUP,)
@@ -648,6 +663,20 @@ class FunctionalTesting(Layer):
     As with ``INTEGRATION_TESTING``, the application root is available as the
     resource ``app`` and the request is available as the resource ``request``,
     set up and torn down for each test.
+    
+    Hint: If you want to create your own fixture on top of ``STARTUP``,
+    create a new layer that has ``STARTUP`` as a base. Then instantiate
+    this layer with your new "fixture" layer as a base, e.g.::
+        
+        from plone.testing import z2
+        from plone.testing import Layer
+        
+        class MyFixture(Layer):
+            
+            ...
+        
+        MY_FIXTURE = MyFixture(bases=(z2.STARTUP,), name='MyFixture')
+        MY_FUNCTIONAL_TESTING = z2.FunctinoalTesting(bases=(MY_FIXTURE,), name='MyFixture:Functional')
     """
     
     defaultBases = (STARTUP,)
@@ -704,16 +733,20 @@ FUNCTIONAL_TESTING = FunctionalTesting()
 
 class ZServer(Layer):
     """Start a ZServer that accesses the fixture managed by the
-    ``FUNCTIONAL_TESTING`` layer.
+    ``STARTUP`` layer.
     
     The host and port are available as the resources ``host`` and ``port``,
     respectively.
     
     This should *not* be used in parallel with the ``FTP_SERVER`` layer, since
     it shares the same async loop.
+    
+    The ``ZSERVER_FIXTURE`` layer must be used as the base for a layer that
+    uses the ``FunctionalTesting`` layer class. The ``ZSERVER`` layer is
+    an example of such a layer.
     """
     
-    defaultBases = (FUNCTIONAL_TESTING,)
+    defaultBases = (STARTUP,)
     
     host = 'localhost'
     port = 55001
@@ -795,7 +828,12 @@ class ZServer(Layer):
         while socket_map and not self._shutdown:
             asyncore.poll(self.timeout, socket_map)
 
-ZSERVER = ZServer()
+# Fixture layer - use as a base layer, but don't use directly, as it has no
+# test lifecycle
+ZSERVER_FIXTURE = ZServer()
+
+# Functional testing layer that uses the ZSERVER_FIXTURE
+ZSERVER = FunctionalTesting(bases=(ZSERVER_FIXTURE,), name="ZServer:Functional")
 
 class FTPServer(ZServer):
     """FTP variant of the ZServer layer.
@@ -805,9 +843,13 @@ class FTPServer(ZServer):
     layer class (like this layer class does) and implement setUpServer()
     and tearDownServer() to set up and close down two servers on different
     ports. They will then share a main loop.
+    
+    The ``FTP_SERVER_FIXTURE`` layer must be used as the base for a layer that
+    uses the ``FunctionalTesting`` layer class. The ``FTP_SERVER`` layer is
+    an example of such a layer.
     """
     
-    defaultBases = (FUNCTIONAL_TESTING,)
+    defaultBases = (STARTUP,)
     
     host = 'localhost'
     port = 55002
@@ -836,4 +878,9 @@ class FTPServer(ZServer):
         """
         self.ftpServer.close()
 
-FTP_SERVER = FTPServer()
+# Fixture layer - use as a base layer, but don't use directly, as it has no
+# test lifecycle
+FTP_SERVER_FIXTURE = FTPServer()
+
+# Functional testing layer that uses the FTP_SERVER_FIXTURE
+FTP_SERVER = FunctionalTesting(bases=(FTP_SERVER_FIXTURE,), name="FTPServer:Functional")

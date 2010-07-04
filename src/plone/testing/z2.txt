@@ -18,7 +18,8 @@ sandbox environment that is suitable for testing. It extends the
 pristine environment.
 
 **Note**: You should probably use at least ``INTEGRATION_TESTING`` for any
-real test.
+real test, although ``STARTUP`` is a useful base layer if you are setting up
+your own fixture. See the description of ``INTEGRATION_TESTING`` below.
     
     >>> "%s.%s" % (z2.STARTUP.__module__, z2.STARTUP.__name__,)
     'plone.testing.z2.Startup'
@@ -26,7 +27,7 @@ real test.
     >>> z2.STARTUP.__bases__
     (<Layer 'plone.testing.zca.LayerCleanup'>,)
 
-On layer setup, Zope is initialised using a lightweight process. This involves
+On layer setup, Zope is initialised in a lightweight manner. This involves
 certain patches to global modules that Zope manages, to reduce setup time,
 a database based on ``DemoStorage``, and a minimal set of products that must
 be installed for Zope 2 to work. A minimal set of ZCML is loaded, but packages
@@ -109,7 +110,7 @@ It is common to combine the ``zopeApp()`` context manager with a stacked
     from plone.testing import Layer, z2, zodb
     
     class MyLayer(Layer):
-        defaultBases = (INTEGRATION_TESTING,) # see below
+        defaultBases = (z2.STARTUP,)
         
         def setUp(self):
             self['zodbDB'] = zodb.stackDemoStorage(self.get('zodbDB'), name='MyLayer')
@@ -128,11 +129,11 @@ It is common to combine the ``zopeApp()`` context manager with a stacked
         def tearDown(self):
             self['zodbDB'].close()
             del self['zodbDB']
-
+    
 Note that you would normally *not* use the ``z2.zopeApp()`` in a test or in a
-``testSetUp()`` or ``testTearDown()`` method. The ``INTEGRATION_TESTING`` and
-``FUNCTIONAL_TESTING`` layers manage the application object for you, exposing
-them as the resource ``app`` (see below).
+``testSetUp()`` or ``testTearDown()`` method. The ``IntegrationTesting`` and
+``FunctionalTesting`` layer classes manage the application object for you,
+exposing them as the resource ``app`` (see below).
 
 After layer setup, the global component registry contains a number of
 components needed by Zope.
@@ -150,7 +151,8 @@ purpose.
 
 The ``STARTUP`` layer does not perform any specific test setup or tear-down.
 That is left up to the ``INTEGRATION_TESTING`` and ``FUNCTIONAL_TESTING``
-layers.
+layers, or other layers using their layer classes - ``IntegrationTesting``
+and ``FunctionalTesting``.
 
     >>> z2.STARTUP.testSetUp()
     >>> z2.STARTUP.testTearDown()
@@ -175,10 +177,16 @@ Layer tear-down resets the environment.
 Integration test
 ~~~~~~~~~~~~~~~~
 
-``INTEGRATION_TESTING`` is intended for Zope 2 integration testing. It extends
-``STARTUP`` to ensure that a transaction is begun before and rolled back after
-each test. Two resources, ``app`` and ``request``, are available during
-testing as well.
+``INTEGRATION_TESTING`` is intended for simple Zope 2 integration testing. It
+extends ``STARTUP`` to ensure that a transaction is begun before and rolled
+back after each test. Two resources, ``app`` and ``request``, are available
+during testing as well. It does not manage any layer state - it implements
+the test lifecycle methods only.
+
+**Note:** You would normally *not* use ``INTEGRATION_TESTING`` as a base
+layer. Instead, you'd use the ``IntegrationTesting`` class to create your
+own layer with the testing lifecycle semantics of ``INTEGRATION_TESTING``.
+See the ``plone.testing`` ``README`` file for an example.
 
 ``app`` is the application root. In a test, you should use this instead of
 the ``zopeApp`` context manager (which remains the weapon of choice for 
@@ -283,6 +291,11 @@ the basic fixture) for each test. This allows testing of code that performs an
 explicit commit, which is usually required for end-to-end testing. The
 downside is that the set-up and tear-down of each test takes longer.
 
+**Note:** Again, you would normally *not* use ``FUNCTIONAL_TESTING`` as a base
+layer. Instead, you'd use the ``FunctionalTesting`` class to create your own
+layer with the testing lifecycle semantics of ``FUNCTIONAL_TESTING``. See
+the ``plone.testing`` ``README`` file for an example.
+
 Like ``INTEGRATION_TESTING``, ``FUNCTIONAL_TESTING`` is based on ``STARTUP``.
     
     >>> "%s.%s" % (z2.FUNCTIONAL_TESTING.__module__, z2.FUNCTIONAL_TESTING.__name__,)
@@ -341,13 +354,15 @@ Let's tear down the layer:
 The test browser
 ~~~~~~~~~~~~~~~~
 
-The ``FUNCTIONAL_TESTING`` layer is also the basis for functional testing
-using ``zope.testbrowser``. This simulates a web browser, allowing an
-application to be tested "end-to-end" via its user-facing interface.
+The ``FUNCTIONAL_TESTING`` layer and ``FunctionalTesting`` layer class are
+the basis for functional testing using ``zope.testbrowser``. This simulates a
+web browser, allowing an application to be tested "end-to-end" via its
+user-facing interface.
 
-To use the test browser with the ``FUNCTIONAL_TESTING`` layer, we need to use
-a custom browser client, which ensures that the test browser uses the correct
-ZODB and is appropriately isolated from the test code.
+To use the test browser with a ``FunctionalTesting`` layer (such as the
+default ``FUNCTIONAL_TESTING`` layer instance), we need to use a custom
+browser client, which ensures that the test browser uses the correct ZODB and
+is appropriately isolated from the test code.
 
     >>> options = runner.get_options([], [])
     >>> setupLayers = {}
@@ -407,24 +422,33 @@ Let's tear down the layer:
 HTTP server
 ~~~~~~~~~~~
 
-The ``ZSERVER`` layer extends ``FUNCTIONAL_TESTING`` to start up a
-single-threaded Zope server in a separate thread. This makes it possible to
-connect to the test instance using a web browser or a testing tool like
-Selenium or Windmill.
+The ``ZSERVER_FIXTURE`` layer extends ``STARTUP`` to start a single-threaded
+Zope server in a separate thread. This makes it possible to connect to the
+test instance using a web browser or a testing tool like Selenium or Windmill.
 
-    >>> "%s.%s" % (z2.ZSERVER.__module__, z2.ZSERVER.__name__,)
+The ``ZSERVER`` layer provides a ``FunctionalTesting`` layer that has
+``ZSERVER_FIXTURE`` as its base.
+    
+    >>> "%s.%s" % (z2.ZSERVER_FIXTURE.__module__, z2.ZSERVER_FIXTURE.__name__,)
     'plone.testing.z2.ZServer'
 
+    >>> z2.ZSERVER_FIXTURE.__bases__
+    (<Layer 'plone.testing.z2.Startup'>,)
+
+    
+    >>> "%s.%s" % (z2.ZSERVER.__module__, z2.ZSERVER.__name__,)
+    'plone.testing.z2.ZServer:Functional'
+
     >>> z2.ZSERVER.__bases__
-    (<Layer 'plone.testing.z2.FunctionalTesting'>,)
+    (<Layer 'plone.testing.z2.ZServer'>,)
 
     >>> options = runner.get_options([], [])
     >>> setupLayers = {}
     >>> runner.setup_layer(options, z2.ZSERVER, setupLayers)
     Set up plone.testing.zca.LayerCleanup in ... seconds.
     Set up plone.testing.z2.Startup in ... seconds.
-    Set up plone.testing.z2.FunctionalTesting in ... seconds.
     Set up plone.testing.z2.ZServer in ... seconds.
+    Set up plone.testing.z2.ZServer:Functional in ... seconds.
 
 After layer setup, the resources ``host`` and ``port`` are available, and
 indicate where Zope is running.
@@ -489,8 +513,8 @@ Test tear-down does nothing beyond what the base layers do.
 When the server is torn down, the ZServer thread is stopped.
 
     >>> runner.tear_down_unneeded(options, [], setupLayers)
+    Tear down plone.testing.z2.ZServer:Functional in ... seconds.
     Tear down plone.testing.z2.ZServer in ... seconds.
-    Tear down plone.testing.z2.FunctionalTesting in ... seconds.
     Tear down plone.testing.z2.Startup in ... seconds.
     Tear down plone.testing.zca.LayerCleanup in ... seconds.
 
@@ -503,7 +527,8 @@ FTP server
 ~~~~~~~~~~
 
 The ``FTP_SERVER`` layer is identical similar to ``ZSERVER``, except that it
-starts an FTP server instead of an HTTP server.
+starts an FTP server instead of an HTTP server. The fixture is contained in
+the ``FTP_SERVER_FIXTURE`` layer.
 
     **Warning:** It is generally not safe to run the ``ZSERVER`` and
     ``FTP_SERVER`` layers concurrently, because they both start up the same
@@ -512,21 +537,30 @@ starts an FTP server instead of an HTTP server.
     and overriding the ``setUpServer()`` and ``tearDownServer()`` hooks to set
     up and close both servers. See the code for an example.
 
-The ``FTP_SERVER`` layer is based on the ``FUNCTIONAL_TESTING`` layer.
+The ``FTP_SERVER_FIXTURE`` layer is based on the ``STARTUP`` layer.
 
-    >>> "%s.%s" % (z2.FTP_SERVER.__module__, z2.FTP_SERVER.__name__,)
+    >>> "%s.%s" % (z2.FTP_SERVER_FIXTURE.__module__, z2.FTP_SERVER_FIXTURE.__name__,)
     'plone.testing.z2.FTPServer'
 
+    >>> z2.FTP_SERVER_FIXTURE.__bases__
+    (<Layer 'plone.testing.z2.Startup'>,)
+
+The ``FTP_SERVER`` layer is based on ``FTP_SERVER_FIXTURE``, using the
+``FunctionalTesting`` layer class.
+
+    >>> "%s.%s" % (z2.FTP_SERVER.__module__, z2.FTP_SERVER.__name__,)
+    'plone.testing.z2.FTPServer:Functional'
+
     >>> z2.FTP_SERVER.__bases__
-    (<Layer 'plone.testing.z2.FunctionalTesting'>,)
+    (<Layer 'plone.testing.z2.FTPServer'>,)
 
     >>> options = runner.get_options([], [])
     >>> setupLayers = {}
     >>> runner.setup_layer(options, z2.FTP_SERVER, setupLayers)
     Set up plone.testing.zca.LayerCleanup in ... seconds.
     Set up plone.testing.z2.Startup in ... seconds.
-    Set up plone.testing.z2.FunctionalTesting in ... seconds.
     Set up plone.testing.z2.FTPServer in ... seconds.
+    Set up plone.testing.z2.FTPServer:Functional in ... seconds.
 
 After layer setup, the resources ``host`` and ``port`` are available, and
 indicate where Zope is running.
@@ -605,8 +639,8 @@ Test tear-down does nothing beyond what the base layers do.
 When the server is torn down, the FTP thread is stopped.
 
     >>> runner.tear_down_unneeded(options, [], setupLayers)
+    Tear down plone.testing.z2.FTPServer:Functional in ... seconds.
     Tear down plone.testing.z2.FTPServer in ... seconds.
-    Tear down plone.testing.z2.FunctionalTesting in ... seconds.
     Tear down plone.testing.z2.Startup in ... seconds.
     Tear down plone.testing.zca.LayerCleanup in ... seconds.
 

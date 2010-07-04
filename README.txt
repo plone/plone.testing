@@ -1726,6 +1726,11 @@ layer.
 
 On set-up, the layer will configure a Zope environment with:
 
+**Note:** The ``STARTUP`` layer is a useful base layer for your own fixtures,
+but should not be used directly, since it provides no test lifecycle or
+transaction management. See the "Integration test" and "Functional" test
+sections below for examples of how to create your own layers.
+
 * Debug mode enabled.
 * ZEO client cache disabled.
 * Some patches installed, which speed up Zope startup by disabling the help
@@ -1764,7 +1769,9 @@ Integration test
 |            | ``request``                                      |
 +------------+--------------------------------------------------+
 
-This layer is intended for integration testing.
+This layer is intended for integration testing against the simple ``STARTUP``
+fixture. If you want to create your own layer with a more advanced, shared
+fixture, see "Integration and functional testing with custom fixtures" below.
 
 For each test, it exposes the Zope application root as the resource ``app``.
 This is wrapped in the request container, so you can do ``app.REQUEST`` to
@@ -1807,6 +1814,10 @@ Functional testing
 |            | ``request``                                      |
 +------------+--------------------------------------------------+
 
+This layer is intended for functional testing against the simple ``STARTUP``
+fixture. If you want to create your own layer with a more advanced, shared
+fixture, see "Integration and functional testing with custom fixtures" below.
+
 As its name implies, this layer is intended mainly for functional end-to-end
 testing using tools like `zope.testbrowser`_. See also the ``Browser`` object
 as described under "Helper functions" below.
@@ -1817,24 +1828,86 @@ of using a simple transaction abort to isolate the ZODB between tests, it uses
 a stacked ``DemoStorage`` for each test. This is slower, but allows test code
 to perform and explicit commit, as will usually happen in a functional test.
 
-HTTP ZServer thread
-~~~~~~~~~~~~~~~~~~~
+Integration and functional testing with custom fixtures
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you want to extend the ``STARTUP`` fixture for use with integration or
+functional testing, you should use the following pattern:
+
+* Create a layer class and a "fixture" base layer instance that has
+  ``z2.STARTUP`` (or some intermediary layer, such as ``z2.ZSERVER_FIXTURE``
+  or ``z2.FTP_SERVER_FIXTURE``, shown below) as a base.
+* Create "end user" layers by instantiating the ``z2.IntegrationTesting``
+  and/or ``FunctionalTesting`` classes with this new "fixture" layer as a
+  base.
+
+This allows the same fixture to be used regardless of the "style" of testing,
+minimising the amount of set-up and tear-down. The "fixture" layers manage the
+fixture as part of the *layer* lifecycle. The layer class
+(``IntegrationTesting`` or ``FunctionalTesting``), manages the *test*
+lifecycle, and the test lifecycle only.
+
+For example::
+
+    from plone.testing import Layer, z2, zodb
+    
+    class MyLayer(Layer):
+        defaultBases = (z2.STARTUP,)
+        
+        def setUp(self):
+            # Set up the fixture here
+            ...
+        
+        def tearDown(self):
+            # Tear down the fixture here
+            ...
+    
+    MY_FIXTURE = MyLayer()
+    
+    MY_INTEGRATION_TESTING = z2.IntegrationTesting(bases=(MY_FIXTURE,), name="MyFixture:Integration")
+    MY_FUNCTIONAL_TESTING = z2.FunctionalTesting(bases=(MY_FIXTURE,), name="MyFixture:Functional")
+
+(Note that we need to give an explicit, unique name to the two layers that
+re-use the ``IntegrationTesting`` and ``FunctionalTesting`` classes.)
+
+In this example, other layers could extend the "MyLayer" fixture by using
+``MY_FIXTURE`` as a base. Tests would use either ``MY_INTEGRATION_TESTING``
+or ``MY_FUNCTIONAL_TESTING`` as appropriate. However, even if both these two
+layers were used, the fixture in ``would``MY_FIXTURE`` only be set up once.
+
+    **Note:** If you implement the ``testSetUp()`` and ``testTearDown()`` test
+    lifecycle methods in your "fixture" layer (e.g. in the the ``MyLayer``
+    class above), they will execute before the corresponding methods from
+    ``IntegrationTesting`` and ``FunctionalTesting``. Hence, they cannot use
+    those layers' resources (``app`` and ``request``).
+
+It may be preferable, therefore, to have your own "test lifecycle" layer
+classes that subclass ``IntegrationTesting`` and/or ``FunctionalTesting`` and
+call base class methods as appropriate. ``plone.app.testing`` takes this
+approach, for example.
+
+HTTP ZServer thread (fixture only)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 +------------+--------------------------------------------------+
-| Layer:     | ``plone.testing.z2.ZSERVER``                     |
+| Layer:     | ``plone.testing.z2.ZSERVER_FIXTURE``             |
 +------------+--------------------------------------------------+
 | Class:     | ``plone.testing.z2.ZServer``                     |
 +------------+--------------------------------------------------+
-| Bases:     | ``plone.testing.z2.FUNCTIONAL``                  |
+| Bases:     | ``plone.testing.z2.STARTUP``                     |
 +------------+--------------------------------------------------+
 | Resources: | ``host``                                         |
 |            +--------------------------------------------------+
 |            | ``port``                                         |
 +------------+--------------------------------------------------+
 
-This layer extends the ``z2.FUNCTINAL`` layer to start the Zope HTTP server in
+This layer extends the ``z2.STARTUP`` layer to start the Zope HTTP server in
 a separate thread. This means the test site can be accessed through a web
 browser, and can thus be used with tools like `Windmill`_ or `Selenium`_.
+
+  **Note:** This layer is useful as a fixture base layer only, because it does
+  not manage the test lifecycle. Use the ``ZSERVER`` layer if you want to
+  execute functional tests against this fixture.
 
 The ZServer's hostname (normally ``localhost``) is available through the
 resource ``host``, whilst the port it is running on is available through the
@@ -1844,23 +1917,49 @@ resource ``port``.
   site through a web browser. The default URL will be
   ``http://localhost:55001``.
 
-FTP server thread
-~~~~~~~~~~~~~~~~~
+HTTP ZServer functional testing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 +------------+--------------------------------------------------+
-| Layer:     | ``plone.testing.z2.FTP_SERVER``                  |
+| Layer:     | ``plone.testing.z2.ZSERVER``                     |
++------------+--------------------------------------------------+
+| Class:     | ``plone.testing.z2.FunctionalTesting``           |
++------------+--------------------------------------------------+
+| Bases:     | ``plone.testing.z2.ZSERVER_FIXTURE``             |
++------------+--------------------------------------------------+
+| Resources: |                                                  |
++------------+--------------------------------------------------+
+
+This layer provides the functional testing lifecycle against the fixture set
+up by the ``z2.ZSERVER_FIXTURE`` layer.
+
+You can use this to run "live" functional tests against a basic Zope site.
+You should **not** use it as a base. Instead, create your own "fixture"
+layer that extends ``z2.ZSERVER_FIXTURE``, and then instantiate the
+``FunctionalTesting`` class with this extended fixture layer as a base,
+as outlined above.
+
+FTP server thread (fixture only)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++------------+--------------------------------------------------+
+| Layer:     | ``plone.testing.z2.FTP_SERVER_FIXTURE``          |
 +------------+--------------------------------------------------+
 | Class:     | ``plone.testing.z2.FTPServer``                   |
 +------------+--------------------------------------------------+
-| Bases:     | ``plone.testing.z2.FUNCTIONAL``                  |
+| Bases:     | ``plone.testing.z2.STARTUP``                     |
 +------------+--------------------------------------------------+
 | Resources: | ``host``                                         |
 |            +--------------------------------------------------+
 |            | ``port``                                         |
 +------------+--------------------------------------------------+
 
-This layer is the FTP server equivalent of the ``ZSERVER`` layer. It can be
-used to functionally test Zope servers.
+This layer is the FTP server equivalent of the ``ZSERVER_FIXTURE`` layer. It
+can be used to functionally test Zope servers.
+
+  **Note:** This layer is useful as a fixture base layer only, because it does
+  not manage the test lifecycle. Use the ``FTP_SERVER`` layer if you want to
+  execute functional tests against this fixture.
 
   *Hint:* Whilst the layer is set up, you can actually access the test Zope
   site through an FTP client. The default URL will be
@@ -1874,6 +1973,28 @@ If you need both ZServer and FTPServer running together, you can subclass the
 implement the ``setUpServer()`` and ``tearDownServer()`` methods to set up
 and close down two servers on different ports. They will then share a main
 loop.
+
+FTP server functional testing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++------------+--------------------------------------------------+
+| Layer:     | ``plone.testing.z2.FTP_SERVER``                  |
++------------+--------------------------------------------------+
+| Class:     | ``plone.testing.z2.FunctionalTesting``           |
++------------+--------------------------------------------------+
+| Bases:     | ``plone.testing.z2.FTP_SERVER_FIXTURE``          |
++------------+--------------------------------------------------+
+| Resources: |                                                  |
++------------+--------------------------------------------------+
+
+This layer provides the functional testing lifecycle against the fixture set
+up by the ``z2.FTP_SERVER_FIXTURE`` layer.
+
+You can use this to run "live" functional tests against a basic Zope site.
+You should **not** use it as a base. Instead, create your own "fixture"
+layer that extends ``z2.FTP_SERVER_FIXTURE``, and then instantiate the
+``FunctionalTesting`` class with this extended fixture layer as a base,
+as outlined above.
 
 Helper functions
 ~~~~~~~~~~~~~~~~
