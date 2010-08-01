@@ -21,6 +21,24 @@ def _hookRegistry(reg):
     _api.base = reg
     globalregistry.base = reg
     globalregistry.globalSiteManager = reg
+    
+    # Set the default global site manager for new threads when zope.site's
+    # hooks are in place
+    
+    try:
+        from zope.site.hooks import SiteInfo
+    except ImportError:
+        pass
+    else:
+        SiteInfo.sm = reg
+    
+    # Set the five.localsitemanager hook, too, if applicable
+    try:
+        from five import localsitemanager
+    except ImportError:
+        pass
+    else:
+        localsitemanager.base = reg
 
 # Helper functions
 
@@ -61,14 +79,6 @@ def pushGlobalRegistry(new=None):
     # references it as a module global variable
     _hookRegistry(new)
     
-    # And the one in five.localsitemanager, if applicable
-    try:
-        from five import localsitemanager
-    except ImportError:
-        pass
-    else:
-        localsitemanager.base = new
-    
     # Reset the site manager hook so that getSiteManager() returns the base
     # again
     from zope.component import getSiteManager
@@ -105,13 +115,6 @@ def popGlobalRegistry():
         globalregistry.BaseGlobalComponents.__reduce__ = globalregistry.BaseGlobalComponents._old__reduce__
     
     _hookRegistry(previous)
-    
-    try:
-        from five import localsitemanager
-    except ImportError:
-        pass
-    else:
-        localsitemanager.base = previous
     
     # Reset the site manager hook so that getSiteManager() returns the base
     # again
