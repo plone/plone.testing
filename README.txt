@@ -268,7 +268,7 @@ The available extras are:
     Architecture packages such as ``zope.component`` and ``zope.event``. The
     relevant layers and helpers are in the module ``plone.testing.zca``.
 ``publisher``
-    Zope Publisher testing. Depends on ``plone.app.publisher`` and sets up
+    Zope Publisher testing. Depends on ``zope.app.publisher`` and sets up
     ZCML directives. The relevant layers and helpers are in the module
     ``plone.testing.publisher``.
 ``z2``
