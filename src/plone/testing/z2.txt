@@ -39,6 +39,13 @@ Let's just verify that we have an empty component registry before the test:
     >>> list(getSiteManager().registeredAdapters())
     []
 
+Five sets a special vocabulary registry upon the layer setup, but
+there's a default one set before:
+
+    >>> from zope.schema.vocabulary import getVocabularyRegistry
+    >>> getVocabularyRegistry()
+    <zope.schema.vocabulary.VocabularyRegistry object at ...>
+
     >>> options = runner.get_options([], [])
     >>> setupLayers = {}
     >>> runner.setup_layer(options, z2.STARTUP, setupLayers)
@@ -141,6 +148,11 @@ components needed by Zope.
     >>> len(list(getSiteManager().registeredAdapters())) > 1 # in fact, > a lot
     True
 
+And Five has set a ``Zope2VocabularyRegistry`` vocabulary registry:
+
+    >>> getVocabularyRegistry()
+    <Products.Five.schema.Zope2VocabularyRegistry object at ...>
+
 To load additional ZCML, you can use the ``configurationContext`` resource:
 
     >>> z2.STARTUP['configurationContext']
@@ -173,6 +185,9 @@ Layer tear-down resets the environment.
 
     >>> list(getSiteManager().registeredAdapters())
     []
+
+    >>> getVocabularyRegistry()
+    <zope.schema.vocabulary.VocabularyRegistry object at ...>    
 
 Integration test
 ~~~~~~~~~~~~~~~~

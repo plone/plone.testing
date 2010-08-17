@@ -13,6 +13,10 @@ except ImportError:
     # Just in case zope.testbrowser causes an import error, don't break
     pass
 
+from zope.schema.vocabulary import getVocabularyRegistry
+from zope.schema.vocabulary import setVocabularyRegistry
+from Products.Five.schema import Zope2VocabularyRegistry
+
 _INSTALLED_PRODUCTS = {}
 
 def installProduct(app, productName, quiet=False):
@@ -272,9 +276,10 @@ class Startup(Layer):
         self.setUpApp()
         self.setUpBasicProducts()
         self.setUpZCML()
+        self.setUpFive()
     
     def tearDown(self):
-        
+        self.tearDownFive()
         self.tearDownZCML()
         self.tearDownBasicProducts()
         self.tearDownApp()
@@ -584,6 +589,24 @@ class Startup(Layer):
         # Zap all globally loaded ZCML
         from plone.testing import zca
         zca.popGlobalRegistry()
+
+    def setUpFive(self):
+        """Initialize Five without loading the site.zcml file to avoid
+        loading all Products.* .
+
+        This basically pushes a special vocabulary registry that
+        supports global and local utilities.
+        """
+        
+        self._oldVocabularyRegistry = getVocabularyRegistry()
+        setVocabularyRegistry(Zope2VocabularyRegistry())
+
+    def tearDownFive(self):
+        """Tear down the Five initialization restoring the previous
+        vocabulary registry.
+        """
+        
+        setVocabularyRegistry(self._oldVocabularyRegistry)
 
 STARTUP = Startup()
 
