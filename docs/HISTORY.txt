@@ -1,6 +1,14 @@
 Changelog
 =========
 
+1.0a2 (unreleased)
+------------------
+
+- Initialize Five in the z2.Startup layer, pushing a
+  Zope2VocabularyRegistry on layer set-up and restoring the previous
+  one upon tear-down.
+  [dukebody]
+
 1.0a1 (2010-08-01)
 ------------------
 
