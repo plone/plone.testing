@@ -4,6 +4,14 @@ Changelog
 1.0a2 (unreleased)
 ------------------
 
+- Fix a problem that would cause ``<meta:redefinePermission />`` to break.
+  In particular fixes the use of the ``zope2.Public`` permission.
+  [optilude]
+
+- Set the security implementation to "Python" for easier debugging during
+  the z2.STARTUP layer.
+  [optilude]
+
 - Initialize Five in the z2.Startup layer, pushing a
   Zope2VocabularyRegistry on layer set-up and restoring the previous
   one upon tear-down.

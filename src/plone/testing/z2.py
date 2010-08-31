@@ -302,6 +302,10 @@ class Startup(Layer):
         config.debug_mode = False
         App.config.setConfiguration(config)
         
+        # Set Python security mode
+        from AccessControl.Implementation import setImplementation
+        setImplementation("Python")
+        
         # Set a flag so that other code can know that we are running tests.
         # Some of the speed-related patches in Plone use this, for instance.
         # The name is a BBB artefact from ZopeTestCase :
@@ -311,6 +315,9 @@ class Startup(Layer):
     def tearDownDebugMode(self):
         """Return the debug mode flag to its previous state
         """
+        
+        from AccessControl.Implementation import setImplementation
+        setImplementation("C")
         
         import App.config
         config = App.config.getConfiguration()
@@ -568,8 +575,7 @@ class Startup(Layer):
         xmlconfig.string("""\
 <configure
     xmlns="http://namespaces.zope.org/zope"
-    xmlns:meta="http://namespaces.zope.org/meta"
-    xmlns:five="http://namespaces.zope.org/five">
+    xmlns:meta="http://namespaces.zope.org/meta">
 
     <include package="Products.Five" />
     <meta:redefinePermission from="zope2.Public" to="zope.Public" />
@@ -578,7 +584,7 @@ class Startup(Layer):
 
 </configure>
 """, context=context)
-    
+
     def tearDownZCML(self):
         """Tear down the component registry and delete the
         ``configurationContext`` resource.

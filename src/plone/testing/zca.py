@@ -147,6 +147,10 @@ def stackConfigurationContext(context=None):
     
     clone = ConfigurationMachine()
     
+    # Prime this so that the <meta:redefinePermission /> directive won't lose
+    # track of it across our stacked configuration machines
+    clone.permission_mapping = {}
+    
     if context is None:
         registerCommonDirectives(clone)
         return clone
@@ -160,6 +164,9 @@ def stackConfigurationContext(context=None):
     
     clone._seen_files  = deepcopy(context._seen_files)
     clone._features    = deepcopy(context._features)
+    
+    if hasattr(context, 'permission_mapping'):
+        clone.permission_mapping = deepcopy(context.permission_mapping)
     
     # Note: We don't copy ``stack`` or ``actions`` since these are used during
     # ZCML file processing only
