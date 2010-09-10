@@ -1,7 +1,7 @@
 """Zope2-specific helpers and layers
 """
 
-import contextlib
+#import contextlib
 
 from plone.testing import Layer
 from plone.testing import zodb
@@ -15,7 +15,7 @@ except ImportError:
 
 from zope.schema.vocabulary import getVocabularyRegistry
 from zope.schema.vocabulary import setVocabularyRegistry
-from Products.Five.schema import Zope2VocabularyRegistry
+from zope.app.schema.vocabulary import ZopeVocabularyRegistry as Zope2VocabularyRegistry
 
 _INSTALLED_PRODUCTS = {}
 
@@ -101,14 +101,12 @@ def uninstallProduct(app, productName, quiet=False):
                 
                 if name in Application.misc_.__dict__:
                     del Application.misc_.__dict__[name]
-                
-                if name in app['Control_Panel']['Products']:
+                if name in app['Control_Panel']['Products'].objectIds():
                     product = app['Control_Panel']['Products'][name]
                     
                     app._manage_remove_product_meta_type(product)
                     app._manage_remove_product_permission(product)
-                    
-                    del app['Control_Panel']['Products'][name]
+                    app['Control_Panel']['Products'].manage_delObjects([name])
                 
                 # TODO: Also remove permissions from get_folder_permissions?
                 # Difficult to know if this would stomp on any other permissions
@@ -197,7 +195,7 @@ def addRequestContainer(app, environ=None):
     requestcontainer = RequestContainer(REQUEST=req)
     return app.__of__(requestcontainer)
 
-@contextlib.contextmanager
+#@contextlib.contextmanager
 def zopeApp(db=None, connection=None, environ=None):
     """Context manager for working with the Zope2 app::
     
@@ -227,19 +225,21 @@ def zopeApp(db=None, connection=None, environ=None):
     
     if connection is None:
         connection = app._p_jar
-    
     try:
         yield app
     except:
         transaction.abort()
+        closeAppAndConnection(app, closeConn)
         raise
     else:
         transaction.commit()
-    finally:
-        app.REQUEST.close()
-        
-        if closeConn:
-            connection.close()
+        closeAppAndConnection(app, closeConn)
+
+def closeAppAndConnection(app, closeConn):
+    app.REQUEST.close()
+    if closeConn:
+        connection = app._p_jar
+        connection.close()
 
 # Startup layer - you probably don't want to use this one directly
 
@@ -535,16 +535,14 @@ class Startup(Layer):
     def setUpBasicProducts(self):
         """Install a minimal set of products required for Zope 2.
         """
-        
-        with zopeApp() as app:
+        for app in zopeApp():
             installProduct(app, 'Products.PluginIndexes')
             installProduct(app, 'Products.OFSP')
     
     def tearDownBasicProducts(self):
         """Tear down the minimal set of products
         """
-        
-        with zopeApp() as app:
+        for app in zopeApp():
             uninstallProduct(app, 'Products.PluginIndexes')
             uninstallProduct(app, 'Products.OFSP')
         

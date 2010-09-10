@@ -22,7 +22,7 @@ def stackDemoStorage(db=None, name=None):
     from ZODB.DB import DB
     
     if db is not None:
-        storage = DemoStorage(name=name, base=db.storage)
+        storage = DemoStorage(name=name, base=db._storage)
     else:
         storage = DemoStorage(name=name)
     

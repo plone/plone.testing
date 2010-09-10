@@ -44,7 +44,7 @@ there's a default one set before:
 
     >>> from zope.schema.vocabulary import getVocabularyRegistry
     >>> getVocabularyRegistry()
-    <zope.schema.vocabulary.VocabularyRegistry object at ...>
+    <zope.app.schema.vocabulary.ZopeVocabularyRegistry object at ...>
 
     >>> options = runner.get_options([], [])
     >>> setupLayers = {}
@@ -58,9 +58,6 @@ default ZODB.
     >>> z2.STARTUP['zodbDB']
     <ZODB.DB.DB object at ...>
     
-    >>> z2.STARTUP['zodbDB'].storage
-    Startup
-
 In addition, the resources ``host`` and ``port`` are set to the default
 hostname and port that are used for URLs generated from Zope. These are
 hardcoded, but shadowed by layers that provide actual running Zope
@@ -76,14 +73,14 @@ If you are setting up a layer fixture, you can obtain an application root
 with the correct database that is properly closed by using the ``zopeApp()``
 context manager.
 
-    >>> with z2.zopeApp() as app:
+    >>> for app in z2.zopeApp():
     ...     print app.objectIds()
     ['acl_users', 'Control_Panel']
 
 If you want to use a specific database, you can pass that to ``zopeApp()`` as
 the ``db`` parameter. A new connection will be opened and closed.
 
-    >>> with z2.zopeApp(db=z2.STARTUP['zodbDB']) as app:
+    >>> for app in z2.zopeApp(db=z2.STARTUP['zodbDB']):
     ...     print app.objectIds()
     ['acl_users', 'Control_Panel']
 
@@ -92,11 +89,11 @@ If you want to re-use an existing connection, you can pass one to
 close the connection yourself.
 
     >>> conn = z2.STARTUP['zodbDB'].open()
-    >>> with z2.zopeApp(connection=conn) as app:
+    >>> for app in z2.zopeApp(connection=conn):
     ...     print app.objectIds()
     ['acl_users', 'Control_Panel']
 
-    >>> conn.opened is not None
+    >>> conn._opened is not None
     True
 
     >>> conn.close()
@@ -105,7 +102,7 @@ If an exception is raised within the ``with`` block, the transaction is
 aborted, but the connection is still closed (if it was opened by the context
 manager):
 
-    >>> with z2.zopeApp() as app:
+    >>> for app in z2.zopeApp():
     ...     raise Exception("Test error")
     Traceback (most recent call last):
     ...
@@ -151,7 +148,7 @@ components needed by Zope.
 And Five has set a ``Zope2VocabularyRegistry`` vocabulary registry:
 
     >>> getVocabularyRegistry()
-    <Products.Five.schema.Zope2VocabularyRegistry object at ...>
+    <zope.app.schema.vocabulary.ZopeVocabularyRegistry object at ...>
 
 To load additional ZCML, you can use the ``configurationContext`` resource:
 
@@ -187,7 +184,7 @@ Layer tear-down resets the environment.
     []
 
     >>> getVocabularyRegistry()
-    <zope.schema.vocabulary.VocabularyRegistry object at ...>    
+    <zope.app.schema.vocabulary.ZopeVocabularyRegistry object at ...>    
 
 Integration test
 ~~~~~~~~~~~~~~~~
@@ -283,7 +280,7 @@ On tear-down, the transaction is rolled back:
     >>> 'request' in z2.INTEGRATION_TESTING
     False
     
-    >>> with z2.zopeApp() as app:
+    >>> for app in z2.zopeApp():
     ...     print app.objectIds()
     ['acl_users', 'Control_Panel']
     
@@ -355,7 +352,7 @@ On tear-down, the database is torn down.
     >>> 'request' in z2.FUNCTIONAL_TESTING
     False
     
-    >>> with z2.zopeApp() as app:
+    >>> for app in z2.zopeApp():
     ...     print app.objectIds()
     ['acl_users', 'Control_Panel']
     
@@ -423,7 +420,7 @@ On tear-down, the database is torn down.
     >>> 'request' in z2.FUNCTIONAL_TESTING
     False
     
-    >>> with z2.zopeApp() as app:
+    >>> for app in z2.zopeApp():
     ...     print app.objectIds()
     ['acl_users', 'Control_Panel']
     
@@ -504,7 +501,7 @@ We can now look for this new object through the server.
     'http://localhost:55001'
     
     >>> import urllib2
-    >>> conn = urllib2.urlopen(app_url + '/folder1', timeout=5)
+    >>> conn = urllib2.urlopen(app_url + '/folder1')
     >>> print conn.read()
     <Folder at folder1>
     >>> conn.close()
@@ -521,7 +518,7 @@ Test tear-down does nothing beyond what the base layers do.
     >>> 'request' in z2.ZSERVER
     False
     
-    >>> with z2.zopeApp() as app:
+    >>> for app in z2.zopeApp():
     ...     print app.objectIds()
     ['acl_users', 'Control_Panel']
 
@@ -533,10 +530,10 @@ When the server is torn down, the ZServer thread is stopped.
     Tear down plone.testing.z2.Startup in ... seconds.
     Tear down plone.testing.zca.LayerCleanup in ... seconds.
 
-    >>> conn = urllib2.urlopen(app_url + '/folder1', timeout=5)
+    >>> conn = urllib2.urlopen(app_url + '/folder1')
     Traceback (most recent call last):
     ...
-    URLError: <urlopen error [Errno 61] Connection refused>
+    URLError: <urlopen error (111, 'Connection refused')>
 
 FTP server
 ~~~~~~~~~~
@@ -616,7 +613,7 @@ We can now look for this new object through the server.
     
     >>> import ftplib
     >>> ftpClient = ftplib.FTP()
-    >>> ftpClient.connect(host, port, timeout=5)
+    >>> ftpClient.connect(host, port)
     '220 localhost FTP server (...) ready.'
     
     >>> ftpClient.login('admin', 'secret')
@@ -647,7 +644,7 @@ Test tear-down does nothing beyond what the base layers do.
     >>> 'request' in z2.ZSERVER
     False
     
-    >>> with z2.zopeApp() as app:
+    >>> for app in z2.zopeApp():
     ...     print app.objectIds()
     ['acl_users', 'Control_Panel']
 
@@ -659,7 +656,7 @@ When the server is torn down, the FTP thread is stopped.
     Tear down plone.testing.z2.Startup in ... seconds.
     Tear down plone.testing.zca.LayerCleanup in ... seconds.
 
-    >>> ftpClient.connect(host, port, timeout=5)
+    >>> ftpClient.connect(host, port)
     Traceback (most recent call last):
     ...
-    error: [Errno 61] Connection refused
+    error: (111, 'Connection refused')

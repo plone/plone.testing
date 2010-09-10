@@ -1300,7 +1300,7 @@ To load the configuration for a particular package, use ``xmlconfig.file()``:
 
     >>> import zope.component
     >>> context = xmlconfig.file('meta.zcml', zope.component)
-    >>> xmlconfig.file('configure.zcml', zope.component, context=context)
+    >>> xmlconfig.file('meta.zcml', zope.component, context=context)
     <zope.configuration.config.ConfigurationMachine object at ...>
 
 This takes two required arguments: the file name and the module relative to

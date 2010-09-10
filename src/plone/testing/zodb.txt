@@ -39,8 +39,6 @@ Layer setup creates the database, but not a connection.
     Set up plone.testing.zodb.EmptyZODB in ... seconds.
 
     >>> db = zodb.EMPTY_ZODB['zodbDB']
-    >>> db.storage
-    EmptyZODB
 
     >>> zodb.EMPTY_ZODB.get('zodbConnection', None) is None
     True
@@ -127,8 +125,6 @@ the data is there for each test, but that other changes are rolled back.
     Set up PopulatedZODB in ... seconds.
 
     >>> db = POPULATED_ZODB['zodbDB']
-    >>> db.storage
-    My storage
 
     >>> POPULATED_ZODB.get('zodbConnection', None) is None
     True
@@ -225,8 +221,6 @@ Let's simulate a test run again to show how this would work.
     Set up ExpandedZODB in ... seconds.
     
     >>> db = EXPANDED_ZODB['zodbDB']
-    >>> db.storage
-    ExpandedZODB
 
     >>> EXPANDED_ZODB.get('zodbConnection', None) is None
     True

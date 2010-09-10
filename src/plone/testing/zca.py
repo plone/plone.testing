@@ -26,12 +26,13 @@ def _hookRegistry(reg):
     # hooks are in place
     
     try:
-        from zope.site.hooks import SiteInfo
+        from zope.app.component.hooks import SiteInfo, siteinfo
     except ImportError:
         pass
     else:
         SiteInfo.sm = reg
-    
+        siteinfo.sm = reg
+
     # Set the five.localsitemanager hook, too, if applicable
     try:
         from five import localsitemanager
@@ -63,7 +64,6 @@ def pushGlobalRegistry(new=None):
     # the stack for loading pickles. Otherwise, we end up with POSKey and
     # pickling errors when dealing with persistent registries that have the
     # global registry (globalregistry.base) as a baes
-    
     if len(_REGISTRIES) == 0:
         _REGISTRIES.append(current)
         globalregistry.BaseGlobalComponents._old__reduce__ = globalregistry.BaseGlobalComponents.__reduce__
