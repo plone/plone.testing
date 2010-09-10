@@ -51,4 +51,6 @@ def test_suite():
             optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE,
         ),
     ])
+    from plone.testing.test_z210 import Zope210TestCase
+    suite.addTest(unittest.makeSuite(Zope210TestCase))
     return suite
