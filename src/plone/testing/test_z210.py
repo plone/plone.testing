@@ -1,6 +1,8 @@
 # -*- coding: utf-8 -*-
 from unittest import TestCase
 from plone.testing import Layer
+import transaction
+
 from plone.testing.z2 import FUNCTIONAL_TESTING, login
 
 
@@ -31,8 +33,8 @@ class Zope210TestCase(TestCase):
         browser = z2.Browser(app)
         uf = app['acl_users']
         uf.userFolderAddUser('admin', 'admin', ['Manager'], [])
-        browser.addHeader('Authorization',
+        transaction.commit()
+        browser.addHeader('AUTHORIZATION',
                           'Basic %s:%s' % ('admin', 'admin'))
         url = app.absolute_url()
-        browser.mech_browser.add_password(url, 'admin', 'admin', 'Zope')
         browser.open("%s/Control_Panel" % url)
