@@ -533,7 +533,7 @@ When the server is torn down, the ZServer thread is stopped.
     >>> conn = urllib2.urlopen(app_url + '/folder1')
     Traceback (most recent call last):
     ...
-    URLError: <urlopen error (111, 'Connection refused')>
+    URLError: <urlopen error (..., 'Connection refused')>
 
 FTP server
 ~~~~~~~~~~
@@ -659,4 +659,4 @@ When the server is torn down, the FTP thread is stopped.
     >>> ftpClient.connect(host, port)
     Traceback (most recent call last):
     ...
-    error: (111, 'Connection refused')
+    error: (..., 'Connection refused')
