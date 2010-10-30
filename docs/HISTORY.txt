@@ -4,6 +4,9 @@ Changelog
 1.0a3 (Unreleased)
 ------------------
 
+- Fix some user id vs name confusion.
+  [rossp]
+
 - Add the option to specify ZServer host and port through environment
   variables (ZSERVER_HOST and ZSERVER_PORT).
   [esteele]
