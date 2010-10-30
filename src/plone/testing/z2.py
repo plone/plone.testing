@@ -2,6 +2,7 @@
 """
 
 import contextlib
+import os
 
 from plone.testing import Layer
 from plone.testing import zodb
@@ -777,8 +778,8 @@ class ZServer(Layer):
     
     defaultBases = (STARTUP,)
     
-    host = 'localhost'
-    port = 55001
+    host = os.environ.get('ZSERVER_HOST', 'localhost')
+    port = int(os.environ.get('ZSERVER_PORT', 55001))
     timeout = 5.0
     log = None
     
