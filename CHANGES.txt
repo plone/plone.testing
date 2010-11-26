@@ -4,6 +4,9 @@ Changelog
 1.0a3 - Unreleased
 ------------------
 
+- Use the new API for getting the packages_to_initialize list in Zope 2.13.
+  [davisagli]
+
 - De-duplicate _register_monkies and _meta_type_regs in the correct module on
   teardown of the Startup layer in Zope 2.13.
   [davisagli]

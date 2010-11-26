@@ -18,6 +18,12 @@ from zope.schema.vocabulary import getVocabularyRegistry
 from zope.schema.vocabulary import setVocabularyRegistry
 from Products.Five.schema import Zope2VocabularyRegistry
 
+try:
+    from OFS.metaconfigure import get_packages_to_initialize
+    HAS_ZOPE213 = True
+except ImportError:
+    HAS_ZOPE213 = False
+
 _INSTALLED_PRODUCTS = {}
 
 def installProduct(app, productName, quiet=False):
@@ -62,10 +68,15 @@ def installProduct(app, productName, quiet=False):
                 break
 
     else:
-        for module, init_func in getattr(Products, '_packages_to_initialize', []):
+        if HAS_ZOPE213:
+            packages = tuple(get_packages_to_initialize())
+        else:
+            packages = getattr(Products, '_packages_to_initialize', [])
+        for module, init_func in packages:
             if module.__name__ == productName:
                 install_package(app, module, init_func, raise_exc=1)
-                Products._packages_to_initialize.remove((module, init_func))
+                if not HAS_ZOPE213:
+                    Products._packages_to_initialize.remove((module, init_func))
 
                 _INSTALLED_PRODUCTS[productName] = (module, init_func,)
 
@@ -130,8 +141,11 @@ def uninstallProduct(app, productName, quiet=False):
 
             del app['Control_Panel']['Products'][name]
 
-
-        Products._packages_to_initialize.append((module, init_func))
+        if HAS_ZOPE213:
+            packages = get_packages_to_initialize()
+        else:
+            packages = Products._packages_to_initialize
+        packages.append((module, init_func))
         found = True
 
     if found:
