@@ -555,9 +555,13 @@ class Startup(Layer):
         # error in the LayerCleanup layer's tear-down. Guard against that
         # here
 
-        from Products.Five import fiveconfigure
-        fiveconfigure._register_monkies = list(set(fiveconfigure._register_monkies))
-        fiveconfigure._meta_type_regs = list(set(fiveconfigure._meta_type_regs))
+        try:
+            from OFS import metaconfigure
+        except ImportError:
+            # Zope <= 2.12
+            from Products.Five import fiveconfigure as metaconfigure
+        metaconfigure._register_monkies = list(set(metaconfigure._register_monkies))
+        metaconfigure._meta_type_regs = list(set(metaconfigure._meta_type_regs))
 
     def setUpZCML(self):
         """Load the basic ZCML configuration from Five. Exposes a resource

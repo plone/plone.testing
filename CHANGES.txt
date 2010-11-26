@@ -4,6 +4,10 @@ Changelog
 1.0a3 - Unreleased
 ------------------
 
+- De-duplicate _register_monkies and _meta_type_regs in the correct module on
+  teardown of the Startup layer in Zope 2.13.
+  [davisagli]
+
 - Allow doctest suites from `zope.testing` to work with
   `plone.testing.layer.layered`.  Previously, only doctest suites from
   the stdlib would see the `layer` global.
