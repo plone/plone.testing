@@ -4,6 +4,9 @@ Changelog
 1.0a3 - Unreleased
 ------------------
 
+- Ignore the `testinghome` configuration setting if present.
+  [stefan]
+
 - Use the new API for getting the packages_to_initialize list in Zope 2.13.
   [davisagli]
 
