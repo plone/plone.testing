@@ -63,7 +63,6 @@ setup(name='plone.testing',
             ],
         'z2': [
                 'Zope2',
-                'zope.site',
                 'zope.testbrowser',
                 'zope.publisher',
             ],
