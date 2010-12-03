@@ -522,8 +522,8 @@ class Startup(Layer):
         """Trigger Zope startup and set up the application.
         """
 
-        # If the Zope2 Testing module has been imported, the testinghome
-        # variable is set and changes the way Zope2.App.startup works.
+        # If the Testing module has been imported, the testinghome
+        # variable is set and changes the way Zope2.startup() works.
         # We want the standard behavior so we remove it.
 
         import App.config
@@ -558,8 +558,8 @@ class Startup(Layer):
         Zope2.zpublisher_exception_hook = None
         Zope2.__bobo_before__ = None
 
+        import App.config
         if hasattr(self, '_testingHome'):
-            import App.config
             config = App.config.getConfiguration()
             config.testinghome = self._testingHome
             App.config.setConfiguration(config)
