@@ -3,6 +3,18 @@ import os
 
 version = '1.0a3'
 
+tests_require = ['zope.component',
+                 'zope.interface',
+                 'zope.publisher',
+                 'zope.security',
+                 'zope.event',
+                 'zope.configuration',
+                 'zope.testbrowser',
+                 'zope.app.publisher', # XXX: Can probably go away in Zope 2.13
+                 'ZODB3',
+                 'Zope2',
+                 ]
+
 setup(name='plone.testing',
       version=version,
       description="Testing infrastructure for Zope and Plone projects.",
@@ -37,19 +49,9 @@ setup(name='plone.testing',
           'zope.testing',
           'unittest2',
       ],
-      extras_require = {
-        'test': [
-                'zope.component',
-                'zope.interface',
-                'zope.publisher',
-                'zope.security',
-                'zope.event',
-                'zope.configuration',
-                'zope.testbrowser',
-                'zope.app.publisher', # XXX: Can probably go away in Zope 2.13
-                'ZODB3',
-                'Zope2',
-            ],
+      tests_require=tests_require,
+      extras_require={
+        'test': tests_require,
         'zodb': [
                 'ZODB3',
             ],
