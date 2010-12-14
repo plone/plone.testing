@@ -157,13 +157,14 @@ def logout():
     from AccessControl.SecurityManagement import noSecurityManager
     noSecurityManager()
 
-def setRoles(userFolder, userName, roles):
+def setRoles(userFolder, userId, roles):
     """Set the given user's roles to a tuple of roles.
     """
     
-    userFolder.userFolderEditUser(userName, None, list(roles), [])
+    userFolder.userFolderEditUser(userId, None, list(roles), [])
     
     from AccessControl import getSecurityManager
+    userName = userFolder.getUserById(userId).getUserName()
     if userName == getSecurityManager().getUser().getUserName():
         login(userFolder, userName)
 
