@@ -28,8 +28,9 @@ to those shown below. The core concepts should be consistent, however.
 Compatibility
 -------------
 
-``plone.testing`` has only been tested with Python 2.6. If you're using the
+``plone.testing`` 4.x has only been tested with Python 2.6. If you're using the
 optional Zope 2 layers, you must use Zope version 2.12 or later.
+Look at ``plone.testing`` 3.x for Zope 2.10 support.
 
 Definitions
 -----------
