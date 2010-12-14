@@ -508,11 +508,21 @@ class Startup(Layer):
         """Trigger Zope startup and set up the application.
         """
         
-        import Zope2
+        # If the Testing module has been imported, the testinghome
+        # variable is set and changes the way Zope2.startup() works.
+        # We want the standard behavior so we remove it.
         
+        import App.config
+        config = App.config.getConfiguration()
+        if hasattr(config, 'testinghome'):
+            self._testingHome = config.testinghome
+            del config.testinghome
+            App.config.setConfiguration(config)
+
         # This uses the DB from the dbtab, as configured in setUpDatabase().
         # That DB then gets stored as Zope2.DB and becomes the default.
         
+        import Zope2
         Zope2.startup()
         
         # At this point, Zope2.DB is set to the test database facade. This is
@@ -534,6 +544,13 @@ class Startup(Layer):
         Zope2.zpublisher_exception_hook = None
         Zope2.__bobo_before__ = None
     
+        import App.config
+        if hasattr(self, '_testingHome'):
+            config = App.config.getConfiguration()
+            config.testinghome = self._testingHome
+            App.config.setConfiguration(config)
+            del self._testingHome
+
     def setUpBasicProducts(self):
         """Install a minimal set of products required for Zope 2.
         """
