@@ -1,7 +1,7 @@
 Changelog
 =========
 
-3.0a1 - Unreleased
+3.0a1 (2010-12-14)
 ------------------
 
 - Backport to Zope 2.10
