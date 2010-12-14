@@ -1,6 +1,10 @@
 Introduction
 ============
 
+.. Note:: ``plone.testing`` 3.x supports only Zope 2.10, look for 
+   ``plone.app.testing`` 4.x if you need support for Zope 2.12 or
+   higher.
+
 .. contents:: Table of contents
 
 ``plone.testing`` provides tools for writing unit and integration tests in a
