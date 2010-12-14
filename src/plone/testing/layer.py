@@ -211,10 +211,8 @@ def layered(suite, layer, addLayerToDoctestGlobs=True):
     suite.layer = layer
     
     if addLayerToDoctestGlobs:
-        from doctest import DocTestCase
-        
         for test in suite:
-            if isinstance(test, DocTestCase):
+            if hasattr(test, '_dt_test'):
                 globs = test._dt_test.globs
                 if not 'layer' in globs:
                     globs['layer'] = layer

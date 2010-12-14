@@ -4,6 +4,17 @@ Changelog
 1.0a3 - Unreleased
 ------------------
 
+- Allow doctest suites from `zope.testing` to work with
+  `plone.testing.layer.layered`.  Previously, only doctest suites from
+  the stdlib would see the `layer` global.
+  [nouri]
+
+- Changed documentation to advertise the `coverage` library for running
+  coverage tests instead of the built-in `zope.testing` support. This also
+  avoids using `z3c.coverage`. The coverage tests now run at the same speed
+  as a normal test run, making it more likely to get executed frequently.
+  [hannosch]
+
 - Correct license to GPL version 2 only.
   [hannosch]
 
