@@ -1,7 +1,7 @@
 from setuptools import setup, find_packages
 import os
 
-version = '1.0a3'
+version = '3.0a1'
 
 setup(name='plone.testing',
       version=version,

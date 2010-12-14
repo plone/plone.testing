@@ -1,8 +1,11 @@
 Changelog
 =========
 
-1.0a3 - Unreleased
+3.0a1 - Unreleased
 ------------------
+
+- Backport to Zope 2.10
+  [gotcha, jfroche]
 
 - Ignore the `testinghome` configuration setting if present.
   [stefan]
