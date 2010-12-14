@@ -1,8 +1,11 @@
 Changelog
 =========
 
-1.0a3 (Unreleased)
+1.0a3 - Unreleased
 ------------------
+
+- Correct license to GPL version 2 only.
+  [hannosch]
 
 - Fix some user id vs name confusion.
   [rossp]
@@ -11,7 +14,7 @@ Changelog
   variables (ZSERVER_HOST and ZSERVER_PORT).
   [esteele]
 
-1.0a2 (2010-09-05)
+1.0a2 - 2010-09-05
 ------------------
 
 - Fix a problem that would cause ``<meta:redefinePermission />`` to break.
@@ -27,7 +30,7 @@ Changelog
   one upon tear-down.
   [dukebody]
 
-1.0a1 (2010-08-01)
+1.0a1 - 2010-08-01
 ------------------
 
 - Initial release
