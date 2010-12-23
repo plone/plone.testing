@@ -371,6 +371,7 @@ class Startup(Layer):
 
         import OFS.Application
         import App.ProductContext
+        import Zope2.App.startup
 
         # Avoid expensive product import
         def null_import_products(): pass
@@ -394,6 +395,12 @@ class Startup(Layer):
         def null_register_help(self,directory='',clear=1,title_re=None): pass
         self._App_ProductContext_ProductContext_registerHelp = App.ProductContext.ProductContext.registerHelp
         App.ProductContext.ProductContext.registerHelp = null_register_help
+        
+        # in Zope 2.13, prevent ZCML from loading during App startup
+        if hasattr(Zope2.App.startup, 'load_zcml'):
+            def null_load_zcml(): pass
+            self._Zope2_App_startup_load_zcml = Zope2.App.startup.load_zcml
+            Zope2.App.startup.load_zcml = null_load_zcml
 
     def tearDownPatches(self):
         """Revert the monkey patches from setUpPatches()
