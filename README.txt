@@ -28,9 +28,9 @@ to those shown below. The core concepts should be consistent, however.
 Compatibility
 -------------
 
-``plone.testing`` 3.x supports only Zope 2.10, look for 
-``plone.testing`` 4.x if you need support for Zope 2.12 or
-higher.
+``plone.testing`` 3.x supports Zope 2.10 and 2.11.
+
+If you look for Zope 2.12 support, use ``plone.testing`` 4.x.
 
 Definitions
 -----------
