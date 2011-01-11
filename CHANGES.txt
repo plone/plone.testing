@@ -1,7 +1,7 @@
 Changelog
 =========
 
-4.0a4 (unreleased)
+4.0a4 (2011-01-11)
 ------------------
 
 - Make sure ZCML doesn't load during App startup in Zope 2.13.
