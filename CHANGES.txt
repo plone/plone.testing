@@ -4,6 +4,9 @@ Changelog
 4.0a5 (Unreleased)
 ------------------
 
+- Make the test browser support IStreamIterators
+  [optilue]
+
 4.0a4 (2011-01-11)
 ------------------
 

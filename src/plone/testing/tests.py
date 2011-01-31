@@ -3,6 +3,12 @@ import doctest
 
 import zope.component.testing
 
+import os.path
+
+from pkg_resources import get_distribution
+from OFS.SimpleItem import SimpleItem
+from ZPublisher.Iterators import filestream_iterator
+
 # This is somewhat retarted. We execute README.txt as a doctest, mainly just
 # to test that the code samples import cleanly and are valid Python. However,
 # in there we also have a code sample of a doctest, which gets executed by the
@@ -23,6 +29,17 @@ class DummyView(object):
         pass
     def __call__(self):
         return u""
+
+class DummyFile(SimpleItem):
+    def __call__(self):
+        path = get_distribution('plone.testing').location
+        path = os.path.join(path, 'plone', 'testing', 'z2.txt')
+        
+        request = self.REQUEST
+        response = request.response
+        response.setHeader('Content-Type', 'text/plain')
+        response.setHeader('Content-Length', os.path.getsize(path))
+        return filestream_iterator(path)
 
 def setUp(self):
     zope.component.testing.setUp()

@@ -142,8 +142,16 @@ class Zope2Caller(object):
     @saveState
     def __call__(self, requestString, handle_errors=True):
         
+        from ZPublisher.Iterators import IStreamIterator
         from ZPublisher.Response import Response
         from ZPublisher.Test import publish_module
+        
+        class TestResponse(Response):
+            
+            def setBody(self, body, title='', is_error=0, **kw):
+                if IStreamIterator.providedBy(body):
+                    body = ''.join(body)
+                Response.setBody(self, body, title, is_error, **kw)
         
         # Discard leading white space to make call layout simpler
         requestString = requestString.lstrip()
@@ -186,7 +194,7 @@ class Zope2Caller(object):
             env['HTTP_AUTHORIZATION'] = authHeader(env['HTTP_AUTHORIZATION'])
         
         outstream = StringIO()
-        response = Response(stdout=outstream, stderr=sys.stderr)
+        response = TestResponse(stdout=outstream, stderr=sys.stderr)
         
         publish_module('Zope2',
                        response=response,
