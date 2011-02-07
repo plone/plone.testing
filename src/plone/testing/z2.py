@@ -703,20 +703,36 @@ class IntegrationTesting(Layer):
         }
 
         app = addRequestContainer(Zope2.app(), environ=environ)
+        request = app.REQUEST
+        request['PARENTS'] = [app]
+        
+        # Make sure we have a zope.globalrequest request
+        try:
+            from zope.globalrequest import setRequest
+            setRequest(request)
+        except ImportError:
+            pass
 
         # Start a transaction
         transaction.begin()
 
         # Save resources for tests to access
         self['app'] = app
-        self['request'] = app.REQUEST
+        self['request'] = request
 
     def testTearDown(self):
         import transaction
 
         # Abort the transaction
         transaction.abort()
-
+        
+        # Make sure we have a zope.globalrequest request
+        try:
+            from zope.globalrequest import setRequest
+            setRequest(None)
+        except ImportError:
+            pass
+        
         # Close the database connection and the request
         app = self['app']
         app.REQUEST.close()
