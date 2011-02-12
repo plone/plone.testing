@@ -4,6 +4,11 @@ Changelog
 4.0a5 (Unreleased)
 ------------------
 
+- Let the ``IntegrationTesting`` and ``FunctionalTesting`` lifecycle layers
+  set up request ``PARENTS`` and, if present, wire up
+  ``zope.globalrequest``.
+  [optilude]
+
 - Make the test browser support IStreamIterators
   [optilue]
 
