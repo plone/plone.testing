@@ -14,15 +14,16 @@ ZCML directives
 
 The ``publisher.PUBLISHER_DIRECTIVES`` layer extends the
 ``zca.ZCML_DIRECTIVES`` layer to extend its ZCML configuration context with
-the ``zope.app.publisher`` and ``zope.security`` directives available.
+the ``zope.app.publisher`` and ``zope.security`` directives available. It
+also extends ``security.CHECKERS``.
 
-    >>> from plone.testing import zca
+    >>> from plone.testing import zca, security
 
     >>> "%s.%s" % (publisher.PUBLISHER_DIRECTIVES.__module__, publisher.PUBLISHER_DIRECTIVES.__name__,)
     'plone.testing.publisher.PublisherDirectives'
 
     >>> publisher.PUBLISHER_DIRECTIVES.__bases__
-    (<Layer 'plone.testing.zca.ZCMLDirectives'>,)
+    (<Layer 'plone.testing.zca.ZCMLDirectives'>, <Layer 'plone.testing.security.Checkers'>)
 
 Before the test, we cannot use e.g. the ``<permission />`` or
 ``<browser:view />`` directives without loading the necessary ``meta.zcml``
@@ -55,6 +56,7 @@ configuration.
     >>> runner.setup_layer(options, publisher.PUBLISHER_DIRECTIVES, setupLayers)
     Set up plone.testing.zca.LayerCleanup in ... seconds.
     Set up plone.testing.zca.ZCMLDirectives in ... seconds.
+    Set up plone.testing.security.Checkers in ... seconds.
     Set up plone.testing.publisher.PublisherDirectives in ... seconds.
 
 
@@ -62,6 +64,7 @@ Let's now simulate a test that uses this configuration context to load the
 same ZCML string.
     
     >>> zca.ZCML_DIRECTIVES.testSetUp()
+    >>> security.CHECKERS.testSetUp()
     >>> publisher.PUBLISHER_DIRECTIVES.testSetUp()
 
     >>> context = zca.ZCML_DIRECTIVES['configurationContext'] # would normally be self.layer['configurationContext']
@@ -98,6 +101,12 @@ The permission and view are now registered:
     ...   and x.name==u"plone.testing-test"]
     [<class 'zope.app.publisher.browser.viewmeta.plone.testing-test'>]
 
+We can then simulate test tear-down:
+
+    >>> publisher.PUBLISHER_DIRECTIVES.testTearDown()
+    >>> security.CHECKERS.testTearDown()
+    >>> zca.ZCML_DIRECTIVES.testTearDown()
+
 Note that you'd normally combine this layer with the ``zca.UNIT_TESTING`` or a
 similar layer to automatically tear down the component architecture between
 each test. Here, we need to do it manually.
@@ -111,6 +120,7 @@ Layer tear-down does nothing.
     Tear down plone.testing.publisher.PublisherDirectives in ... seconds.
     Tear down plone.testing.zca.ZCMLDirectives in ... seconds.
     Tear down plone.testing.zca.LayerCleanup in ... seconds.
-
+    Tear down plone.testing.security.Checkers in ... seconds.
+    
     >>> zca.ZCML_DIRECTIVES.get('configurationContext', None) is None
     True

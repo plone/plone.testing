@@ -280,6 +280,9 @@ The available extras are:
     Zope Component Architecture testing. Depends on core Zope Component
     Architecture packages such as ``zope.component`` and ``zope.event``. The
     relevant layers and helpers are in the module ``plone.testing.zca``.
+``security``
+    Security testing. Depends on ``zope.security``. The relevant layers and
+    helpers are in the module ``plone.testing.security``.
 ``publisher``
     Zope Publisher testing. Depends on ``zope.app.publisher`` and sets up
     ZCML directives. The relevant layers and helpers are in the module
@@ -1581,6 +1584,49 @@ module.
     Returns the new default global site manager. Also causes the site manager
     hook from ``zope.site`` to be reset, clearing any local site managers as
     appropriate.
+
+Zope Security
+-------------
+
+The Zope Security layers build can be found in the module
+``plone.testing.security``.
+
+If you depend on this, you can use the ``[security]`` extra when depending on
+``plone.testing``.
+
+Security checker isolation
+~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++------------+--------------------------------------------------+
+| Layer:     | ``plone.testing.security.CHECKERS``              |
++------------+--------------------------------------------------+
+| Class:     | ``plone.testing.security.Checkers``              |
++------------+--------------------------------------------------+
+| Bases:     | None                                             |
++------------+--------------------------------------------------+
+| Resources: | None                                             |
++------------+--------------------------------------------------+
+
+This layer ensures that security checkers used by ``zope.security`` are
+isolated. Any checkers set up in a child layer will be removed cleanly during
+tear-down.
+
+Helper functions
+~~~~~~~~~~~~~~~~
+
+The security checker isolation outlined above is managed using two helper
+functions found in the module ``plone.testing.security``:
+
+``pushCheckers()``
+    Copy the current set of security checkers for later tear-down.
+``popCheckers()``
+    Restore the set of security checkers to the state of the most recent
+    call to ``pushCheckers()``.
+    
+You *must* keep calls to ``pushCheckers()`` and ``popCheckers()`` in balance.
+That usually means that if you call the former during layer setup, you should
+call the latter during layer tear-down. Ditto for calls during test
+setup/tear-down or within tests themselves.
 
 Zope Publisher
 --------------

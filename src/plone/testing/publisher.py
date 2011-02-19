@@ -2,7 +2,7 @@
 """
 
 from plone.testing import Layer
-from plone.testing import zca
+from plone.testing import zca, security
 
 class PublisherDirectives(Layer):
     """Enables the use of the ZCML directives from ``zope.app.publisher``
@@ -13,7 +13,7 @@ class PublisherDirectives(Layer):
     resource.
     """
     
-    defaultBases = (zca.ZCML_DIRECTIVES,)
+    defaultBases = (zca.ZCML_DIRECTIVES, security.CHECKERS)
     
     def setUp(self):
         from zope.configuration import xmlconfig

@@ -24,6 +24,7 @@ setup(name='plone.testing',
                        "======================\n\n" +
                        open(os.path.join("src", "plone", "testing", "layer.txt")).read() + "\n\n" +
                        open(os.path.join("src", "plone", "testing", "zca.txt")).read() + "\n\n" +
+                       open(os.path.join("src", "plone", "testing", "security.txt")).read() + "\n\n" +
                        open(os.path.join("src", "plone", "testing", "publisher.txt")).read() + "\n\n" +
                        open(os.path.join("src", "plone", "testing", "zodb.txt")).read(),
       classifiers=[
@@ -59,6 +60,9 @@ setup(name='plone.testing',
                 'zope.component',
                 'zope.event',
                 'zope.configuration',
+            ],
+        'security': [
+                'zope.security',
             ],
         'publisher': [
                 'zope.configuration',

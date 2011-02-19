@@ -53,6 +53,7 @@ def test_suite():
         doctest.DocFileSuite(
             'layer.txt',
             'zca.txt',
+            'security.txt',
             'publisher.txt',
             'zodb.txt',
             'z2.txt',
