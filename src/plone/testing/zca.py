@@ -157,7 +157,8 @@ class NamedConfigurationMachine(ConfigurationMachine):
         self.__name__ = name
 
     def __str__(self):
-        return '<zope.configuration.config.ConfigurationMachine object %s>' % self.__name__
+        return ('<zope.configuration.config.ConfigurationMachine object %s>'
+            % self.__name__)
 
     def __repr__(self):
         return self.__str__()
