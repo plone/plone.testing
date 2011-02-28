@@ -10,6 +10,7 @@ from plone.testing import Layer
 # Contains a stack of installed global registries (but not the default one)
 _REGISTRIES = []
 
+
 def loadRegistry(name):
     """Unpickling helper
     """
@@ -17,6 +18,7 @@ def loadRegistry(name):
         if reg.__name__ == name:
             return reg
     raise KeyError(name)
+
 
 def _hookRegistry(reg):
     from zope.component import _api
@@ -48,6 +50,7 @@ def _hookRegistry(reg):
 
 # Helper functions
 
+
 def pushGlobalRegistry(new=None):
     """Set a new global component registry that uses the current registry as
     a a base. If you use this, you *must* call ``popGlobalRegistry()`` to
@@ -72,14 +75,15 @@ def pushGlobalRegistry(new=None):
 
     if len(_REGISTRIES) == 0:
         _REGISTRIES.append(current)
-        globalregistry.BaseGlobalComponents._old__reduce__ = globalregistry.BaseGlobalComponents.__reduce__
-        globalregistry.BaseGlobalComponents.__reduce__ = lambda self: (loadRegistry, (self.__name__,))
+        globalregistry.BaseGlobalComponents._old__reduce__ = (
+            globalregistry.BaseGlobalComponents.__reduce__)
+        globalregistry.BaseGlobalComponents.__reduce__ = (
+            lambda self: (loadRegistry, (self.__name__,)))
 
     if new is None:
         name = 'test-stack-%d' % len(_REGISTRIES)
         new = globalregistry.BaseGlobalComponents(name=name, bases=(current,))
         logger.debug("New component registry: %s", name)
-
 
     _REGISTRIES.append(new)
 
@@ -102,6 +106,7 @@ def pushGlobalRegistry(new=None):
 
     return new
 
+
 def popGlobalRegistry():
     """Restore the global component registry form the top of the stack, as
     set with ``pushGlobalRegistry()``.
@@ -110,7 +115,9 @@ def popGlobalRegistry():
     from zope.component import globalregistry
 
     if not _REGISTRIES or not _REGISTRIES[-1] is globalregistry.base:
-        raise ValueError(u"popGlobalRegistry() called out of sync with pushGlobalRegistry()")
+        msg = ("popGlobalRegistry() called out of sync with "
+            "pushGlobalRegistry()")
+        raise ValueError(msg)
 
     current = _REGISTRIES.pop()
     previous = current.__bases__[0]
@@ -120,7 +127,8 @@ def popGlobalRegistry():
     if len(_REGISTRIES) == 1:
         assert _REGISTRIES[0] is previous
         _REGISTRIES.pop()
-        globalregistry.BaseGlobalComponents.__reduce__ = globalregistry.BaseGlobalComponents._old__reduce__
+        globalregistry.BaseGlobalComponents.__reduce__ = (
+            globalregistry.BaseGlobalComponents._old__reduce__)
 
     _hookRegistry(previous)
 
@@ -138,6 +146,7 @@ def popGlobalRegistry():
         setHooks()
 
     return previous
+
 
 def stackConfigurationContext(context=None):
     """Return a new ``ConfigurationMachine`` configuration context that
@@ -164,14 +173,14 @@ def stackConfigurationContext(context=None):
         return clone
 
     # Copy over simple attributes
-    clone.info         = deepcopy(context.info)
+    clone.info = deepcopy(context.info)
     clone.i18n_strings = deepcopy(context.i18n_strings)
-    clone.package      = deepcopy(context.package)
-    clone.basepath     = deepcopy(context.basepath)
-    clone.includepath  = deepcopy(context.includepath)
+    clone.package = deepcopy(context.package)
+    clone.basepath = deepcopy(context.basepath)
+    clone.includepath = deepcopy(context.includepath)
 
-    clone._seen_files  = deepcopy(context._seen_files)
-    clone._features    = deepcopy(context._features)
+    clone._seen_files = deepcopy(context._seen_files)
+    clone._features = deepcopy(context._features)
 
     if hasattr(context, 'permission_mapping'):
         clone.permission_mapping = deepcopy(context.permission_mapping)
@@ -190,11 +199,13 @@ def stackConfigurationContext(context=None):
                 for interface, info in adapterRegistration.items():
                     if Interface in info:
                         factory = info[Interface][u'']
-                        newRegistry.register([interface], Interface, '', factory)
+                        newRegistry.register([interface], Interface, '',
+                            factory)
 
     return clone
 
 # Layers
+
 
 class UnitTesting(Layer):
     """Zope Component Architecture unit testing sandbox: The ZCA is cleared
@@ -213,6 +224,7 @@ class UnitTesting(Layer):
 
 UNIT_TESTING = UnitTesting()
 
+
 class EventTesting(Layer):
     """Set up event testing for each test. This allows use of the helper
     function ``zope.component.eventtesting.getEvent()`` to obtain and inspect
@@ -229,6 +241,7 @@ class EventTesting(Layer):
         zope.component.eventtesting.setUp()
 
 EVENT_TESTING = EventTesting()
+
 
 class LayerCleanup(Layer):
     """A base layer which uses ``zope.testing.cleanup`` to restore the
@@ -247,6 +260,7 @@ class LayerCleanup(Layer):
 
 LAYER_CLEANUP = LayerCleanup()
 
+
 class ZCMLDirectives(Layer):
     """Enables the use of the basic ZCML directives from ``zope.component``.
 
@@ -261,7 +275,8 @@ class ZCMLDirectives(Layer):
         from zope.configuration import xmlconfig
         import zope.component
 
-        self['configurationContext'] = context = stackConfigurationContext(self.get('configurationContext'))
+        self['configurationContext'] = context = stackConfigurationContext(
+            self.get('configurationContext'))
         xmlconfig.file('meta.zcml', zope.component, context=context)
 
     def tearDown(self):
