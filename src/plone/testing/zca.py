@@ -157,7 +157,7 @@ class NamedConfigurationMachine(ConfigurationMachine):
         self.__name__ = name
 
     def __str__(self):
-        return ('<zope.configuration.config.ConfigurationMachine object %s>'
+        return ('<zope.configuration.config.ConfigurationMachine object %s>' 
             % self.__name__)
 
     def __repr__(self):
@@ -341,11 +341,12 @@ class ZCMLDirectives(Layer):
         from zope.configuration import xmlconfig
         import zope.component
 
-        self['configurationContext'] = context = stackConfigurationContext(
+        self['configurationContext'] = context = pushConfigurationContext(
             self.get('configurationContext'))
         xmlconfig.file('meta.zcml', zope.component, context=context)
 
     def tearDown(self):
+        popConfigurationContext()
         del self['configurationContext']
 
 ZCML_DIRECTIVES = ZCMLDirectives()
