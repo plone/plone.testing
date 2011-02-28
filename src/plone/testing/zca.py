@@ -4,11 +4,14 @@ import logging
 
 logger = logging.getLogger('plone.testing.zca')
 
-
 from plone.testing import Layer
+from zope.configuration.config import ConfigurationMachine
 
 # Contains a stack of installed global registries (but not the default one)
 _REGISTRIES = []
+# Contains a stack of configuration contexts
+_CONFIGURATION_CONTEXTS = []
+_currentContext = None
 
 
 def loadRegistry(name):
@@ -71,7 +74,7 @@ def pushGlobalRegistry(new=None):
     # registry at the bottom of the stack, and then patch the class to use
     # the stack for loading pickles. Otherwise, we end up with POSKey and
     # pickling errors when dealing with persistent registries that have the
-    # global registry (globalregistry.base) as a baes
+    # global registry (globalregistry.base) as a base
 
     if len(_REGISTRIES) == 0:
         _REGISTRIES.append(current)
@@ -148,7 +151,19 @@ def popGlobalRegistry():
     return previous
 
 
-def stackConfigurationContext(context=None):
+class NamedConfigurationMachine(ConfigurationMachine):
+    def __init__(self, name):
+        super(NamedConfigurationMachine, self).__init__()
+        self.__name__ = name
+
+    def __str__(self):
+        return '<zope.configuration.config.ConfigurationMachine object %s>' % self.__name__
+
+    def __repr__(self):
+        return self.__str__()
+
+
+def stackConfigurationContext(context=None, name='not named'):
     """Return a new ``ConfigurationMachine`` configuration context that
     is a clone of the passed-in context. If no context is passed in, a fresh
     configuration context is returned.
@@ -159,10 +174,9 @@ def stackConfigurationContext(context=None):
     from zope.interface import Interface
     from zope.interface.adapter import AdapterRegistry
 
-    from zope.configuration.config import ConfigurationMachine
     from zope.configuration.xmlconfig import registerCommonDirectives
 
-    clone = ConfigurationMachine()
+    clone = NamedConfigurationMachine(name)
 
     # Prime this so that the <meta:redefinePermission /> directive won't lose
     # track of it across our stacked configuration machines
@@ -170,6 +184,7 @@ def stackConfigurationContext(context=None):
 
     if context is None:
         registerCommonDirectives(clone)
+        logger.debug('Empty configuration context %s', clone)
         return clone
 
     # Copy over simple attributes
@@ -203,6 +218,56 @@ def stackConfigurationContext(context=None):
                             factory)
 
     return clone
+
+
+def pushConfigurationContext(context=None):
+    global _currentContext
+    name = 'context-%d' % (len(_CONFIGURATION_CONTEXTS) + 1)
+    _currentContext = stackConfigurationContext(context, name)
+    logger.debug('Current context %s', _currentContext)
+    _CONFIGURATION_CONTEXTS.append(_currentContext)
+    return _currentContext
+
+
+def popConfigurationContext():
+    global _currentContext
+    if (not _CONFIGURATION_CONTEXTS) or (
+        not _currentContext is _CONFIGURATION_CONTEXTS[-1]):
+        msg = ("popConfigurationContext() called out of sync with "
+            "pushConfigurationContext()")
+        raise ValueError(msg)
+
+    _CONFIGURATION_CONTEXTS.pop()
+    if _CONFIGURATION_CONTEXTS:
+        _currentContext = _CONFIGURATION_CONTEXTS[-1]
+    else:
+        _currentContext = None
+    logger.debug('Current context %s', _currentContext)
+    return _currentContext
+
+
+def setUpZcmlFiles(info):
+    """
+    cover the most basic usecase :
+    load ZCML files through 'own' context in 'own' global registry.
+
+    info parameter is a sequence of filename, package tuples
+    where filename is a string holding the ZCML file name
+    and package is a package instance.
+    """
+    from zope.configuration import xmlconfig
+
+    pushGlobalRegistry()
+    context = pushConfigurationContext(_currentContext)
+    logger.debug(repr(context))
+    for filename, package in info:
+        xmlconfig.file(filename, package=package, context=context)
+
+
+def tearDownZcmlFiles():
+    context = popConfigurationContext()
+    logger.debug(repr(context))
+    popGlobalRegistry()
 
 # Layers
 

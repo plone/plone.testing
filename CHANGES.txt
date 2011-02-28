@@ -4,6 +4,13 @@ Changelog
 4.0a5 (Unreleased)
 ------------------
 
+- Add ``setUpZcmlFiles`` and ``tearDownZcmlFiles`` helpers to enable loading 
+  of ZCML files without too much boilerplate.
+  [gotcha]
+
+- Add some logging.
+  [gotcha]
+
 - Add the ``[security]`` extra, to provide tear-down of security checkers.
   [optilude]
 

@@ -156,7 +156,7 @@ And Five has set a ``Zope2VocabularyRegistry`` vocabulary registry:
 To load additional ZCML, you can use the ``configurationContext`` resource:
 
     >>> z2.STARTUP['configurationContext']
-    <zope.configuration.config.ConfigurationMachine object at ...>
+    <zope.configuration.config.ConfigurationMachine object ...>
 
 See ``zca.txt`` for details about how to use ``zope.configuration`` for this
 purpose.
