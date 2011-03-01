@@ -227,6 +227,8 @@ def stackConfigurationContext(context=None, name='not named'):
 
 def pushConfigurationContext(context=None):
     global _currentContext
+    if context is None:
+        context = _currentContext
     name = 'context-%d' % (len(_CONFIGURATION_CONTEXTS) + 1)
     _currentContext = stackConfigurationContext(context, name)
     logger.debug('Current context %s', _currentContext)
@@ -267,6 +269,7 @@ def setUpZcmlFiles(info):
     logger.debug(repr(context))
     for filename, package in info:
         xmlconfig.file(filename, package=package, context=context)
+    return context
 
 
 def tearDownZcmlFiles():

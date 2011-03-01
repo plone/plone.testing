@@ -613,7 +613,7 @@ class Startup(Layer):
         # Load something akin to the default site.zcml without actually auto-
         # loading products
 
-        self['configurationContext'] = context = zca.pushConfigurationContext(self.get('configurationContext'))
+        self['configurationContext'] = context = zca.pushConfigurationContext()
 
         from zope.configuration import xmlconfig
         xmlconfig.string("""\

@@ -19,7 +19,7 @@ class PublisherDirectives(Layer):
         from zope.configuration import xmlconfig
 
         # Stack a new configuration context
-        self['configurationContext'] = context = zca.pushConfigurationContext(self.get('configurationContext'))
+        self['configurationContext'] = context = zca.pushConfigurationContext()
 
         import zope.security
         xmlconfig.file('meta.zcml', zope.security, context=context)
