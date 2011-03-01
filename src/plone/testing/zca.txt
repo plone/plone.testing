@@ -517,4 +517,4 @@ as the original ZCML_SANDBOX
     >>> zca.tearDownZcmlFiles()
     Traceback (most recent call last):
     ...
-    ValueError: popConfigurationContext() called out of sync with pushConfigurationContext()
+    OutOfSyncError: tearDownZcmlFiles() called out of sync with setUpZcmlFiles()

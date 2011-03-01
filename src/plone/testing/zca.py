@@ -110,6 +110,10 @@ def pushGlobalRegistry(new=None):
     return new
 
 
+class OutOfSyncError(ValueError):
+    pass
+
+
 def popGlobalRegistry():
     """Restore the global component registry form the top of the stack, as
     set with ``pushGlobalRegistry()``.
@@ -120,7 +124,7 @@ def popGlobalRegistry():
     if not _REGISTRIES or not _REGISTRIES[-1] is globalregistry.base:
         msg = ("popGlobalRegistry() called out of sync with "
             "pushGlobalRegistry()")
-        raise ValueError(msg)
+        raise OutOfSyncError(msg)
 
     current = _REGISTRIES.pop()
     previous = current.__bases__[0]
@@ -157,7 +161,7 @@ class NamedConfigurationMachine(ConfigurationMachine):
         self.__name__ = name
 
     def __str__(self):
-        return ('<zope.configuration.config.ConfigurationMachine object %s>' 
+        return ('<zope.configuration.config.ConfigurationMachine object %s>'
             % self.__name__)
 
     def __repr__(self):
@@ -236,7 +240,7 @@ def popConfigurationContext():
         not _currentContext is _CONFIGURATION_CONTEXTS[-1]):
         msg = ("popConfigurationContext() called out of sync with "
             "pushConfigurationContext()")
-        raise ValueError(msg)
+        raise OutOfSyncError(msg)
 
     _CONFIGURATION_CONTEXTS.pop()
     if _CONFIGURATION_CONTEXTS:
@@ -266,9 +270,15 @@ def setUpZcmlFiles(info):
 
 
 def tearDownZcmlFiles():
-    context = popConfigurationContext()
-    logger.debug(repr(context))
-    popGlobalRegistry()
+    try:
+        context = popConfigurationContext()
+        logger.debug(repr(context))
+        popGlobalRegistry()
+    except OutOfSyncError:
+        msg = ("tearDownZcmlFiles() called out of sync with "
+            "setUpZcmlFiles()")
+        raise OutOfSyncError(msg)
+
 
 # Layers
 
