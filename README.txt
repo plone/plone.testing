@@ -1506,20 +1506,26 @@ This allows custom ZCML to be loaded as described above.
 
 The ``configurationContext`` resource should be used when loading custom ZCML.
 To ensure isolation, you should stack this using the
-``stackConfigurationContext()`` helper. For example, if you were writing a
+``pushConfigurationContext()`` and ``popConfigurationContext()`` helpers. 
+For example, if you were writing a
 ``setUp()`` method in a layer that had ``zca.ZCML_DIRECTIVES`` as a base, you
 could do::
 
-    self['configurationContext'] = context = zca.stackConfigurationContext(self.get('configurationContext'))
+    self['configurationContext'] = context = zca.pushConfigurationContext(self.get('configurationContext'))
     xmlconfig.string(someZCMLString, context=context)
 
 This will create a new configuration context with the state of the base
 layer's context. On tear-down, you should delete the layer-specific resource::
 
+    zca.popConfigurationContext()
     del self['configurationContext']
 
 *Note:* If you fail to do this, you may get problems if your layer is torn
 down and then needs to be set up again later.
+
+Mainly when later layers load ZCML files that have been already loaded by earlier layers,
+the registration does not happen as the configuration context remembers it had
+already loaded those files. Worse, it does not complain.
 
 See above for more details about loading custom ZCML in a layer or test.
 
@@ -1529,7 +1535,34 @@ Helper functions
 The following helper functions are available in the ``plone.testing.zca``
 module.
 
-``stackConfigurationContext(context=None)``
+``setUpZcmlFiles(infos)``
+    Load a set of ZCML files and execute the corresponding registrations.
+
+    ``infos`` parameter is a sequence of filename, package tuples
+    where filename is a string holding the ZCML file name
+    and package is a package instance ::
+
+        zca.setUpZcmlFiles([
+            ("configure.zcml", plone.testing),
+            ])
+
+    Before loading the files, it creates a new local configuration context 
+    and a fresh copy of the global registry (by calling
+    ``pushConfigurationContext()`` and ``pushGlobalRegistry()``).
+
+    **Warning**: If you call this function, you *must* reciprocally call
+    ``tearDownZcmlFiles()`` as it tears down the new configuration context
+    and the new global registry.
+
+``tearDownZcmlFiles()``
+    Pop the configuration context and the global registry, restoring the previous
+    context and registry.
+
+    It calls ``popConfigurationContext()`` and ``popGlobalRegistry()``.
+
+    Please heed the warning above: ``setUpZcmlFiles()`` and ``tearDownZcmlFiles()`` must be balanced.
+
+``pushConfigurationContext(context=None)``
     Create and return a copy of the passed-in ZCML configuration context, or a
     brand new context if it is ``None``.
     
@@ -1542,12 +1575,13 @@ module.
     The usual pattern is to keep the configuration context in a layer resource
     called ``configurationContext``. In ``setUp()``, you would then use::
     
-        self['configurationContext'] = context = zca.stackConfigurationContext(self.get('configurationContext'))
+        self['configurationContext'] = context = zca.pushConfigurationContext(self.get('configurationContext'))
         
         # use 'context' to load some ZCML
     
     In ``tearDown()``, you can then simply do::
-        
+
+        zca.popConfigurationContext()
         del self['configurationContext']
 
 ``pushGlobalRegistry(new=None)``
