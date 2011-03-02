@@ -4,6 +4,10 @@ Changelog
 4.0a5 (Unreleased)
 ------------------
 
+- Handle test failures due to userFolderAddUser returning the user object in
+  newer versions of Zope.
+  [esteele]
+  
 - Add ``setUpZcmlFiles`` and ``tearDownZcmlFiles`` helpers to enable loading 
   of ZCML files without too much boilerplate.
   [gotcha]

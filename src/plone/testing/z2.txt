@@ -130,7 +130,7 @@ It is common to combine the ``zopeApp()`` context manager with a stacked
                 folder.manage_addUserFolder()
                 
                 userFolder = folder['acl_users']
-                userFolder.userFolderAddUser('user1', 'secret', ['role1'], [])
+                ignore = userFolder.userFolderAddUser('user1', 'secret', ['role1'], [])
                 folder.manage_role('role1', ('Access contents information',))
         
         def tearDown(self):
@@ -246,7 +246,7 @@ We can create a user and simulate logging in as that user, using the
 ``z2.login()`` helper:
     
     >>> app._addRole('role1')
-    >>> app['acl_users'].userFolderAddUser('user1', 'secret', ['role1'], [])
+    >>> ignore = app['acl_users'].userFolderAddUser('user1', 'secret', ['role1'], [])
     >>> z2.login(app['acl_users'], 'user1')
 
 The first argument to ``z2.login()`` is the user folder that contains the
@@ -620,7 +620,7 @@ it over the FTP port.
 
 We'll also create a user in the root user folder to make FTP access easier.
 
-    >>> app['acl_users'].userFolderAddUser('admin', 'secret', ['Manager'], ())
+    >>> ignore = app['acl_users'].userFolderAddUser('admin', 'secret', ['Manager'], ())
 
 Note that we need to commit the transaction before it will show up in the
 other thread.
