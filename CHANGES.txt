@@ -1,7 +1,7 @@
 Changelog
 =========
 
-4.0a5 (Unreleased)
+4.0a5 (2011-03-02)
 ------------------
 
 - Handle test failures due to userFolderAddUser returning the user object in
