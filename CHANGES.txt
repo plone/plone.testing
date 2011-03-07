@@ -4,6 +4,10 @@ Changelog
 4.0a6 (Unreleased)
 ------------------
 
+- Add ``ZCMLSandbox`` layer to load a ZCML file; replaces ``setUpZcmlFiles`` and 
+  ``tearDownZcmlFiles`` helper functions.
+  [gotcha]
+
 4.0a5 (2011-03-02)
 ------------------
 

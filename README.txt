@@ -1523,6 +1523,28 @@ down and then needs to be set up again later.
 
 See above for more details about loading custom ZCML in a layer or test.
 
+ZCML files helper class
+~~~~~~~~~~~~~~~~~~~~~~~
+
++------------+--------------------------------------------------+
+| Class:     | ``plone.testing.zca.ZCMLSandbox``                |
++------------+--------------------------------------------------+
+| Resources: | ``configurationContext``                         |
++------------+--------------------------------------------------+
+
+The ``ZCMLSandbox`` can be instantiated with a `filename`` and ``package``
+arguments::
+
+    ZCML_SANDBOX = zca.ZCMLSandbox(filename="configure.zcml", 
+        package=my.package)
+
+
+That layer ``setUp`` loads the ZCML file. It avoids the need to 
+using (and understand) ``configurationContext` and ``globalRegistry`` until you
+need more flexibility or modularity for your layer and tests.
+
+See above for more details about loading custom ZCML in a layer or test.
+
 Helper functions
 ~~~~~~~~~~~~~~~~
 

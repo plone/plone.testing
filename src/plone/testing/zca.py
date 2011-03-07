@@ -297,3 +297,34 @@ class ZCMLDirectives(Layer):
         del self['configurationContext']
 
 ZCML_DIRECTIVES = ZCMLDirectives()
+
+
+class ZCMLSandbox(Layer):
+
+    def __init__(self, bases=None, name=None, module=None, filename=None,
+        package=None):
+        super(ZCMLSandbox, self).__init__(bases, name, module)
+        self.filename = filename
+        self.package = package
+
+    def setUp(self):
+        self['configurationContext'] = stackConfigurationContext(
+            self.get('configurationContext'))
+        pushGlobalRegistry()
+        self.setUpZCMLFiles()
+
+    def setUpZCMLFiles(self):
+        if self.filename is None:
+            raise ValueError("ZCML file name has not been provided.")
+        if self.package is None:
+            raise ValueError("The package that contains the ZCML file "
+                "has not been provided.")
+        self.loadZCMLFile(self.filename, self.package)
+
+    def loadZCMLFile(self, filename, package):
+        from zope.configuration import xmlconfig
+        xmlconfig.file(filename, package, context=self['configurationContext'])
+
+    def tearDown(self):
+        popGlobalRegistry()
+        del self['configurationContext']
