@@ -301,6 +301,8 @@ ZCML_DIRECTIVES = ZCMLDirectives()
 
 class ZCMLSandbox(Layer):
 
+    defaultBases = (LAYER_CLEANUP,)
+
     def __init__(self, bases=None, name=None, module=None, filename=None,
         package=None):
         super(ZCMLSandbox, self).__init__(bases, name, module)
