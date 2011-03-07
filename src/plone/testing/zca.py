@@ -4,14 +4,11 @@ import logging
 
 logger = logging.getLogger('plone.testing.zca')
 
-from plone.testing import Layer
 from zope.configuration.config import ConfigurationMachine
+from plone.testing import Layer
 
 # Contains a stack of installed global registries (but not the default one)
 _REGISTRIES = []
-# Contains a stack of configuration contexts
-_CONFIGURATION_CONTEXTS = []
-_currentContext = None
 
 
 def loadRegistry(name):
@@ -110,10 +107,6 @@ def pushGlobalRegistry(new=None):
     return new
 
 
-class OutOfSyncError(ValueError):
-    pass
-
-
 def popGlobalRegistry():
     """Restore the global component registry form the top of the stack, as
     set with ``pushGlobalRegistry()``.
@@ -124,7 +117,7 @@ def popGlobalRegistry():
     if not _REGISTRIES or not _REGISTRIES[-1] is globalregistry.base:
         msg = ("popGlobalRegistry() called out of sync with "
             "pushGlobalRegistry()")
-        raise OutOfSyncError(msg)
+        raise ValueError(msg)
 
     current = _REGISTRIES.pop()
     previous = current.__bases__[0]
@@ -168,7 +161,7 @@ class NamedConfigurationMachine(ConfigurationMachine):
         return self.__str__()
 
 
-def stackConfigurationContext(context=None, name='not named'):
+def stackConfigurationContext(context=None, name="not named"):
     """Return a new ``ConfigurationMachine`` configuration context that
     is a clone of the passed-in context. If no context is passed in, a fresh
     configuration context is returned.
@@ -189,7 +182,7 @@ def stackConfigurationContext(context=None, name='not named'):
 
     if context is None:
         registerCommonDirectives(clone)
-        logger.debug('Empty configuration context %s', clone)
+        logger.debug('Clean configuration context %s', clone)
         return clone
 
     # Copy over simple attributes
@@ -222,66 +215,8 @@ def stackConfigurationContext(context=None, name='not named'):
                         newRegistry.register([interface], Interface, '',
                             factory)
 
+    logger.debug('Configuration context %s cloned from %s', clone, context)
     return clone
-
-
-def pushConfigurationContext(context=None):
-    global _currentContext
-    if context is None:
-        context = _currentContext
-    name = 'context-%d' % (len(_CONFIGURATION_CONTEXTS) + 1)
-    _currentContext = stackConfigurationContext(context, name)
-    logger.debug('Current context %s', _currentContext)
-    _CONFIGURATION_CONTEXTS.append(_currentContext)
-    return _currentContext
-
-
-def popConfigurationContext():
-    global _currentContext
-    if (not _CONFIGURATION_CONTEXTS) or (
-        not _currentContext is _CONFIGURATION_CONTEXTS[-1]):
-        msg = ("popConfigurationContext() called out of sync with "
-            "pushConfigurationContext()")
-        raise OutOfSyncError(msg)
-
-    _CONFIGURATION_CONTEXTS.pop()
-    if _CONFIGURATION_CONTEXTS:
-        _currentContext = _CONFIGURATION_CONTEXTS[-1]
-    else:
-        _currentContext = None
-    logger.debug('Current context %s', _currentContext)
-    return _currentContext
-
-
-def setUpZcmlFiles(info):
-    """
-    cover the most basic usecase :
-    load ZCML files through 'own' context in 'own' global registry.
-
-    info parameter is a sequence of filename, package tuples
-    where filename is a string holding the ZCML file name
-    and package is a package instance.
-    """
-    from zope.configuration import xmlconfig
-
-    pushGlobalRegistry()
-    context = pushConfigurationContext(_currentContext)
-    logger.debug(repr(context))
-    for filename, package in info:
-        xmlconfig.file(filename, package=package, context=context)
-    return context
-
-
-def tearDownZcmlFiles():
-    try:
-        context = popConfigurationContext()
-        logger.debug(repr(context))
-        popGlobalRegistry()
-    except OutOfSyncError:
-        msg = ("tearDownZcmlFiles() called out of sync with "
-            "setUpZcmlFiles()")
-        raise OutOfSyncError(msg)
-
 
 # Layers
 
@@ -354,12 +289,11 @@ class ZCMLDirectives(Layer):
         from zope.configuration import xmlconfig
         import zope.component
 
-        self['configurationContext'] = context = pushConfigurationContext(
+        self['configurationContext'] = context = stackConfigurationContext(
             self.get('configurationContext'))
         xmlconfig.file('meta.zcml', zope.component, context=context)
 
     def tearDown(self):
-        popConfigurationContext()
         del self['configurationContext']
 
 ZCML_DIRECTIVES = ZCMLDirectives()

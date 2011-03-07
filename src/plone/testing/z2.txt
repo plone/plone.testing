@@ -44,7 +44,7 @@ there's a default one set before:
 
     >>> from zope.schema.vocabulary import getVocabularyRegistry
     >>> getVocabularyRegistry()
-    <zope.schema.vocabulary.VocabularyRegistry object at ...>
+    <zope.schema.vocabulary.VocabularyRegistry object ...>
 
     >>> options = runner.get_options([], [])
     >>> setupLayers = {}
