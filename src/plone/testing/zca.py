@@ -149,6 +149,7 @@ def popGlobalRegistry():
 
 
 class NamedConfigurationMachine(ConfigurationMachine):
+
     def __init__(self, name):
         super(NamedConfigurationMachine, self).__init__()
         self.__name__ = name
@@ -182,7 +183,7 @@ def stackConfigurationContext(context=None, name="not named"):
 
     if context is None:
         registerCommonDirectives(clone)
-        logger.debug('Clean configuration context %s', clone)
+        logger.debug('New configuration context %s', clone)
         return clone
 
     # Copy over simple attributes
@@ -310,8 +311,11 @@ class ZCMLSandbox(Layer):
         self.package = package
 
     def setUp(self):
+        name = self.__name__ if self.__name__ is not None else 'not-named'
+        contextName = "ZCMLSandbox-%s" % name
         self['configurationContext'] = stackConfigurationContext(
-            self.get('configurationContext'))
+            self.get('configurationContext'),
+            name=contextName)
         pushGlobalRegistry()
         self.setUpZCMLFiles()
 
