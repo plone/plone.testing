@@ -24,7 +24,7 @@ def _hookRegistry(reg):
     from zope.component import _api
     from zope.component import globalregistry
 
-    logger.debug("Setup component registry: %s", reg.__name__)
+    logger.debug("Hook component registry: %s", reg.__name__)
 
     _api.base = reg
     globalregistry.base = reg
@@ -83,7 +83,10 @@ def pushGlobalRegistry(new=None):
     if new is None:
         name = 'test-stack-%d' % len(_REGISTRIES)
         new = globalregistry.BaseGlobalComponents(name=name, bases=(current,))
-        logger.debug("New component registry: %s", name)
+        logger.debug("New component registry: %s based on %s", name, current.__name__)
+    else:
+        logger.debug("Push component registry: %s", new.__name__)
+
 
     _REGISTRIES.append(new)
 
