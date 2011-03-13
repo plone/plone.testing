@@ -8,9 +8,20 @@ import urllib2
 from cStringIO import StringIO
 
 import mechanize
+import pkg_resources
 
 import zope.testbrowser.testing
 import zope.testbrowser.browser
+
+
+try:
+    pkg_resources.get_distribution('Zope2>=2.13')
+    def get_cookies(request):
+        return request.response._cookie_list()
+except (pkg_resources.VersionConflict, pkg_resources.DistributionNotFound):
+    def get_cookies(request):
+        return [(c[:10], c[12:]) for c in request.response._cookie_list()]
+
 
 class Browser(zope.testbrowser.browser.Browser):
     """A test browser client that uses the Zope 2 publisher. It must be
@@ -87,7 +98,7 @@ class Zope2Connection(zope.testbrowser.testing.PublisherConnection):
             headers.append((key, val))
         
         # Get the cookies, breaking them into tuples for sorting
-        cookies = [(c[:10], c[12:]) for c in self.response._cookie_list()]
+        cookies = get_cookies(self)
         headers.extend(cookies)
         headers.sort()
         headers.insert(0, ('Status', "%s %s" % (status, reason)))
