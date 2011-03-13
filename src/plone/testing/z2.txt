@@ -151,7 +151,7 @@ components needed by Zope.
 And Five has set a ``Zope2VocabularyRegistry`` vocabulary registry:
 
     >>> getVocabularyRegistry()
-    <Products.Five.schema.Zope2VocabularyRegistry object at ...>
+    <....Zope2VocabularyRegistry object at ...>
 
 To load additional ZCML, you can use the ``configurationContext`` resource:
 

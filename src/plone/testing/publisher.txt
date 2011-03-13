@@ -99,7 +99,7 @@ The permission and view are now registered:
     >>> [x.factory for x in siteManager.registeredAdapters() 
     ...  if x.provided==Interface and x.required==(Interface, IDefaultBrowserLayer) 
     ...   and x.name==u"plone.testing-test"]
-    [<class 'zope.app.publisher.browser.viewmeta.plone.testing-test'>]
+    [<class '....plone.testing-test'>]
 
 We can then simulate test tear-down:
 
