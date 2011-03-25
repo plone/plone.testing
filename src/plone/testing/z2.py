@@ -765,7 +765,7 @@ class FunctionalTesting(Layer):
             ...
 
         MY_FIXTURE = MyFixture(bases=(z2.STARTUP,), name='MyFixture')
-        MY_FUNCTIONAL_TESTING = z2.FunctinoalTesting(bases=(MY_FIXTURE,), name='MyFixture:Functional')
+        MY_FUNCTIONAL_TESTING = z2.FunctionalTesting(bases=(MY_FIXTURE,), name='MyFixture:Functional')
     """
 
     defaultBases = (STARTUP,)
