@@ -423,3 +423,72 @@ If we tear down the layer too, we're back where we started:
     True
     >>> queryUtility(IDummyUtility, name="test") is None
     True
+
+ZCML files helper class
+~~~~~~~~~~~~~~~~~~~~~~~
+
+One of the frequent use cases is a layer that loads a ZCML file and sandbox the
+resulting registry.
+
+The ``ZCMLSandbox`` can be instantiated with a `filename`` and ``package``
+arguments.
+   
+    >>> import plone.testing
+    >>> ZCML_SANDBOX = zca.ZCMLSandbox(filename="testing_zca.zcml", 
+    ...     package=plone.testing)
+
+Before layer setup, the utility is not registered.
+
+    >>> queryUtility(Interface, name="layer") is None
+    True
+   
+We'll now simulate layer setup. This pushes a new registry onto the stack:
+
+    >>> ZCML_SANDBOX.setUp()
+
+    >>> getSiteManager() is getGlobalSiteManager()
+    True
+    >>> getGlobalSiteManager() is defaultGlobalSiteManager
+    False
+    >>> queryUtility(Interface, name="layer")
+    <Dummy utility>
+    
+The ``ZCMLSandbox`` class can also be used as ancestor
+for your own classes when you need to load more than a single ZCML file.
+
+Your class then needs to override the ``setUpZCMLFiles()`` method. It is in 
+charge of calling ``loadZCMLFile()``, once for each ZCML file that the class 
+needs to load.
+    
+    >>> class OtherZCML(zca.ZCMLSandbox):
+    ...     def setUpZCMLFiles(self):
+    ...         self.loadZCMLFile("testing_zca.zcml", package=plone.testing)
+    ...         self.loadZCMLFile("testing_zca_more_specific.zcml", 
+    ...             package=plone.testing)
+    >>> OTHER_ZCML_SANDBOX = OtherZCML()
+
+Before layer setup, a second utility is not registered.
+
+    >>> queryUtility(Interface, name="more_specific_layer") is None
+    True
+   
+We'll now simulate the setup of the more specific layer.
+
+    >>> OTHER_ZCML_SANDBOX.setUp()
+
+After setUp, the second utility is registered :
+
+    >>> queryUtility(Interface, name="more_specific_layer")
+    <Dummy utility>
+
+After layer teardown, the second utility is not registered anymore.
+
+    >>> OTHER_ZCML_SANDBOX.tearDown()
+    >>> queryUtility(Interface, name="more_specific_layer") is None
+    True
+   
+After teardown of the first layer, the first utility is not registered anymore.
+
+    >>> ZCML_SANDBOX.tearDown()
+    >>> queryUtility(Interface, name="layer") is None
+    True

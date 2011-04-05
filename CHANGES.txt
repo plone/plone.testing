@@ -4,6 +4,12 @@ Changelog
 3.0a2 (unreleased)
 ------------------
 
+- Add ``ZCMLSandbox`` layer to load a ZCML file.
+  [gotcha]
+
+- Add some logging.
+  [gotcha]
+
 - Add the ``[security]`` extra, to provide tear-down of security checkers.
   [optilude]
 
