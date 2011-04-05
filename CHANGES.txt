@@ -4,8 +4,8 @@ Changelog
 3.0a2 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Make the test browser support IStreamIterators
+  [optilude]
 
 3.0a1 (2010-12-14)
 ------------------

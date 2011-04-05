@@ -392,6 +392,10 @@ In the test, we can create a test browser client like so::
 
     >>> app = z2.FUNCTIONAL_TESTING['app'] # would normally be self.layer['app']
     >>> browser = z2.Browser(app)
+    
+It is usually best to let Zope errors be shown with full tracebacks:
+
+    >>> browser.handleErrors = False
 
 We can add to the test fixture in the test. For those changes to be visible to
 the test browser, however, we need to commit the transaction.
@@ -404,6 +408,19 @@ We can now view this via the test browser:
     >>> browser.open(app.absolute_url() + '/folder1')
 
     >>> 'folder1' in browser.contents
+    True
+
+The test browser also works with iterators. Let's test that with a simple
+file implementation that uses an iterator.
+
+    >>> from plone.testing.tests import DummyFile
+    >>> app._setObject('file1', DummyFile('file1'))
+    'file1'
+    
+    >>> import transaction; transaction.commit()
+    
+    >>> browser.open(app.absolute_url() + '/file1')
+    >>> 'The test browser also works with iterators' in browser.contents
     True
 
 See the ``zope.testbrowser`` documentation for more information about how to
