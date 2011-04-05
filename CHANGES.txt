@@ -4,6 +4,9 @@ Changelog
 3.0a2 (unreleased)
 ------------------
 
+- Add the ``[security]`` extra, to provide tear-down of security checkers.
+  [optilude]
+
 - Let the ``IntegrationTesting`` and ``FunctionalTesting`` lifecycle layers
   set up request ``PARENTS`` and, if present, wire up
   ``zope.globalrequest``.
