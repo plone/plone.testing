@@ -1,7 +1,7 @@
 Changelog
 =========
 
-4.0a6 (Unreleased)
+4.0a6 (2011-04-06)
 ------------------
 
 - Fixed Browser cookies retrievial with Zope 2.13.
