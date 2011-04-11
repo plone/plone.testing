@@ -1,8 +1,12 @@
 Changelog
 =========
 
+
 4.0a7 (Unreleased)
 ------------------
+- Add MANIFEST.in.
+  [WouterVH]
+
 
 4.0a6 (2011-04-06)
 ------------------
@@ -14,13 +18,14 @@ Changelog
   ``tearDownZcmlFiles`` helper functions.
   [gotcha]
 
+
 4.0a5 (2011-03-02)
 ------------------
 
 - Handle test failures due to userFolderAddUser returning the user object in
   newer versions of Zope.
   [esteele]
-  
+
 - Add ``setUpZcmlFiles`` and ``tearDownZcmlFiles`` helpers to enable loading 
   of ZCML files without too much boilerplate.
   [gotcha]
@@ -39,11 +44,13 @@ Changelog
 - Make the test browser support IStreamIterators
   [optilue]
 
+
 4.0a4 (2011-01-11)
 ------------------
 
 - Make sure ZCML doesn't load during App startup in Zope 2.13.
   [davisagli]
+
 
 4.0a3 (2010-12-14)
 ------------------
@@ -58,9 +65,8 @@ Changelog
   teardown of the Startup layer in Zope 2.13.
   [davisagli]
 
-- Allow doctest suites from `zope.testing` to work with
-  `plone.testing.layer.layered`.  Previously, only doctest suites from
-  the stdlib would see the `layer` global.
+- Allow doctest suites from `zope.testing` to work with `plone.testing.layer.layered`.
+  Previously, only doctest suites from the stdlib would see the `layer` global.
   [nouri]
 
 - Changed documentation to advertise the `coverage` library for running
@@ -79,6 +85,7 @@ Changelog
   variables (ZSERVER_HOST and ZSERVER_PORT).
   [esteele]
 
+
 1.0a2 - 2010-09-05
 ------------------
 
@@ -90,10 +97,10 @@ Changelog
   the z2.STARTUP layer.
   [optilude]
 
-- Initialize Five in the z2.Startup layer, pushing a
-  Zope2VocabularyRegistry on layer set-up and restoring the previous
-  one upon tear-down.
+- Initialize Five in the z2.Startup layer, pushing a Zope2VocabularyRegistry on
+  layer set-up and restoring the previous one upon tear-down.
   [dukebody]
+
 
 1.0a1 - 2010-08-01
 ------------------
