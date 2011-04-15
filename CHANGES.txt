@@ -2,16 +2,17 @@ Changelog
 =========
 
 
-4.0a7 (Unreleased)
+4.0a7 - Unreleased
 ------------------
+
 - Add MANIFEST.in.
   [WouterVH]
 
 
-4.0a6 (2011-04-06)
+4.0a6 - 2011-04-06
 ------------------
 
-- Fixed Browser cookies retrievial with Zope 2.13.
+- Fixed Browser cookies retrieval with Zope 2.13.
   [vincentfretin]
 
 - Add ``ZCMLSandbox`` layer to load a ZCML file; replaces ``setUpZcmlFiles`` and 
@@ -19,7 +20,7 @@ Changelog
   [gotcha]
 
 
-4.0a5 (2011-03-02)
+4.0a5 - 2011-03-02
 ------------------
 
 - Handle test failures due to userFolderAddUser returning the user object in
@@ -42,17 +43,17 @@ Changelog
   [optilude]
 
 - Make the test browser support IStreamIterators
-  [optilue]
+  [optilude]
 
 
-4.0a4 (2011-01-11)
+4.0a4 - 2011-01-11
 ------------------
 
 - Make sure ZCML doesn't load during App startup in Zope 2.13.
   [davisagli]
 
 
-4.0a3 (2010-12-14)
+4.0a3 - 2010-12-14
 ------------------
 
 - Ignore the `testinghome` configuration setting if present.
@@ -82,7 +83,7 @@ Changelog
   [rossp]
 
 - Add the option to specify ZServer host and port through environment
-  variables (ZSERVER_HOST and ZSERVER_PORT).
+  variables - ZSERVER_HOST and ZSERVER_PORT).
   [esteele]
 
 
