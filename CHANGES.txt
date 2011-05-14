@@ -4,6 +4,9 @@ Changelog
 4.0.1 - Unreleased
 ------------------
 
+- Relicense under BSD license.
+  See http://plone.org/foundation/materials/foundation-resolutions/plone-framework-components-relicensing-policy
+  [davisagli]
 
 4.0 - 2011-05-13
 ----------------
