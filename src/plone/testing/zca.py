@@ -100,10 +100,18 @@ def pushGlobalRegistry(new=None):
     from zope.component import getSiteManager
     getSiteManager.reset()
 
+    
     try:
         from zope.site.hooks import setSite, setHooks
     except ImportError:
-        pass
+        # backport to Zope 2.10
+        try:
+            from zope.app.component.hooks import setSite, setHooks
+        except ImportError:
+            pass
+        else:
+            setSite()
+            setHooks()
     else:
         setSite()
         setHooks()
@@ -144,7 +152,14 @@ def popGlobalRegistry():
     try:
         from zope.site.hooks import setSite, setHooks
     except ImportError:
-        pass
+        # backport to Zope 2.10
+        try:
+            from zope.app.component.hooks import setSite, setHooks
+        except ImportError:
+            pass
+        else:
+            setSite()
+            setHooks()
     else:
         setSite()
         setHooks()

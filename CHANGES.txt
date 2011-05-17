@@ -4,6 +4,10 @@ Changelog
 3.0a2 (unreleased)
 ------------------
 
+- Backport to Zope 2.10 where we don't have zope.site package and doing
+  ZCA hooks in zope.app.component.
+  [piv]
+
 - Add ``ZCMLSandbox`` layer to load a ZCML file.
   [gotcha]
 
