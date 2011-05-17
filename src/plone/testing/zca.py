@@ -34,9 +34,15 @@ def _hookRegistry(reg):
     # hooks are in place
 
     try:
-        from zope.app.component.hooks import SiteInfo, siteinfo
+        from zope.site.hooks import getSite, setSite
     except ImportError:
-        pass
+        try:
+            from zope.app.component.hooks import getSite, setSite
+        except ImportError:
+            pass
+        else:
+            SiteInfo.sm = reg
+            siteinfo.sm = reg
     else:
         SiteInfo.sm = reg
         siteinfo.sm = reg
