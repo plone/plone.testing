@@ -30,19 +30,10 @@ def _hookRegistry(reg):
     globalregistry.base = reg
     globalregistry.globalSiteManager = reg
 
-    # Set the default global site manager for new threads when zope.site's
-    # hooks are in place
-
     try:
-        from zope.site.hooks import SiteInfo, siteinfo
+        from zope.app.component.hooks import SiteInfo, siteinfo
     except ImportError:
-        try:
-            from zope.app.component.hooks import SiteInfo, siteinfo
-        except ImportError:
-            pass
-        else:
-            SiteInfo.sm = reg
-            siteinfo.sm = reg
+        pass
     else:
         SiteInfo.sm = reg
         siteinfo.sm = reg
@@ -108,16 +99,9 @@ def pushGlobalRegistry(new=None):
 
     
     try:
-        from zope.site.hooks import setSite, setHooks
+        from zope.app.component.hooks import setSite, setHooks
     except ImportError:
-        # backport to Zope 2.10
-        try:
-            from zope.app.component.hooks import setSite, setHooks
-        except ImportError:
-            pass
-        else:
-            setSite()
-            setHooks()
+        pass
     else:
         setSite()
         setHooks()
@@ -156,16 +140,9 @@ def popGlobalRegistry():
     getSiteManager.reset()
 
     try:
-        from zope.site.hooks import setSite, setHooks
+        from zope.app.component.hooks import setSite, setHooks
     except ImportError:
-        # backport to Zope 2.10
-        try:
-            from zope.app.component.hooks import setSite, setHooks
-        except ImportError:
-            pass
-        else:
-            setSite()
-            setHooks()
+        pass
     else:
         setSite()
         setHooks()
