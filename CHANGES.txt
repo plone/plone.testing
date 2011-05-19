@@ -4,6 +4,10 @@ Changelog
 4.0.1 - Unreleased
 ------------------
 
+- Moved readme file containing tests into the package, so tests can be run from
+  released source distributions. Closes http://dev.plone.org/plone/ticket/11821.
+  [hannosch]
+
 - Relicense under BSD license.
   See http://plone.org/foundation/materials/foundation-resolutions/plone-framework-components-relicensing-policy
   [davisagli]
