@@ -1,0 +1,1 @@
+# See src/plone/testing/README.txt
