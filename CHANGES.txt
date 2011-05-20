@@ -1,7 +1,7 @@
 Changelog
 =========
 
-4.0.1 - Unreleased
+4.0.1 - 2011-05-20
 ------------------
 
 - Moved readme file containing tests into the package, so tests can be run from
