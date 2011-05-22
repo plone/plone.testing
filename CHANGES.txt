@@ -4,6 +4,12 @@ Changelog
 4.0.2 - unreleased
 ------------------
 
+- The defaults of the ``ZPublisher.Publish.get_module_info`` function cache
+  a reference to the app, so make sure that gets reset when tearing down the
+  app. This fixes a problem where the testbrowser in the second functional
+  layer to be set up accessed the database from the first functional layer.
+  [davisagli]
+
 4.0.1 - 2011-05-20
 ------------------
 
