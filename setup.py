@@ -1,12 +1,13 @@
-from setuptools import setup, find_packages
 import os
+import os.path
+from setuptools import setup, find_packages
 
 version = '3.0a2dev'
 
 setup(name='plone.testing',
       version=version,
       description="Testing infrastructure for Zope and Plone projects.",
-      long_description=open("README.txt").read() + "\n\n" +
+      long_description=open(os.path.join("src", "plone", "testing", "README.txt")).read() + "\n\n" +
                        open("CHANGES.txt").read() + "\n\n" +
                        "Detailed documentation\n" +
                        "======================\n\n" +
