@@ -4,6 +4,12 @@ Changelog
 3.0a2 (unreleased)
 ------------------
 
+- The defaults of the ``ZPublisher.Publish.get_module_info`` function cache
+  a reference to the app, so make sure that gets reset when tearing down the
+  app. This fixes a problem where the testbrowser in the second functional
+  layer to be set up accessed the database from the first functional layer.
+  [davisagli]
+
 - Moved readme file containing tests into the package, so tests can be run from
   released source distributions. Closes http://dev.plone.org/plone/ticket/11821.
   [hannosch]

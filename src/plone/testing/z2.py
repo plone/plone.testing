@@ -550,6 +550,13 @@ class Startup(Layer):
             config.testinghome = self._testingHome
             App.config.setConfiguration(config)
             del self._testingHome
+        
+        # Clear out the app reference cached in get_module_info's
+        # 'modules' parameter default dict. (waaaaa)
+        import ZPublisher.Publish
+        d = list(ZPublisher.Publish.get_module_info.func_defaults)
+        d[0] = {}
+        ZPublisher.Publish.get_module_info.func_defaults = tuple(d)
 
     def setUpBasicProducts(self):
         """Install a minimal set of products required for Zope 2.
