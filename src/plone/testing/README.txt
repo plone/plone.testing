@@ -1858,7 +1858,7 @@ Integration test
 +------------+--------------------------------------------------+
 | Layer:     | ``plone.testing.z2.INTEGRATION_TESTING``         |
 +------------+--------------------------------------------------+
-| Class:     | ``plone.testing.z2.IntegrationTest``             |
+| Class:     | ``plone.testing.z2.IntegrationTesting``          |
 +------------+--------------------------------------------------+
 | Bases:     | ``plone.testing.z2.STARTUP``                     |
 +------------+--------------------------------------------------+
@@ -1903,7 +1903,7 @@ Functional testing
 +------------+--------------------------------------------------+
 | Layer:     | ``plone.testing.z2.FUNCTIONAL_TESTING``          |
 +------------+--------------------------------------------------+
-| Class:     | ``plone.testing.z2.FunctionalTest``              |
+| Class:     | ``plone.testing.z2.FunctionalTesting``           |
 +------------+--------------------------------------------------+
 | Bases:     | ``plone.testing.z2.STARTUP``                     |
 +------------+--------------------------------------------------+
