@@ -3,7 +3,7 @@ import os.path
 
 from setuptools import setup, find_packages
 
-version = '4.0.3dev'
+version = '4.0.3'
 
 tests_require = ['zope.component',
                  'zope.interface',
