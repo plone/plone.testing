@@ -1,9 +1,18 @@
 import os
 import os.path
+import sys
 
 from setuptools import setup, find_packages
 
 version = '4.0.4dev'
+
+install_requires = [
+    'setuptools',
+    'zope.testing',
+    ]
+
+if sys.version < (2, 7):
+    install_requires.append('unittest2')
 
 tests_require = ['zope.component',
                  'zope.interface',
@@ -47,11 +56,7 @@ setup(name='plone.testing',
       namespace_packages=['plone'],
       include_package_data=True,
       zip_safe=False,
-      install_requires=[
-          'setuptools',
-          'zope.testing',
-          'unittest2',
-      ],
+      install_requires=install_requires,
       tests_require=tests_require,
       extras_require={
         'test': tests_require,

@@ -20,7 +20,7 @@ the layer lifecycle methods does nothing.
     'Null layer'
     >>> NULL_LAYER.__module__
     'plone.testing.layer'
-    
+
     >>> NULL_LAYER.setUp()
     >>> NULL_LAYER.testSetUp()
     >>> NULL_LAYER.tearDown()
@@ -40,10 +40,10 @@ This layer now has the bases, name and module we set:
 
     >>> SIMPLE_LAYER.__bases__
     (<Layer 'plone.testing.layer.Null layer'>,)
-    
+
     >>> SIMPLE_LAYER.__name__
     'Simple layer'
-    
+
     >>> SIMPLE_LAYER.__module__
     'plone.testing.tests'
 
@@ -71,7 +71,7 @@ set a default list of bases.
     ...
     ...     def setUp(self):
     ...         print "Setting up base layer"
-    ...     
+    ...
     ...     def tearDown(self):
     ...         print "Tearing down base layer"
 
@@ -96,13 +96,13 @@ name would be misleading in the test runner output.
 
     >>> class ChildLayer(Layer):
     ...     defaultBases = (BASE_LAYER,)
-    ...     
+    ...
     ...     def __init__(self, bases=None, name='Child layer', module=None):
     ...         super(ChildLayer, self).__init__(bases, name, module)
-    ...     
+    ...
     ...     def setUp(self):
     ...         print "Setting up child layer"
-    ...     
+    ...
     ...     def tearDown(self):
     ...         print "Tearing down child layer"
 
@@ -121,7 +121,7 @@ Overriding the default list of bases
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 We can override the list of bases on a per-instance basis. This may be
-dangerous, i.e. the layer is likely to expect that its bases are set up. 
+dangerous, i.e. the layer is likely to expect that its bases are set up.
 Sometimes, it may be useful to inject a new base, however, especially when
 re-using layers from other packages.
 
@@ -147,7 +147,7 @@ from the ``baseResolutionOrder`` attribute:
 
     >>> CHILD_LAYER.baseResolutionOrder
     (<Layer '__builtin__.Child layer'>, <Layer '__builtin__.BaseLayer'>)
-    
+
     >>> NEW_CHILD_LAYER.baseResolutionOrder
     (<Layer '__builtin__.New child'>, <Layer 'plone.testing.tests.Simple layer'>,
      <Layer 'plone.testing.layer.Null layer'>,
@@ -291,9 +291,9 @@ instance of the subclass, the base class attribute is used).
     *Hint:* If you definitely need to access the "original" resource in your
     ``testSetUp()``/``testTearDown()`` methods, you can store a reference to
     the resource as a layer instance variable::
-    
+
         self.someResource = self['someResource'] = SomeResource()
-    
+
     ``self.someResource`` will now be the exact resource created here, whereas
     ``self['someResource']`` will retain the layer shadowing semantics. In
     most cases, you probably *don't* want to do this, allowing child layers to
@@ -309,14 +309,14 @@ First, we'll create some base layers. We want to demonstrate having two
     ...         print self['resource']
     ...     def tearDown(self):
     ...         del self['resource']
-    
+
     >>> RESOURCE_BASE_LAYER1 = ResourceBaseLayer1()
 
     >>> class ResourceBaseLayer2(Layer):
     ...     defaultBases = (RESOURCE_BASE_LAYER1,)
     ...     def testSetUp(self):
     ...         print self['resource']
-    
+
     >>> RESOURCE_BASE_LAYER2 = ResourceBaseLayer2()
 
     >>> class ResourceBaseLayer3(Layer):
@@ -326,7 +326,7 @@ First, we'll create some base layers. We want to demonstrate having two
     ...         print self['resource']
     ...     def tearDown(self):
     ...         del self['resource']
-    
+
     >>> RESOURCE_BASE_LAYER3 = ResourceBaseLayer3()
 
 We'll then create the child layer that overrides this resource.
@@ -339,9 +339,9 @@ We'll then create the child layer that overrides this resource.
     ...         print self['resource']
     ...     def tearDown(self):
     ...         del self['resource']
-    
+
     >>> RESOURCE_CHILD_LAYER = ResourceChildLayer()
-    
+
 We'll first set up the base layers on their own and simulate two tests.
 
 A test with RESOURCE_BASE_LAYER1 only would look like this:
@@ -365,7 +365,7 @@ A test with RESOURCE_BASE_LAYER2 would look like this:
     Base 1
     >>> RESOURCE_BASE_LAYER2.testTearDown()
     >>> RESOURCE_BASE_LAYER1.testTearDown()
-    
+
     >>> RESOURCE_BASE_LAYER2.tearDown()
     >>> RESOURCE_BASE_LAYER1.tearDown()
 
@@ -381,7 +381,7 @@ A test with RESOURCE_BASE_LAYER3 only would look like this:
 
 Now let's set up the child layer and simulate another test. We should now be
 using the shadowed resource.
-    
+
     >>> RESOURCE_BASE_LAYER1.setUp()
     >>> RESOURCE_BASE_LAYER2.setUp()
     >>> RESOURCE_BASE_LAYER3.setUp()
@@ -395,12 +395,12 @@ using the shadowed resource.
     Child
     >>> RESOURCE_CHILD_LAYER.testSetUp()
     Child
-    
+
     >>> RESOURCE_CHILD_LAYER.testTearDown()
     >>> RESOURCE_BASE_LAYER3.testTearDown()
     >>> RESOURCE_BASE_LAYER2.testTearDown()
     >>> RESOURCE_BASE_LAYER1.testTearDown()
-    
+
 Finally, we'll tear down the child layer again and simulate another test.
 we should have the original resources back. Note that the first and third
 layers no longer share a resource, since they don't have a common ancestor.
@@ -476,14 +476,14 @@ Doctest layer helper
 
 The ``doctest`` module is not aware of ``zope.testing``'s layers concept.
 Therefore, the syntax for creating a doctest with a layer and adding it to
-a test suite is somewhat contrived: the test suite has to be created first, 
+a test suite is somewhat contrived: the test suite has to be created first,
 and then the layer attribute set on it:
 
     >>> class DoctestLayer(Layer):
     ...     pass
     >>> DOCTEST_LAYER = DoctestLayer()
 
-    >>> import unittest2 as unittest
+    >>> import unittest
     >>> import doctest
 
     >>> def test_suite():
