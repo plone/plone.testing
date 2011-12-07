@@ -10,9 +10,7 @@ from cStringIO import StringIO
 import mechanize
 import pkg_resources
 
-# Using a from-import here to avoid an AttributeError below when using
-# zope.testbrowser 4.x without zope.app.testing:
-from zope.testbrowser.testing import PublisherConnection, PublisherResponse
+import zope.testbrowser.testing
 import zope.testbrowser.browser
 
 
@@ -65,7 +63,7 @@ class Zope2HTTPHandler(urllib2.HTTPHandler):
             return Zope2Connection(self.app, host, timeout=timeout)
         return self.do_open(connectionFactory, req)
 
-class Zope2Connection(PublisherConnection):
+class Zope2Connection(zope.testbrowser.testing.PublisherConnection):
     """A urllib2-compatible connection that can talk to the Zope 2 publisher.
     """
     
@@ -107,7 +105,7 @@ class Zope2Connection(PublisherConnection):
         headers = '\r\n'.join('%s: %s' % h for h in headers)
         content = self.response.getBody()
         
-        return PublisherResponse(content, headers, status, reason)
+        return zope.testbrowser.testing.PublisherResponse(content, headers, status, reason)
 
 def saveState(func):
     """Save threadlocal state (security manager, local component site) before
