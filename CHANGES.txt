@@ -10,8 +10,8 @@ Changelog
 4.0.3 (2011-11-24)
 ------------------
 
-- Nothing changed yet.
-
+- Fixed class names in documentation to match code.
+  [icemac]
 
 4.0.2 (2011-08-31)
 ------------------
