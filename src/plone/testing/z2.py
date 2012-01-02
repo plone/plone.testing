@@ -555,7 +555,10 @@ class Startup(Layer):
         # 'modules' parameter default dict. (waaaaa)
         import ZPublisher.Publish
         if ZPublisher.Publish.get_module_info.func_defaults is not None:
-            # func_defaults is None under some circumstances
+            # func_defaults is None in case get_module_info is patched.
+            # This happens if you use plone.postpublicationhook addon which
+            # deliberately applies plone.app.linkintegrity's patch even within
+            # testing environment.
             d = list(ZPublisher.Publish.get_module_info.func_defaults)
             d[0] = {}
             ZPublisher.Publish.get_module_info.func_defaults = tuple(d)
