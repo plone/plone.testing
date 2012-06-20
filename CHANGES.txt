@@ -4,8 +4,10 @@ Changelog
 4.0.4 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Fixed the cache reset code. In some situations the function does not
+  have any defaults, so we shouldn't try to clear out the app
+  reference.
+  [malthe]
 
 4.0.3 (2011-11-24)
 ------------------
