@@ -172,7 +172,6 @@ class Zope2Caller(object):
         commandLine = requestString[:l].rstrip()
         requestString = requestString[l+1:]
         method, path, protocol = commandLine.split()
-        path = urllib.unquote(path)
         
         instream = StringIO(requestString)
         

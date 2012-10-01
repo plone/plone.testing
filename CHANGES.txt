@@ -4,8 +4,10 @@ Changelog
 4.0.5 (unreleased)
 ------------------
 
-- Nothing changed yet.
-
+- Fixed an issue where a query string would be unquoted twice; once
+  while setting up the HTTP request and once in the handler (the
+  publisher).
+  [malthe]
 
 4.0.4 (2012-08-04)
 ------------------
