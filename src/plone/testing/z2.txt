@@ -413,6 +413,18 @@ We can now view this via the test browser:
     >>> 'folder1' in browser.contents
     True
 
+The test browser integration converts the URL into a request and
+passes control to Zope's publisher. Let's check that query strings are
+available for input processing:
+
+    >>> import urllib
+    >>> qs = urllib.urlencode({'foo': 'boo, bar & baz'})  # sic: the ampersand.
+    >>> _ = app['folder1'].addDTMLMethod('index_html', file='<dtml-var foo>')
+    >>> import transaction; transaction.commit()
+    >>> browser.open(app.absolute_url() + '/folder1?' + qs)
+    >>> browser.contents
+    'boo, bar & baz'
+
 The test browser also works with iterators. Let's test that with a simple
 file implementation that uses an iterator.
 
