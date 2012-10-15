@@ -1,7 +1,7 @@
 Changelog
 =========
 
-4.0.5 (unreleased)
+4.0.5 (2012-10-15)
 ------------------
 
 - Fixed an issue where a query string would be unquoted twice; once
