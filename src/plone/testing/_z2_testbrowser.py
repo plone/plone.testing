@@ -188,7 +188,10 @@ class Zope2Caller(object):
             [env['PATH_INFO'], env['QUERY_STRING']] = p
         else:
             raise TypeError, ''
-        
+       
+        # If you followed closely, you notice that one part of the url
+        # gets unquoted (PATH_INFO) while the other (QUERY_STRING)
+        # doesn't That complies with what the ZSERVER does.
         env['PATH_INFO'] = urllib.unquote(env['PATH_INFO'])
         
         headers = [splitHeader(header) for header in rfc822.Message(instream).headers]
