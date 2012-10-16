@@ -171,7 +171,7 @@ class Zope2Caller(object):
         l = requestString.find('\n')
         commandLine = requestString[:l].rstrip()
         requestString = requestString[l+1:]
-        method, path, protocol = commandLine.split()
+        method, url, protocol = commandLine.split()
         
         instream = StringIO(requestString)
         
@@ -181,13 +181,15 @@ class Zope2Caller(object):
                "SERVER_PROTOCOL": protocol,
                }
         
-        p = path.split('?', 1)
+        p = url.split('?', 1)
         if len(p) == 1:
             env['PATH_INFO'] = p[0]
         elif len(p) == 2:
             [env['PATH_INFO'], env['QUERY_STRING']] = p
         else:
             raise TypeError, ''
+        
+        env['PATH_INFO'] = urllib.unquote(env['PATH_INFO'])
         
         headers = [splitHeader(header) for header in rfc822.Message(instream).headers]
         
