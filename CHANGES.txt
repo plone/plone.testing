@@ -4,6 +4,8 @@ Changelog
 4.0.8 (unreleased)
 ------------------
 
+- Factor test request creation out of addRequestContainer into makeTestRequest.
+  [davisagli]
 
 4.0.7 (2012-12-09)
 ------------------

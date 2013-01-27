@@ -2145,6 +2145,8 @@ Several helper functions are available in the ``plone.testing.z2`` module.
 ``setRoles(userFolder, userName, roles)``
     Set the roles of the given user in the given user folder to the given
     list of roles.
+``makeTestRequest()``
+    Create a fake Zope request.
 ``addRequestContainer(app, environ=None)``
     Create a fake request and wrap the given object (normally an application
     root) in a ``RequestContainer`` with this request. This makes acquisition

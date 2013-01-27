@@ -184,34 +184,40 @@ def setRoles(userFolder, userId, roles):
     if userName == getSecurityManager().getUser().getUserName():
         login(userFolder, userName)
 
+
+def makeTestRequest(environ=None):
+    """Return an HTTPRequest object suitable for testing views."""
+    from sys import stdin, stdout
+    from ZPublisher.HTTPRequest import HTTPRequest
+    from ZPublisher.HTTPResponse import HTTPResponse
+    from zope.publisher.browser import setDefaultSkin
+
+    if environ is None:
+        environ = {}
+    environ.setdefault('SERVER_NAME', 'foo')
+    environ.setdefault('SERVER_PORT', '80')
+    environ.setdefault('REQUEST_METHOD', 'GET')
+
+    resp = HTTPResponse(stdout=stdout)
+    req = HTTPRequest(stdin, environ, resp)
+    req._steps = ['noobject']  # Fake a published object.
+    req['ACTUAL_URL'] = req.get('URL')
+    setDefaultSkin(req)
+
+    return req
+
+
 def addRequestContainer(app, environ=None):
     """Add the request container with a fake request to the app object's
     acquisition context and return the wrapped app object. Additional request
     environment values can be passed as a dict ``environ``.
     """
 
-    from sys import stdin, stdout
-    from ZPublisher.HTTPRequest import HTTPRequest
-    from ZPublisher.HTTPResponse import HTTPResponse
     from ZPublisher.BaseRequest import RequestContainer
-
-    from zope.publisher.browser import setDefaultSkin
-
-    if environ is None:
-        environ = {}
-
-    environ.setdefault('SERVER_NAME', 'nohost')
-    environ.setdefault('SERVER_PORT', 'port')
-    environ.setdefault('REQUEST_METHOD', 'GET')
-
-    resp = HTTPResponse(stdout=stdout)
-    req = HTTPRequest(stdin, environ, resp)
-    req._steps = ['noobject']  # Fake a published object.
-
-    setDefaultSkin(req)
-
+    req = makeTestRequest(environ)
     requestcontainer = RequestContainer(REQUEST=req)
     return app.__of__(requestcontainer)
+
 
 @contextlib.contextmanager
 def zopeApp(db=None, connection=None, environ=None):
