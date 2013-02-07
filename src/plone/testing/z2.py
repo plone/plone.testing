@@ -162,6 +162,8 @@ def login(userFolder, userName):
     from AccessControl.SecurityManagement import newSecurityManager
 
     user = userFolder.getUser(userName)
+    if user is None:
+        raise ValueError('User could not be found')
     if not hasattr(user, 'aq_base'):
         user = user.__of__(userFolder)
     newSecurityManager(None, user)
