@@ -16,7 +16,7 @@ except ImportError:
 
 from zope.schema.vocabulary import getVocabularyRegistry
 from zope.schema.vocabulary import setVocabularyRegistry
-from Products.Five.schema import Zope2VocabularyRegistry
+from Zope2.App.schema import Zope2VocabularyRegistry
 
 try:
     from OFS.metaconfigure import get_packages_to_initialize
