@@ -1,11 +1,12 @@
 Changelog
 =========
 
-4.0.10 (unreleased)
+4.0.10 (2014-02-11)
 -------------------
 
 - Read 'FTPSERVER_HOST' and 'FTPSERVER_PORT' from the environment variables if
   possible. This allows us to run tests in parallel on CI servers.
+  [timo]
 
 
 4.0.9 (2014-01-28)
@@ -20,6 +21,7 @@ Changelog
 
 - Factor test request creation out of addRequestContainer into makeTestRequest.
   [davisagli]
+
 
 4.0.7 (2012-12-09)
 ------------------
@@ -43,6 +45,7 @@ Changelog
   publisher).
   [malthe]
 
+
 4.0.4 (2012-08-04)
 ------------------
 
@@ -51,11 +54,13 @@ Changelog
   reference.
   [malthe]
 
+
 4.0.3 (2011-11-24)
 ------------------
 
 - Fixed class names in documentation to match code.
   [icemac]
+
 
 4.0.2 (2011-08-31)
 ------------------
@@ -65,6 +70,7 @@ Changelog
   app. This fixes a problem where the testbrowser in the second functional
   layer to be set up accessed the database from the first functional layer.
   [davisagli]
+
 
 4.0.1 - 2011-05-20
 ------------------
@@ -76,6 +82,7 @@ Changelog
 - Relicense under BSD license.
   See http://plone.org/foundation/materials/foundation-resolutions/plone-framework-components-relicensing-policy
   [davisagli]
+
 
 4.0 - 2011-05-13
 ----------------
