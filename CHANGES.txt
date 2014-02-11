@@ -4,7 +4,8 @@ Changelog
 4.0.10 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Read 'FTPSERVER_HOST' and 'FTPSERVER_PORT' from the environment variables if
+  possible. This allows us to run tests in parallel on CI servers.
 
 
 4.0.9 (2014-01-28)
@@ -79,9 +80,9 @@ Changelog
 4.0 - 2011-05-13
 ----------------
 
-- Release 4.0 Final. 
+- Release 4.0 Final.
   [esteele]
-  
+
 - Add MANIFEST.in.
   [WouterVH]
 
@@ -92,7 +93,7 @@ Changelog
 - Fixed Browser cookies retrieval with Zope 2.13.
   [vincentfretin]
 
-- Add ``ZCMLSandbox`` layer to load a ZCML file; replaces ``setUpZcmlFiles`` and 
+- Add ``ZCMLSandbox`` layer to load a ZCML file; replaces ``setUpZcmlFiles`` and
   ``tearDownZcmlFiles`` helper functions.
   [gotcha]
 
@@ -104,7 +105,7 @@ Changelog
   newer versions of Zope.
   [esteele]
 
-- Add ``setUpZcmlFiles`` and ``tearDownZcmlFiles`` helpers to enable loading 
+- Add ``setUpZcmlFiles`` and ``tearDownZcmlFiles`` helpers to enable loading
   of ZCML files without too much boilerplate.
   [gotcha]
 

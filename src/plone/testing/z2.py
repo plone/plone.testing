@@ -403,7 +403,7 @@ class Startup(Layer):
         def null_register_help(self,directory='',clear=1,title_re=None): pass
         self._App_ProductContext_ProductContext_registerHelp = App.ProductContext.ProductContext.registerHelp
         App.ProductContext.ProductContext.registerHelp = null_register_help
-        
+
         # in Zope 2.13, prevent ZCML from loading during App startup
         if hasattr(Zope2.App.startup, 'load_zcml'):
             def null_load_zcml(): pass
@@ -723,7 +723,7 @@ class IntegrationTesting(Layer):
         app = addRequestContainer(Zope2.app(), environ=environ)
         request = app.REQUEST
         request['PARENTS'] = [app]
-        
+
         # Make sure we have a zope.globalrequest request
         try:
             from zope.globalrequest import setRequest
@@ -743,14 +743,14 @@ class IntegrationTesting(Layer):
 
         # Abort the transaction
         transaction.abort()
-        
+
         # Make sure we have a zope.globalrequest request
         try:
             from zope.globalrequest import setRequest
             setRequest(None)
         except ImportError:
             pass
-        
+
         # Close the database connection and the request
         app = self['app']
         app.REQUEST.close()
@@ -810,14 +810,14 @@ class FunctionalTesting(Layer):
         app = addRequestContainer(Zope2.app(), environ=environ)
         request = app.REQUEST
         request['PARENTS'] = [app]
-        
+
         # Make sure we have a zope.globalrequest request
         try:
             from zope.globalrequest import setRequest
             setRequest(request)
         except ImportError:
             pass
-        
+
         # Start a transaction
         transaction.begin()
 
@@ -830,14 +830,14 @@ class FunctionalTesting(Layer):
 
         # Abort any open transactions
         transaction.abort()
-        
+
         # Make sure we have a zope.globalrequest request
         try:
             from zope.globalrequest import setRequest
             setRequest(None)
         except ImportError:
             pass
-        
+
         # Close the database connection and the request
         app = self['app']
         app.REQUEST.close()
@@ -969,8 +969,8 @@ class FTPServer(ZServer):
 
     defaultBases = (STARTUP,)
 
-    host = 'localhost'
-    port = 55002
+    host = os.environ.get('FTPSERVER_HOST', 'localhost')
+    port = int(os.environ.get('FTPSERVER_PORT', 55002))
     threads = 1
     timeout = 5.0
     log = None
