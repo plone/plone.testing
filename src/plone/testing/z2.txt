@@ -615,8 +615,9 @@ indicate where Zope is running.
     'localhost'
     
     >>> port = z2.ZSERVER['port']
-    >>> port
-    55002
+    >>> import os
+    >>> port == int(os.environ.get('FTPSERVER_PORT', 55002))
+    True
     
 Let's now simulate a test. Test setup does nothing beyond what the base layers
 do.
