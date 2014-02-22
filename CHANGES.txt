@@ -4,7 +4,8 @@ Changelog
 4.0.11 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Fix z2.txt doctest for FTP_SERVER.
+  [timo]
 
 
 4.0.10 (2014-02-11)
