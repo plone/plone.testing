@@ -20,8 +20,8 @@ tests_require = ['zope.component',
 setup(name='plone.testing',
       version=version,
       description="Testing infrastructure for Zope and Plone projects.",
-      long_description=open(os.path.join("src", "plone", "testing", "README.txt")).read() + "\n\n" +
-                       open("CHANGES.txt").read() + "\n\n" +
+      long_description=open(os.path.join("src", "plone", "testing", "README.rst")).read() + "\n\n" +
+                       open("CHANGES.rst").read() + "\n\n" +
                        "Detailed documentation\n" +
                        "======================\n\n" +
                        open(os.path.join("src", "plone", "testing", "layer.txt")).read() + "\n\n" +
