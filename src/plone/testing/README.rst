@@ -252,7 +252,7 @@ Optional dependencies
 ---------------------
 
 ``plone.testing`` comes with a core set of tools for managing layers, which
-depends only on `zope.testing`_ and `unittest2`_. In addition, there are
+depends only on `zope.testing`_ and (for Python < 2.7) `unittest2`_. In addition, there are
 several layers and helper functions which can be used in your own tests (or
 as bases for your own layers). Some of these have deeper dependencies.
 However, these dependencies are optional and not installed by default. If you
@@ -747,7 +747,10 @@ The distinction becomes even more important when you consider how a test case
 may access the shared resource. We'll discuss how to write test cases that use
 layers shortly, but consider the following test:
 
-    >>> import unittest2 as unittest
+    >>> try:
+    ...     import unittest2 as unittest
+    ... except ImportError: # Python 2.7
+    ...     import unittest
     >>> class TestFasterThanLightTravel(unittest.TestCase):
     ...     layer = GALAXY_CLASS_SPACE_SHIP
     ...
@@ -806,10 +809,10 @@ unittest2
 In Python 2.7+, the ``unittest`` module has grown several new and useful
 features. To make use of these in Python 2.4, 2.5 and 2.6, an add-on module
 called `unittest2`_ can be installed. ``plone.testing`` depends on
-``unittest2`` (and uses it for its own tests), so you will have access to it
+``unittest2`` for these versions (and uses it for its own tests), so you will have access to it
 if you depend on ``plone.testing``.
 
-We will use ``unittest2`` for the examples in this document, but import it
+We will use ``unittest2`` for the examples in this document, but try to import it
 with an alias of ``unittest``. This makes the code forward compatible with
 Python 2.7, where the built-in ``unittest`` module will have all the features
 of the ``unittest2`` module.
@@ -851,7 +854,10 @@ write assertions. They all take the form ``self.assertSomething()``, e.g.
 
 Putting this together, let's expand on our previous example unit test:
 
-    >>> import unittest2 as unittest
+    >>> try:
+    ...     import unittest2 as unittest
+    ... except ImportError: # Python 2.7
+    ...     import unittest
 
     >>> class TestFasterThanLightTravel(unittest.TestCase):
     ...     layer = GALAXY_CLASS_SPACE_SHIP
@@ -1008,27 +1014,27 @@ The example above illustrates a documentation-oriented doctest, where the
 doctest forms part of the docstring of a public module. The same syntax can
 be used for more systematic unit tests. For example, we could have a module
 ``spaceship.tests.test_spaceship`` with a set of methods like::
-    
+
     # It's often better to put the import into each method, but here we've
     # imported the code under test at module level
     from spaceship.utils import WarpDrive, canOutrunKlingons
-    
+
     def test_canOutrunKlingons_too_small():
         """Klingons travel at warp 8.0
 
         >>> drive = WarpDrive(7.9)
         >>> canOutrunKlingons(drive)
         False
-        
+
         """
-    
+
     def test_canOutrunKlingons_big():
         """Klingons travel at warp 8.0
-        
+
         >>> drive = WarpDrive(8.1)
         >>> canOutrunKlingons(drive)
         True
-        
+
         """
 
     def test_canOutrunKlingons_must_be_greater():
@@ -1037,7 +1043,7 @@ be used for more systematic unit tests. For example, we could have a module
         >>> drive = WarpDrive(8.0)
         >>> canOutrunKlingons(drive)
         False
-        
+
         """
 
 Here, we have created a number of small methods that have no body. They merely
@@ -1535,11 +1541,11 @@ ZCML files helper class
 The ``ZCMLSandbox`` can be instantiated with a `filename`` and ``package``
 arguments::
 
-    ZCML_SANDBOX = zca.ZCMLSandbox(filename="configure.zcml", 
+    ZCML_SANDBOX = zca.ZCMLSandbox(filename="configure.zcml",
         package=my.package)
 
 
-That layer ``setUp`` loads the ZCML file. It avoids the need to 
+That layer ``setUp`` loads the ZCML file. It avoids the need to
 using (and understand) ``configurationContext` and ``globalRegistry`` until you
 need more flexibility or modularity for your layer and tests.
 
@@ -1554,22 +1560,22 @@ module.
 ``stackConfigurationContext(context=None)``
     Create and return a copy of the passed-in ZCML configuration context, or a
     brand new context if it is ``None``.
-    
+
     The purpose of this is to ensure that if a layer loads some ZCML files
     (using the ``zope.configuration`` API during) its ``setUp()``, the state
     of the configuration registry (which includes registered directives as
     well as a list of already imported files, which will not be loaded again
     even if explicitly included) can be torn down during ``tearDown()``.
-    
+
     The usual pattern is to keep the configuration context in a layer resource
     called ``configurationContext``. In ``setUp()``, you would then use::
-    
+
         self['configurationContext'] = context = zca.stackConfigurationContext(self.get('configurationContext'))
-        
+
         # use 'context' to load some ZCML
-    
+
     In ``tearDown()``, you can then simply do::
-        
+
         del self['configurationContext']
 
 ``pushGlobalRegistry(new=None)``
@@ -1580,29 +1586,29 @@ module.
     module-scope one. From this point onwards, calls to ``provideAdapter()``,
     ``provideUtility()`` and other functions that modify the global registry
     will use the new registry.
-    
+
     If ``new`` is not given, a new registry is created that has the previous
     global registry (site manager) as its sole base. This has the effect that
     registrations in the previous default global registry are still available,
     but new registrations are confined to the new registry.
-    
+
     **Warning**: If you call this function, you *must* reciprocally call
     ``popGlobalRegistry()``. That is, if you "push" a registry during layer
     ``setUp()``, you must "pop" it during ``tearDown()``. If you "push" during
     ``testSetUp()``, you must "pop" during ``testTearDown()``. If the calls
     to push and pop are not balanced, you will leave your global registry in
     a mess, which is not pretty.
-    
+
     Returns the new default global site manager. Also causes the site manager
     hook from ``zope.site`` to be reset, clearing any local site managers as
     appropriate.
-    
+
 ``popGlobalRegistry()``
     Pop the global site registry, restoring the previous registry to be the
     default.
-    
+
     Please heed the warning above: push and pop must be balanced.
-    
+
     Returns the new default global site manager. Also causes the site manager
     hook from ``zope.site`` to be reset, clearing any local site managers as
     appropriate.
@@ -1644,7 +1650,7 @@ functions found in the module ``plone.testing.security``:
 ``popCheckers()``
     Restore the set of security checkers to the state of the most recent
     call to ``pushCheckers()``.
-    
+
 You *must* keep calls to ``pushCheckers()`` and ``popCheckers()`` in balance.
 That usually means that if you call the former during layer setup, you should
 call the latter during layer tear-down. Ditto for calls during test
@@ -1768,16 +1774,16 @@ One helper function is available in the ``plone.testing.zodb`` module.
 ``stackDemoStorage(db=None, name=None)``
     Create a new ``DemoStorage`` using the storage from the passed-in database
     as a base. If ``db`` is None, a brand new storage is created.
-    
+
     A ``name`` can be given to uniquely identify the storage. It is optional,
     but it is often useful for debugging purposes to pass the name of the
     layer.
-    
+
     The usual pattern is::
-    
+
         def setUp(self):
             self['zodbDB'] = zodb.stackDemoStorage(self.get('zodbDB'), name='MyLayer')
-        
+
         def tearDown(self):
             self['zodbDB'].close()
             del self['zodbDB']
@@ -1948,20 +1954,20 @@ lifecycle, and the test lifecycle only.
 For example::
 
     from plone.testing import Layer, z2, zodb
-    
+
     class MyLayer(Layer):
         defaultBases = (z2.STARTUP,)
-        
+
         def setUp(self):
             # Set up the fixture here
             ...
-        
+
         def tearDown(self):
             # Tear down the fixture here
             ...
-    
+
     MY_FIXTURE = MyLayer()
-    
+
     MY_INTEGRATION_TESTING = z2.IntegrationTesting(bases=(MY_FIXTURE,), name="MyFixture:Integration")
     MY_FUNCTIONAL_TESTING = z2.FunctionalTesting(bases=(MY_FIXTURE,), name="MyFixture:Functional")
 
@@ -2162,20 +2168,20 @@ Several helper functions are available in the ``plone.testing.z2`` module.
     use this in conjunction with the ``z2.FUNCTIONAL_TESTING`` layer or a
     derivative. You must pass the app root, usually obtained from the ``app``
     resource of the layer, e.g.::
-    
+
         app = self.layer['app']
         browser = z2.Browser(app)
-    
+
     You can then use ``browser`` as described in the `zope.testbrowser`_
     documentation.
-    
+
     Bear in mind that the test browser runs separately from the test fixture.
     In particular, calls to helpers such as ``login()`` or ``logout()`` do
     not affect the state that the test browser sees. If you want to set up
     a persistent fixture (e.g. test content), you can do so before creating
     the test browser, but you will need to explicitly commit your changes,
     with::
-    
+
         import transaction
         transaction.commit()
 

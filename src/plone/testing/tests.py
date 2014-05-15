@@ -1,4 +1,7 @@
-import unittest2 as unittest
+try:
+    import unittest2 as unittest
+except ImportError: # Python 2.7
+    import unittest
 import doctest
 
 import zope.component.testing
@@ -14,7 +17,7 @@ from ZPublisher.Iterators import filestream_iterator
 # in there we also have a code sample of a doctest, which gets executed by the
 # doctest runner. Since the method inside the example code block is not yet
 # defined when the doctest example is encountered, we get a NameError.
-# 
+#
 # To get around this, we define a fake method and stick it into the globs for
 # the doctest.
 def _canOutrunKlingons(warpDrive):
@@ -34,7 +37,7 @@ class DummyFile(SimpleItem):
     def __call__(self):
         path = get_distribution('plone.testing').location
         path = os.path.join(path, 'plone', 'testing', 'z2.txt')
-        
+
         request = self.REQUEST
         response = request.response
         response.setHeader('Content-Type', 'text/plain')

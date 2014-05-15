@@ -4,7 +4,8 @@ Changelog
 4.0.12 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Broke dependency on `unittest2` for Python 2.7+ as all features of
+  `unittest2` are integrated in `unittest` there. [icemac]
 
 
 4.0.11 (2014-02-22)
