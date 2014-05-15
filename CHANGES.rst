@@ -5,7 +5,10 @@ Changelog
 -------------------
 
 - Fixed AttributeError when importing ``plone.testing.z2`` if
-  ``zope.testbrowser`` 4.x is used but not ``zope.app.testing``.
+  ``zope.testbrowser`` 4.x is used but not ``zope.app.testing``. [icemac]
+
+- Broke dependency on `unittest2` for Python 2.7+ as all features of
+  `unittest2` are integrated in `unittest` there. [icemac]
 
 
 4.0.11 (2014-02-22)
