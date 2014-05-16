@@ -4,7 +4,8 @@ Changelog
 4.0.12 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Fixed AttributeError when importing ``plone.testing.z2`` if
+  ``zope.testbrowser`` 4.x is used but not ``zope.app.testing``.
 
 
 4.0.11 (2014-02-22)
