@@ -55,7 +55,7 @@ The test would then execute. It may use the ZODB root.
 
     >>> zodb.EMPTY_ZODB['zodbConnection']
     <Connection at ...>
-    
+
     >>> zodb.EMPTY_ZODB['zodbRoot']
     {}
 
@@ -67,10 +67,10 @@ On test tear-down, the transaction is aborted and the connection is closed.
 
     >>> zodb.EMPTY_ZODB.get('zodbConnection', None) is None
     True
-    
+
     >>> zodb.EMPTY_ZODB.get('zodbRoot', None) is None
     True
-    
+
 The transaction has been rolled back.
 
     >>> conn = zodb.EMPTY_ZODB['zodbDB'].open()
@@ -82,7 +82,7 @@ Layer tear-down closes and deletes the database.
 
     >>> runner.tear_down_unneeded(options, [], setupLayers)
     Tear down plone.testing.zodb.EmptyZODB in ... seconds.
-    
+
     >>> zodb.EMPTY_ZODB.get('zodbDB', None) is None
     True
 
@@ -95,7 +95,7 @@ your own layer class based on ``EmptyZODB`` and override its
 ``createStorage()`` and/or ``createDatabase()`` methods to return a
 pre-populated database.
 
-    
+
     >>> import transaction
     >>> from ZODB.DemoStorage import DemoStorage
     >>> from ZODB.DB import DB
@@ -104,16 +104,16 @@ pre-populated database.
     ...
     ...     def createStorage(self):
     ...         return DemoStorage("My storage")
-    ...         
+    ...
     ...     def createDatabase(self, storage):
     ...         db = DB(storage)
     ...         conn = db.open()
-    ...         
+    ...
     ...         conn.root()['someData'] = 'a string'
-    ...         
+    ...
     ...         transaction.commit()
     ...         conn.close()
-    ...         
+    ...
     ...         return db
 
     >>> POPULATED_ZODB = PopulatedZODB()
@@ -143,7 +143,7 @@ The test would then execute. It may use the ZODB root.
 
     >>> POPULATED_ZODB['zodbConnection']
     <Connection at ...>
-    
+
     >>> POPULATED_ZODB['zodbRoot']
     {'someData': 'a string'}
 
@@ -155,10 +155,10 @@ On test tear-down, the transaction is aborted and the connection is closed.
 
     >>> POPULATED_ZODB.get('zodbConnection', None) is None
     True
-    
+
     >>> POPULATED_ZODB.get('zodbRoot', None) is None
     True
-    
+
 The transaction has been rolled back.
 
     >>> conn = POPULATED_ZODB['zodbDB'].open()
@@ -170,7 +170,7 @@ Layer tear-down closes and deletes the database.
 
     >>> runner.tear_down_unneeded(options, [], setupLayers)
     Tear down PopulatedZODB in ... seconds.
-    
+
     >>> POPULATED_ZODB.get('zodbDB', None) is None
     True
 
@@ -191,20 +191,20 @@ ZODB's stackable DemoStorage. There is even a helper function available:
 
     >>> class ExpandedZODB(Layer):
     ...     defaultBases = (POPULATED_ZODB,)
-    ...     
+    ...
     ...     def setUp(self):
     ...         # Get the database from the base layer
-    ...         
+    ...
     ...         self['zodbDB'] = db = zodb.stackDemoStorage(self.get('zodbDB'), name='ExpandedZODB')
-    ...         
+    ...
     ...         conn = db.open()
     ...         conn.root()['additionalData'] = "Some new data"
     ...         transaction.commit()
     ...         conn.close()
-    ...         
+    ...
     ...     def tearDown(self):
     ...         # Close the database and delete the shadowed copy
-    ...         
+    ...
     ...         self['zodbDB'].close()
     ...         del self['zodbDB']
 
@@ -223,7 +223,7 @@ Let's simulate a test run again to show how this would work.
     >>> runner.setup_layer(options, EXPANDED_ZODB, setupLayers)
     Set up PopulatedZODB in ... seconds.
     Set up ExpandedZODB in ... seconds.
-    
+
     >>> db = EXPANDED_ZODB['zodbDB']
     >>> db.storage
     ExpandedZODB
@@ -242,7 +242,7 @@ The test would then execute. It may use the ZODB root.
 
     >>> EXPANDED_ZODB['zodbConnection']
     <Connection at ...>
-    
+
     >>> EXPANDED_ZODB['zodbRoot'] == dict(someData='a string', additionalData='Some new data')
     True
 
@@ -255,10 +255,10 @@ On test tear-down, the transaction is aborted and the connection is closed.
 
     >>> EXPANDED_ZODB.get('zodbConnection', None) is None
     True
-    
+
     >>> EXPANDED_ZODB.get('zodbRoot', None) is None
     True
-    
+
 The transaction has been rolled back.
 
     >>> conn = EXPANDED_ZODB['zodbDB'].open()
@@ -269,19 +269,19 @@ The transaction has been rolled back.
 We'll now tear down the expanded layer and inspect the database again.
 
     >>> runner.tear_down_unneeded(options, [POPULATED_ZODB], setupLayers)
-    Tear down ExpandedZODB in ... seconds.    
+    Tear down ExpandedZODB in ... seconds.
 
     >>> conn = EXPANDED_ZODB['zodbDB'].open()
     >>> conn.root()
     {'someData': 'a string'}
-    
+
     >>> conn.close()
 
 Finally, we'll tear down the rest of the layers.
-    
+
     >>> runner.tear_down_unneeded(options, [], setupLayers)
-    Tear down PopulatedZODB in ... seconds.    
-    
+    Tear down PopulatedZODB in ... seconds.
+
     >>> EXPANDED_ZODB.get('zodbDB', None) is None
     True
     >>> POPULATED_ZODB.get('zodbDB', None) is None

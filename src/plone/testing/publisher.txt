@@ -62,7 +62,7 @@ configuration.
 
 Let's now simulate a test that uses this configuration context to load the
 same ZCML string.
-    
+
     >>> zca.ZCML_DIRECTIVES.testSetUp()
     >>> security.CHECKERS.testSetUp()
     >>> publisher.PUBLISHER_DIRECTIVES.testSetUp()
@@ -82,22 +82,22 @@ same ZCML string.
     ...         />
     ... </configure>""", context=context) is context
     True
-    
+
 The permission and view are now registered:
-    
+
     >>> from zope.component import queryUtility
     >>> from zope.security.interfaces import IPermission
 
     >>> queryUtility(IPermission, name=u"plone.testing.Test")
     <zope.security.permission.Permission object at ...>
-    
+
     >>> from zope.interface import Interface
     >>> from zope.publisher.interfaces.browser import IDefaultBrowserLayer
     >>> from zope.component import getSiteManager
     >>> siteManager = getSiteManager()
-    
-    >>> [x.factory for x in siteManager.registeredAdapters() 
-    ...  if x.provided==Interface and x.required==(Interface, IDefaultBrowserLayer) 
+
+    >>> [x.factory for x in siteManager.registeredAdapters()
+    ...  if x.provided==Interface and x.required==(Interface, IDefaultBrowserLayer)
     ...   and x.name==u"plone.testing-test"]
     [<class '....plone.testing-test'>]
 
@@ -121,6 +121,6 @@ Layer tear-down does nothing.
     Tear down plone.testing.zca.ZCMLDirectives in ... seconds.
     Tear down plone.testing.zca.LayerCleanup in ... seconds.
     Tear down plone.testing.security.Checkers in ... seconds.
-    
+
     >>> zca.ZCML_DIRECTIVES.get('configurationContext', None) is None
     True

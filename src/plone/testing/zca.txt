@@ -28,7 +28,7 @@ The component registry is cleaned up between each test.
 
     >>> from zope.interface import Interface
     >>> from zope.component import provideUtility
-    
+
     >>> class DummyUtility(object):
     ...     def __init__(self, name):
     ...         self.name = name
@@ -99,7 +99,7 @@ nothing, even if an event is fired.
     >>> class DummyEvent(object):
     ...     def __repr__(self):
     ...         return "<Dummy event>"
-    
+
     >>> from zope.event import notify
     >>> notify(DummyEvent())
 
@@ -115,7 +115,7 @@ Layer setup does nothing.
     Set up plone.testing.zca.EventTesting in ... seconds.
 
 Let's now simulate a test. On test setup, the event testing list is emptied.
-    
+
     >>> zca.UNIT_TESTING.testSetUp()
     >>> zca.EVENT_TESTING.testSetUp()
 
@@ -163,7 +163,7 @@ between tests).
 
     >>> from zope.interface import Interface
     >>> from zope.component import provideUtility
-    
+
     >>> class DummyUtility(object):
     ...     def __init__(self, name):
     ...         self.name = name
@@ -251,7 +251,7 @@ configuration.
 
 Let's now simulate a test that uses this configuration context to load the
 same ZCML string.
-    
+
     >>> zca.ZCML_DIRECTIVES.testSetUp()
 
     >>> context = zca.ZCML_DIRECTIVES['configurationContext'] # would normally be self.layer['configurationContext']
@@ -260,7 +260,7 @@ same ZCML string.
     ...     <utility factory=".tests.DummyUtility" provides="zope.interface.Interface" name="test-dummy" />
     ... </configure>""", context=context) is context
     True
-    
+
 The utility is now registered:
 
     >>> queryUtility(Interface, name="test-dummy")
@@ -350,9 +350,9 @@ To begin with, we have the default registry.
     >>> from zope.component import getGlobalSiteManager, getSiteManager
     >>> getSiteManager() is getGlobalSiteManager()
     True
-    
+
     >>> defaultGlobalSiteManager = getGlobalSiteManager()
-    
+
     >>> from zope.component import queryUtility
     >>> queryUtility(IDummyUtility, name="layer") is None
     True
@@ -366,7 +366,7 @@ We'll now simulate layer setup. This will push a new registry onto the stack:
     >>> getGlobalSiteManager() is defaultGlobalSiteManager
     False
     >>> layerGlobalSiteManager = getGlobalSiteManager()
-    
+
     >>> queryUtility(IDummyUtility, name="layer")
     <DummyUtility layer>
 
@@ -409,7 +409,7 @@ On test tear-down, only the second utility disappears:
     <DummyUtility layer>
     >>> queryUtility(IDummyUtility, name="test") is None
     True
-    
+
 If we tear down the layer too, we're back where we started:
 
     >>> COMPONENT_SANDBOX.tearDown()
@@ -432,16 +432,16 @@ resulting registry.
 
 The ``ZCMLSandbox`` can be instantiated with a `filename`` and ``package``
 arguments.
-   
+
     >>> import plone.testing
-    >>> ZCML_SANDBOX = zca.ZCMLSandbox(filename="testing_zca.zcml", 
+    >>> ZCML_SANDBOX = zca.ZCMLSandbox(filename="testing_zca.zcml",
     ...     package=plone.testing)
 
 Before layer setup, the utility is not registered.
 
     >>> queryUtility(Interface, name="layer") is None
     True
-   
+
 We'll now simulate layer setup. This pushes a new registry onto the stack:
 
     >>> ZCML_SANDBOX.setUp()
@@ -452,18 +452,18 @@ We'll now simulate layer setup. This pushes a new registry onto the stack:
     False
     >>> queryUtility(Interface, name="layer")
     <Dummy utility>
-    
+
 The ``ZCMLSandbox`` class can also be used as ancestor
 for your own classes when you need to load more than a single ZCML file.
 
-Your class then needs to override the ``setUpZCMLFiles()`` method. It is in 
-charge of calling ``loadZCMLFile()``, once for each ZCML file that the class 
+Your class then needs to override the ``setUpZCMLFiles()`` method. It is in
+charge of calling ``loadZCMLFile()``, once for each ZCML file that the class
 needs to load.
-    
+
     >>> class OtherZCML(zca.ZCMLSandbox):
     ...     def setUpZCMLFiles(self):
     ...         self.loadZCMLFile("testing_zca.zcml", package=plone.testing)
-    ...         self.loadZCMLFile("testing_zca_more_specific.zcml", 
+    ...         self.loadZCMLFile("testing_zca_more_specific.zcml",
     ...             package=plone.testing)
     >>> OTHER_ZCML_SANDBOX = OtherZCML()
 
@@ -471,7 +471,7 @@ Before layer setup, a second utility is not registered.
 
     >>> queryUtility(Interface, name="more_specific_layer") is None
     True
-   
+
 We'll now simulate the setup of the more specific layer.
 
     >>> OTHER_ZCML_SANDBOX.setUp()
@@ -486,7 +486,7 @@ After layer teardown, the second utility is not registered anymore.
     >>> OTHER_ZCML_SANDBOX.tearDown()
     >>> queryUtility(Interface, name="more_specific_layer") is None
     True
-   
+
 After teardown of the first layer, the first utility is not registered anymore.
 
     >>> ZCML_SANDBOX.tearDown()

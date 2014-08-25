@@ -25,7 +25,7 @@ Before the test, our custom checker is not in the registry.
 
     >>> class DummyObject(object):
     ...     pass
-    
+
     >>> from zope.security.interfaces import IChecker
     >>> from zope.interface import implements
     >>> class FauxChecker(object):
@@ -53,9 +53,9 @@ this in a child layer:
 
     >>> getCheckerForInstancesOf(DummyObject) is fauxChecker
     True
-    
+
 Let's now simulate a test that may use the checker.
-    
+
     >>> security.CHECKERS.testSetUp()
     >>> getCheckerForInstancesOf(DummyObject) is fauxChecker
     True
