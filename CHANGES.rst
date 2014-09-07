@@ -1,7 +1,7 @@
 Changelog
 =========
 
-4.0.12 (unreleased)
+4.0.12 (2014-09-07)
 -------------------
 
 - Fixed AttributeError when importing ``plone.testing.z2`` if
