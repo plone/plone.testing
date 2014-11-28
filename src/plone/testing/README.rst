@@ -1001,7 +1001,7 @@ use the ``test_suite()`` function hook:
 Here, we have given the name of the module to check as a string dotted name.
 It is also possible to import a module and pass it as an object. The code
 above passes a list to ``addTests()``, making it easy to add several sets of
-tests to the suite: the list can contain be constructed from calls to
+tests to the suite: the list can be constructed from calls to
 ``DocTestSuite()``, ``DocFileSuite()`` (shown below) and ``makeSuite()``
 (shown above).
 
