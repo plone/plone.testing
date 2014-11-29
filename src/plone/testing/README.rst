@@ -1977,7 +1977,7 @@ re-use the ``IntegrationTesting`` and ``FunctionalTesting`` classes.)
 In this example, other layers could extend the "MyLayer" fixture by using
 ``MY_FIXTURE`` as a base. Tests would use either ``MY_INTEGRATION_TESTING``
 or ``MY_FUNCTIONAL_TESTING`` as appropriate. However, even if both these two
-layers were used, the fixture in ``would``MY_FIXTURE`` only be set up once.
+layers were used, the fixture in ``MY_FIXTURE`` would only be set up once.
 
     **Note:** If you implement the ``testSetUp()`` and ``testTearDown()`` test
     lifecycle methods in your "fixture" layer (e.g. in the the ``MyLayer``
