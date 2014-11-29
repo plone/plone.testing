@@ -11,9 +11,11 @@ Zope 2 (although it has some optional Zope 2-only features).
 This package also aims to promote some "good practice" for writing tests of
 various types.
 
-    **Note:** If you are working with Plone, there is a complementary package
-    `plone.app.testing`_, which builds on ``plone.testing`` to provide
-    additional layers useful for testing Plone add-ons.
+.. note::
+
+   If you are working with Plone, there is a complementary package
+   `plone.app.testing`_, which builds on ``plone.testing`` to provide
+   additional layers useful for testing Plone add-ons.
 
 If you are new to automated testing and test driven development, you should
 spend some time learning about those concepts. Some useful references include:
@@ -523,13 +525,15 @@ the layer class definition.
 
     >>> SPACE_SHIP = SpaceShip()
 
-    **Note:** Since the layer is instantiated in module scope, it will be
-    created as soon as the ``testing`` module is imported. It is therefore
-    very important that the layer class is inexpensive and safe to create. In
-    general, you should avoid doing anything non-trivial in the ``__init__()``
-    method of your layer class. All setup should happen in the ``setUp()``
-    method. If you *do* implement ``__init__()``, be sure to call the ``super``
-    version as well.
+.. note::
+
+   Since the layer is instantiated in module scope, it will be
+   created as soon as the ``testing`` module is imported. It is therefore
+   very important that the layer class is inexpensive and safe to create. In
+   general, you should avoid doing anything non-trivial in the ``__init__()``
+   method of your layer class. All setup should happen in the ``setUp()``
+   method. If you *do* implement ``__init__()``, be sure to call the ``super``
+   version as well.
 
 The layer shown above did not have any base layers (dependencies). Here is an
 example of another layer that depends on it:
@@ -552,39 +556,41 @@ class. Layer dependencies always pertain to specific layer instances. Above,
 we are really saying that *instances* of ``ZIGSpaceShip`` will, by default,
 require the ``SPACE_SHIP`` layer to be set up first.
 
-    **Note:** You may find it useful to create other layer base/mix-in classes
-    that extend ``plone.testing.Layer`` and provide helper methods for use in
-    your own layers. This is perfectly acceptable, but please do not confuse a
-    layer base class used in this manner with the concept of a *base layer* as
-    described above:
+.. note::
 
-    * A class deriving from ``plone.testing.Layer`` is known as a *layer
-      class*. It defines the behaviour of the layer by implementing the
-      lifecycle methods ``setUp()``, ``tearDown()``, ``testSetUp()`` and/or
-      ``testTearDown()``.
-    * A layer class can be instantiated into an actual layer. When a layer is
-      associated with a test, it is the layer *instance* that is used.
-    * The instance is usually a shared, module-global object, although in
-      some cases it is useful to create copies of layers by instantiating the
-      class more than once.
-    * Subclassing an existing layer class is just straightforward OOP re-use:
-      the test runner is not aware of the subclassing relationship.
-    * A layer *instance* can be associated with any number of layer *bases*,
-      via its ``__bases__`` property (which is usually via the
-      ``defaultBases`` variable in the class body and/or overridden using the
-      ``bases`` argument to the ``Layer`` constructor). These bases are layer
-      *instances*, not classes. The test runner will inspect the ``__bases__``
-      attribute of each layer instance it sets up to calculate layer
-      pre-requisites and dependencies.
+   You may find it useful to create other layer base/mix-in classes
+   that extend ``plone.testing.Layer`` and provide helper methods for use in
+   your own layers. This is perfectly acceptable, but please do not confuse a
+   layer base class used in this manner with the concept of a *base layer* as
+   described above:
 
-    Also note that the `zope.testing`_ documentation contains examples of
-    layers that are "old-style" classes where the ``setUp()`` and
-    ``tearDown()`` methods are ``classmethod`` methods and class inheritance
-    syntax is used to specify base layers. Whilst this pattern works, we
-    discourage its use, because the classes created using this pattern are not
-    really used as classes. The concept of layer bases is slightly different
-    from class inheritance, and using the ``class`` keyword to create layers
-    with base layers leads to a number of "gotchas" that are best avoided.
+     * A class deriving from ``plone.testing.Layer`` is known as a *layer
+       class*. It defines the behaviour of the layer by implementing the
+       lifecycle methods ``setUp()``, ``tearDown()``, ``testSetUp()`` and/or
+       ``testTearDown()``.
+     * A layer class can be instantiated into an actual layer. When a layer is
+       associated with a test, it is the layer *instance* that is used.
+     * The instance is usually a shared, module-global object, although in
+       some cases it is useful to create copies of layers by instantiating the
+       class more than once.
+     * Subclassing an existing layer class is just straightforward OOP re-use:
+       the test runner is not aware of the subclassing relationship.
+     * A layer *instance* can be associated with any number of layer *bases*,
+       via its ``__bases__`` property (which is usually via the
+       ``defaultBases`` variable in the class body and/or overridden using the
+       ``bases`` argument to the ``Layer`` constructor). These bases are layer
+       *instances*, not classes. The test runner will inspect the ``__bases__``
+       attribute of each layer instance it sets up to calculate layer
+       pre-requisites and dependencies.
+
+   Also note that the `zope.testing`_ documentation contains examples of
+   layers that are "old-style" classes where the ``setUp()`` and
+   ``tearDown()`` methods are ``classmethod`` methods and class inheritance
+   syntax is used to specify base layers. Whilst this pattern works, we
+   discourage its use, because the classes created using this pattern are not
+   really used as classes. The concept of layer bases is slightly different
+   from class inheritance, and using the ``class`` keyword to create layers
+   with base layers leads to a number of "gotchas" that are best avoided.
 
 Advanced - overriding bases
 ---------------------------
@@ -714,23 +720,27 @@ layer, the child version will shadow the base version until the child layer is
 torn down (presuming it deletes the resource, which it should), but the base
 layer version remains intact.
 
-    **Note:** Accessing a resource is analogous to accessing an instance
-    variable. For example, if a base layer assigns a resource to a given key
-    in its ``setUp()`` method, a child layer shadows that resource with
-    another object under the same key, the shadowed resource will by used
-    during the ``testSetUp()`` and ``testTearDown()`` lifecycle methods if
-    implemented by the *base* layer as well. This will be the case until
-    the child layer "pops" the resource by deleting it, normally in its
-    ``tearDown()``.
+.. note::
+
+   Accessing a resource is analogous to accessing an instance
+   variable. For example, if a base layer assigns a resource to a given key
+   in its ``setUp()`` method, a child layer shadows that resource with
+   another object under the same key, the shadowed resource will by used
+   during the ``testSetUp()`` and ``testTearDown()`` lifecycle methods if
+   implemented by the *base* layer as well. This will be the case until
+   the child layer "pops" the resource by deleting it, normally in its
+   ``tearDown()``.
 
 Conversely, if (as shown above) the child layer accesses and modifies the
 object, it will modify the original.
 
-    **Note:** It is sometimes necessary (or desirable) to modify a shared
-    resource in a child layer, as shown in the example above. In this case,
-    however, it is very important to restore the original state when the layer
-    is torn down. Otherwise, other layers or tests using the base layer
-    directly may be affected in difficult-to-debug ways.
+.. note::
+
+   It is sometimes necessary (or desirable) to modify a shared
+   resource in a child layer, as shown in the example above. In this case,
+   however, it is very important to restore the original state when the layer
+   is torn down. Otherwise, other layers or tests using the base layer
+   directly may be affected in difficult-to-debug ways.
 
 If the same key is used in multiple base layers, the rules for choosing which
 version to use are similar to those that apply when choosing an attribute or
@@ -931,8 +941,10 @@ into a single suite). We'll add additional suites later.
 
 See the `unittest`_ documentation for other options.
 
-    **Note:** Adding a ``test_suite()`` method to a module disables automatic
-    test discovery, even when using a recent version of ``zope.testing``.
+.. note::
+
+   Adding a ``test_suite()`` method to a module disables automatic
+   test discovery, even when using a recent version of ``zope.testing``.
 
 Doctests
 --------
@@ -1075,10 +1087,12 @@ suite is defined. You can use ``../`` (even on Windows) to reference the
 parent directory, which is sometimes useful if the doctest is inside a module
 in a ``tests`` package.
 
-    **Note:** If you put the doctest ``test_suite()`` method in a module
-    inside a ``tests`` package, that module must have a name starting with
-    ``test``. It is common to have ``tests/test_doctests.py`` that contains a
-    single ``test_suite()`` method that returns a suite of multiple doctests.
+.. note::
+
+   If you put the doctest ``test_suite()`` method in a module
+   inside a ``tests`` package, that module must have a name starting with
+   ``test``. It is common to have ``tests/test_doctests.py`` that contains a
+   single ``test_suite()`` method that returns a suite of multiple doctests.
 
 It is possible to pass several tests to the suite, e.g.::
 
@@ -1524,8 +1538,10 @@ layer's context. On tear-down, you should delete the layer-specific resource::
 
     del self['configurationContext']
 
-*Note:* If you fail to do this, you may get problems if your layer is torn
-down and then needs to be set up again later.
+.. note::
+
+   If you fail to do this, you may get problems if your layer is torn
+   down and then needs to be set up again later.
 
 See above for more details about loading custom ZCML in a layer or test.
 
@@ -1830,10 +1846,12 @@ layer.
 
 On set-up, the layer will configure a Zope environment with:
 
-**Note:** The ``STARTUP`` layer is a useful base layer for your own fixtures,
-but should not be used directly, since it provides no test lifecycle or
-transaction management. See the "Integration test" and "Functional" test
-sections below for examples of how to create your own layers.
+.. note::
+
+   The ``STARTUP`` layer is a useful base layer for your own fixtures,
+   but should not be used directly, since it provides no test lifecycle or
+   transaction management. See the "Integration test" and "Functional" test
+   sections below for examples of how to create your own layers.
 
 * Debug mode enabled.
 * ZEO client cache disabled.
@@ -1979,11 +1997,13 @@ In this example, other layers could extend the "MyLayer" fixture by using
 or ``MY_FUNCTIONAL_TESTING`` as appropriate. However, even if both these two
 layers were used, the fixture in ``MY_FIXTURE`` would only be set up once.
 
-    **Note:** If you implement the ``testSetUp()`` and ``testTearDown()`` test
-    lifecycle methods in your "fixture" layer (e.g. in the the ``MyLayer``
-    class above), they will execute before the corresponding methods from
-    ``IntegrationTesting`` and ``FunctionalTesting``. Hence, they cannot use
-    those layers' resources (``app`` and ``request``).
+.. note::
+
+   If you implement the ``testSetUp()`` and ``testTearDown()`` test
+   lifecycle methods in your "fixture" layer (e.g. in the the ``MyLayer``
+   class above), they will execute before the corresponding methods from
+   ``IntegrationTesting`` and ``FunctionalTesting``. Hence, they cannot use
+   those layers' resources (``app`` and ``request``).
 
 It may be preferable, therefore, to have your own "test lifecycle" layer
 classes that subclass ``IntegrationTesting`` and/or ``FunctionalTesting`` and
@@ -2009,9 +2029,11 @@ This layer extends the ``z2.STARTUP`` layer to start the Zope HTTP server in
 a separate thread. This means the test site can be accessed through a web
 browser, and can thus be used with tools like `Windmill`_ or `Selenium`_.
 
-  **Note:** This layer is useful as a fixture base layer only, because it does
-  not manage the test lifecycle. Use the ``ZSERVER`` layer if you want to
-  execute functional tests against this fixture.
+.. note::
+
+   This layer is useful as a fixture base layer only, because it does
+   not manage the test lifecycle. Use the ``ZSERVER`` layer if you want to
+   execute functional tests against this fixture.
 
 The ZServer's hostname (normally ``localhost``) is available through the
 resource ``host``, whilst the port it is running on is available through the
@@ -2061,16 +2083,19 @@ FTP server thread (fixture only)
 This layer is the FTP server equivalent of the ``ZSERVER_FIXTURE`` layer. It
 can be used to functionally test Zope servers.
 
-  **Note:** This layer is useful as a fixture base layer only, because it does
-  not manage the test lifecycle. Use the ``FTP_SERVER`` layer if you want to
-  execute functional tests against this fixture.
+.. note::
 
-  *Hint:* Whilst the layer is set up, you can actually access the test Zope
-  site through an FTP client. The default URL will be
-  ``ftp://localhost:55002``.
+   This layer is useful as a fixture base layer only, because it does
+   not manage the test lifecycle. Use the ``FTP_SERVER`` layer if you want to
+   execute functional tests against this fixture.
 
-  **Warning:** Do not run the ``FTP_SERVER`` and ``ZSERVER`` layers
-  concurrently in the same process.
+   *Hint:* Whilst the layer is set up, you can actually access the test Zope
+   site through an FTP client. The default URL will be
+   ``ftp://localhost:55002``.
+
+.. warning::
+
+   Do not run the ``FTP_SERVER`` and ``ZSERVER`` layers concurrently in the same process.
 
 If you need both ZServer and FTPServer running together, you can subclass the
 ``ZServer`` layer class (like the ``FTPServer`` layer class does) and
@@ -2159,10 +2184,12 @@ Several helper functions are available in the ``plone.testing.z2`` module.
     of ``app.REQUEST`` possible. To initialise the request environment with
     non-default values, pass a dictionary as ``environ``.
 
-    Note that this method is rarely used, because both the ``zopeApp()``
-    context manager and the layer set-up/tear-down for
-    ``z2.INTEGRATION_TESTING`` and ``z2.FUNCTIONAL_TESTING`` will wrap the
-    ``app`` object before exposing it.
+    .. note::
+    
+       This method is rarely used, because both the ``zopeApp()``
+       context manager and the layer set-up/tear-down for
+       ``z2.INTEGRATION_TESTING`` and ``z2.FUNCTIONAL_TESTING`` will wrap the
+       ``app`` object before exposing it.
 ``Browser(app)``
     Obtain a test browser client, for use with `zope.testbrowser`_. You should
     use this in conjunction with the ``z2.FUNCTIONAL_TESTING`` layer or a
