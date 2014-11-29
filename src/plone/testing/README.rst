@@ -1190,7 +1190,7 @@ If a test uses a global registry, it may be necessary to clean that registry
 on set up and tear down of each test fixture. ``zope.testing`` provides a
 mechanism to register cleanup handlers - methods that are called to clean
 up global state. This can then be invoked in the ``setUp()`` and
-`tearDown()`` fixture lifecycle methods of a test case.
+``tearDown()`` fixture lifecycle methods of a test case.
 
     >>> from zope.testing import cleanup
 
