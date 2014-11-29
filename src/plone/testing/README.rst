@@ -1170,7 +1170,7 @@ This is equivalent to:
     ...     return suite
 
 (In this example, we've opted to use ``addTest()`` to add a single suite,
-instead of using ``addTests()`` to add multiple suites in one go.)
+instead of using ``addTests()`` to add multiple suites in one go).
 
 Zope testing tools
 ==================
