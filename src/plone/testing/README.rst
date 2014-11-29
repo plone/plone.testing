@@ -1562,7 +1562,7 @@ module.
     brand new context if it is ``None``.
 
     The purpose of this is to ensure that if a layer loads some ZCML files
-    (using the ``zope.configuration`` API during) its ``setUp()``, the state
+    (using the ``zope.configuration`` API during) during its ``setUp()``, the state
     of the configuration registry (which includes registered directives as
     well as a list of already imported files, which will not be loaded again
     even if explicitly included) can be torn down during ``tearDown()``.
