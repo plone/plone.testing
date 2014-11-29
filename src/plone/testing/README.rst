@@ -1491,7 +1491,7 @@ Layer cleanup
 
 This layer calls the cleanup functions from ``zope.testing.cleanup`` on setup
 and tear-down (but not between each test). It is useful as a base layer for
-other layers that need as pristine an environment as possible.
+other layers that need an environment as pristine as possible.
 
 Basic ZCML directives
 ~~~~~~~~~~~~~~~~~~~~~
