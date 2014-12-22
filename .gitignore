@@ -1,2 +1,6 @@
-*.pyc
 *.egg-info
+*.pyc
+*.tox
+.installed.cfg
+bin
+develop-eggs
