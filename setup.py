@@ -10,7 +10,7 @@ install_requires = ['setuptools',
                     ]
 
 
-if sys.version < (2, 7):
+if sys.version_info < (2, 7):
     install_requires.append('unittest2')
 
 tests_require = ['zope.component',
