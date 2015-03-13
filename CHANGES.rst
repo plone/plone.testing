@@ -1,7 +1,7 @@
 Changelog
 =========
 
-4.0.13 (unreleased)
+4.0.13 (2015-03-13)
 -------------------
 
 - Really fix not to depend on unittest2.
