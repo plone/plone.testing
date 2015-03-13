@@ -4,7 +4,11 @@ Changelog
 4.0.13 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Really fix not to depend on unittest2.
+  [icemac]
+
+- Add tox.ini
+  [icemac]
 
 
 4.0.12 (2014-09-07)
