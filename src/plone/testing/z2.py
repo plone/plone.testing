@@ -26,7 +26,7 @@ except ImportError:
 
 _INSTALLED_PRODUCTS = {}
 
-def installProduct(app, productName, quiet=False):
+def installProduct(app, productName, quiet=False, multiinit=False):
     """Install the Zope 2 product with the given name, so that it will show
     up in the Zope 2 control panel and have its ``initialize()`` hook called.
 
@@ -81,7 +81,8 @@ def installProduct(app, productName, quiet=False):
                 _INSTALLED_PRODUCTS[productName] = (module, init_func,)
 
                 found = True
-                break
+                if not multiinit:
+                    break
 
     if not found and not quiet:
         sys.stderr.write("Could not install product %s\n" % productName)
