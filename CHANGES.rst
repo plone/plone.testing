@@ -1,6 +1,13 @@
 Changelog
 =========
 
+4.0.14 (unreleased)
+-------------------
+
+- Added ``multiinit``-parameter to z2.installProduct
+  to allow multiple initialize methods for a package
+  [tomgross]
+
 4.0.13 (2015-03-13)
 -------------------
 
@@ -9,7 +16,6 @@ Changelog
 
 - Add tox.ini
   [icemac]
-
 
 4.0.12 (2014-09-07)
 -------------------
