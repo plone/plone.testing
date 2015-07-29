@@ -1,7 +1,7 @@
 Changelog
 =========
 
-4.0.14 (unreleased)
+4.0.13 (2015-07-29)
 -------------------
 
 - Added ``multiinit``-parameter to z2.installProduct
