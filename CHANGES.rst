@@ -4,7 +4,8 @@ Changelog
 4.0.14 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Rerelease for clarity due to double release of 4.0.13.
+  [maurits]
 
 
 4.0.13 (2015-07-29)
