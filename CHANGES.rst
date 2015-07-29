@@ -1,7 +1,7 @@
 Changelog
 =========
 
-4.0.14 (unreleased)
+4.0.14 (2015-07-29)
 -------------------
 
 - Rerelease for clarity due to double release of 4.0.13.
