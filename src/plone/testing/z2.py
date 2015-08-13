@@ -253,18 +253,37 @@ def zopeApp(db=None, connection=None, environ=None):
     if connection is None:
         connection = app._p_jar
 
+    # exceptions in finally clauses can mask exceptions
+    # in the preceeding code block. So we catch
+    # every exception and throw it instead of the exception
+    # in the finally clause
+    inner_exception = None
     try:
         yield app
-    except:
-        transaction.abort()
+    except Exception, e:
+        inner_exception = e
+        try:
+            transaction.abort()
+        except Exception, e:
+            inner_exception = e
+            raise
         raise
     else:
-        transaction.commit()
+        try:
+            transaction.commit()
+        except Exception, e:
+            inner_exception = e
     finally:
-        app.REQUEST.close()
+        try:
+            app.REQUEST.close()
 
-        if closeConn:
-            connection.close()
+            if closeConn:
+                connection.close()
+        except:
+            if inner_exception:
+                raise inner_exception
+            else:
+                raise
 
 # Startup layer - you probably don't want to use this one directly
 

@@ -4,7 +4,8 @@ Changelog
 4.0.15 (unreleased)
 -------------------
 
-- Nothing changed yet.
+- Prevent exception masking in finally clause of zopeApp context
+  [do3cc]
 
 
 4.0.14 (2015-07-29)
