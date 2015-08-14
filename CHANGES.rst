@@ -1,7 +1,7 @@
 Changelog
 =========
 
-4.0.15 (unreleased)
+4.0.15 (2015-08-14)
 -------------------
 
 - Prevent exception masking in finally clause of zopeApp context
