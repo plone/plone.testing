@@ -3,7 +3,7 @@ import os.path
 import sys
 from setuptools import setup, find_packages
 
-version = '4.0.15'
+version = '4.0.16.dev0'
 
 install_requires = ['setuptools',
                     'zope.testing',
