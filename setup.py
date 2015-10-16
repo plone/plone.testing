@@ -20,6 +20,7 @@ tests_require = ['zope.component',
                  'zope.event',
                  'zope.configuration',
                  'zope.testbrowser',
+                 'zope.testrunner',
                  'zope.app.publisher',  # XXX: Can probably go away in Zope 2.13
                  'ZODB3',
                  'Zope2',

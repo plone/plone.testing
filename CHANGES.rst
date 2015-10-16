@@ -11,6 +11,10 @@ New:
 Fixes:
 
 - *add item here*
+- Depend on zope.testrunner, which was moved out from
+  zope.testing.testrunner.
+  [thet]
+
 - Add support for Zope 4.
   [thet]
 
