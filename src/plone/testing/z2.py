@@ -115,13 +115,17 @@ def uninstallProduct(app, productName, quiet=False):
                 if name in Application.misc_.__dict__:
                     del Application.misc_.__dict__[name]
 
-                if name in app['Control_Panel']['Products']:
-                    product = app['Control_Panel']['Products'][name]
+                try:
+                    if name in app['Control_Panel']['Products']:
+                        product = app['Control_Panel']['Products'][name]
 
-                    app._manage_remove_product_meta_type(product)
-                    app._manage_remove_product_permission(product)
+                        app._manage_remove_product_meta_type(product)
+                        app._manage_remove_product_permission(product)
 
-                    del app['Control_Panel']['Products'][name]
+                        del app['Control_Panel']['Products'][name]
+                except KeyError:
+                    # Zope 4
+                    pass
 
                 # TODO: Also remove permissions from get_folder_permissions?
                 # Difficult to know if this would stomp on any other permissions
@@ -134,13 +138,17 @@ def uninstallProduct(app, productName, quiet=False):
         module, init_func = _INSTALLED_PRODUCTS[productName]
         name = module.__name__
 
-        if name in app['Control_Panel']['Products']:
-            product = app['Control_Panel']['Products'][name]
+        try:
+            if name in app['Control_Panel']['Products']:
+                product = app['Control_Panel']['Products'][name]
 
-            app._manage_remove_product_meta_type(product)
-            app._manage_remove_product_permission(product)
+                app._manage_remove_product_meta_type(product)
+                app._manage_remove_product_permission(product)
 
-            del app['Control_Panel']['Products'][name]
+                del app['Control_Panel']['Products'][name]
+        except KeyError:
+            # Zope 4
+            pass
 
         if HAS_ZOPE213:
             packages = get_packages_to_initialize()
@@ -412,17 +420,21 @@ class Startup(Layer):
         OFS.Application.initialize = null_initialize
 
         # Avoid expensive help registration
-        def null_register_topic(self,id,topic): pass
-        self._App_ProductContext_ProductContext_registerHelpTopic = App.ProductContext.ProductContext.registerHelpTopic
-        App.ProductContext.ProductContext.registerHelpTopic = null_register_topic
+        try:
+            def null_register_topic(self,id,topic): pass
+            self._App_ProductContext_ProductContext_registerHelpTopic = App.ProductContext.ProductContext.registerHelpTopic
+            App.ProductContext.ProductContext.registerHelpTopic = null_register_topic
 
-        def null_register_title(self,title): pass
-        self._App_ProductContext_ProductContext_registerHelpTitle = App.ProductContext.ProductContext.registerHelpTitle
-        App.ProductContext.ProductContext.registerHelpTitle = null_register_title
+            def null_register_title(self,title): pass
+            self._App_ProductContext_ProductContext_registerHelpTitle = App.ProductContext.ProductContext.registerHelpTitle
+            App.ProductContext.ProductContext.registerHelpTitle = null_register_title
 
-        def null_register_help(self,directory='',clear=1,title_re=None): pass
-        self._App_ProductContext_ProductContext_registerHelp = App.ProductContext.ProductContext.registerHelp
-        App.ProductContext.ProductContext.registerHelp = null_register_help
+            def null_register_help(self,directory='',clear=1,title_re=None): pass
+            self._App_ProductContext_ProductContext_registerHelp = App.ProductContext.ProductContext.registerHelp
+            App.ProductContext.ProductContext.registerHelp = null_register_help
+        except AttributeError:
+            # Zope 4
+            pass
 
         # in Zope 2.13, prevent ZCML from loading during App startup
         if hasattr(Zope2.App.startup, 'load_zcml'):
@@ -443,14 +455,18 @@ class Startup(Layer):
         OFS.Application.initialize = self._OFS_Application_initialize
         del self._OFS_Application_initialize
 
-        App.ProductContext.ProductContext.registerHelpTopic = self._App_ProductContext_ProductContext_registerHelpTopic
-        del self._App_ProductContext_ProductContext_registerHelpTopic
+        try:
+            App.ProductContext.ProductContext.registerHelpTopic = self._App_ProductContext_ProductContext_registerHelpTopic
+            del self._App_ProductContext_ProductContext_registerHelpTopic
 
-        App.ProductContext.ProductContext.registerHelpTitle = self._App_ProductContext_ProductContext_registerHelpTitle
-        del self._App_ProductContext_ProductContext_registerHelpTitle
+            App.ProductContext.ProductContext.registerHelpTitle = self._App_ProductContext_ProductContext_registerHelpTitle
+            del self._App_ProductContext_ProductContext_registerHelpTitle
 
-        App.ProductContext.ProductContext.registerHelp = self._App_ProductContext_ProductContext_registerHelp
-        del self._App_ProductContext_ProductContext_registerHelp
+            App.ProductContext.ProductContext.registerHelp = self._App_ProductContext_ProductContext_registerHelp
+            del self._App_ProductContext_ProductContext_registerHelp
+        except AttributeError:
+            # Zope 4
+            pass
 
     def setUpThreads(self):
         """Set the thread count for ZServer. This defaults to 1.

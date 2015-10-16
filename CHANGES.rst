@@ -11,6 +11,8 @@ New:
 Fixes:
 
 - *add item here*
+- Add support for Zope 4.
+  [thet]
 
 
 4.0.15 (2015-08-14)
