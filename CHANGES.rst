@@ -4,7 +4,13 @@ Changelog
 4.0.16 (unreleased)
 -------------------
 
-- Nothing changed yet.
+New:
+
+- *add item here*
+
+Fixes:
+
+- *add item here*
 
 
 4.0.15 (2015-08-14)
