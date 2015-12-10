@@ -1,11 +1,13 @@
+# -*- coding: utf-8 -*-
 import sys
 _marker = object()
+
 
 class ResourceManager(object):
     """Mixin class for resource managers.
     """
 
-    __bases__ = () # must be set as an instance variable by subclass
+    __bases__ = ()  # must be set as an instance variable by subclass
 
     def __init__(self):
         self._resources = {}
@@ -38,7 +40,7 @@ class ResourceManager(object):
                 foundStack = True
 
                 foundStackItem = False
-                for idx in range(len(stack)-1, -1, -1):
+                for idx in range(len(stack) - 1, -1, -1):
                     if stack[idx][1] is self:
 
                         # This layer instance has already added an item to
@@ -52,7 +54,7 @@ class ResourceManager(object):
                 # This layer instance does not have a stack item yet. Create
                 # a new one.
                 if not foundStackItem:
-                    stack.append([value, self,])
+                    stack.append([value, self, ])
 
                 # Note: We do not break here on purpose: it's possible
                 # that there is resource stack in another branch of the base
@@ -67,7 +69,7 @@ class ResourceManager(object):
         for resourceManager in self.baseResolutionOrder:
             if key in getattr(resourceManager, '_resources', {}):
                 stack = resourceManager._resources[key]
-                for idx in range(len(stack)-1, -1, -1):
+                for idx in range(len(stack) - 1, -1, -1):
                     if stack[idx][1] is self:
                         del stack[idx]
 
@@ -101,11 +103,11 @@ class ResourceManager(object):
 
             i += 1
 
-            for seq in nonemptyseqs: # find merge candidates among seq heads
+            for seq in nonemptyseqs:  # find merge candidates among seq heads
                 cand = seq[0]
-                nothead=[s for s in nonemptyseqs if cand in s[1:]]
+                nothead = [s for s in nonemptyseqs if cand in s[1:]]
                 if nothead:
-                    cand=None #reject candidate
+                    cand = None  # reject candidate
                 else:
                     break
 
@@ -113,16 +115,17 @@ class ResourceManager(object):
                 raise TypeError(u"Inconsistent layer hierarchy!")
 
             res.append(cand)
-            for seq in nonemptyseqs: # remove cand
+            for seq in nonemptyseqs:  # remove cand
                 if seq[0] == cand:
                     del seq[0]
 
     def _resourceResolutionOrder(self, instance):
         return self._mergeResourceManagers(
-                [ [instance] ] +
-                map(self._resourceResolutionOrder, instance.__bases__) +
-                [ list(instance.__bases__) ]
-            )
+            [[instance]] +
+            map(self._resourceResolutionOrder, instance.__bases__) +
+            [list(instance.__bases__)]
+        )
+
 
 class Layer(ResourceManager):
     """A base class for layers.
@@ -151,10 +154,10 @@ class Layer(ResourceManager):
         """
 
         if self.__class__ is Layer and name is None:
-            raise ValueError('The `name` argument is required when instantiating `Layer` directly')
+            raise ValueError('The `name` argument is required when instantiating `Layer` directly')  # noqa
 
         if name is None and bases is not None:
-            raise ValueError('The `name`` argument is required when overriding bases with the `bases` argument')
+            raise ValueError('The `name`` argument is required when overriding bases with the `bases` argument')  # noqa
 
         super(Layer, self).__init__()
 
@@ -201,6 +204,7 @@ class Layer(ResourceManager):
     def testTearDown(self):
         pass
 
+
 def layered(suite, layer, addLayerToDoctestGlobs=True):
     """Add the given layer to the given suite and return the suite.
 
@@ -214,7 +218,7 @@ def layered(suite, layer, addLayerToDoctestGlobs=True):
         for test in suite:
             if hasattr(test, '_dt_test'):
                 globs = test._dt_test.globs
-                if not 'layer' in globs:
+                if 'layer' not in globs:
                     globs['layer'] = layer
 
     return suite

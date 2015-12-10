@@ -10,6 +10,9 @@ New:
 
 Fixes:
 
+- PEP 8.
+  [thet]
+
 - Depend on zope.testrunner, which was moved out from
   zope.testing.testrunner.
   [thet]
