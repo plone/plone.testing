@@ -1,1 +1,1 @@
-# See src/plone/testing/README.txt
+# See src/plone/testing/README.rst

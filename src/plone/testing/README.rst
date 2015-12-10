@@ -319,7 +319,7 @@ For example, ``plone.testing`` has the following layout::
     plone.testing/setup.py
     plone.testing/bootstrap.py
     plone.testing/buildout.cfg
-    plone.testing/README.txt
+    plone.testing/README.rst
     plone.testing/src/
     plone.testing/src/plone
     plone.testing/src/plone/__init__.py

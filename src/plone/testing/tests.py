@@ -13,7 +13,7 @@ from pkg_resources import get_distribution
 from OFS.SimpleItem import SimpleItem
 from ZPublisher.Iterators import filestream_iterator
 
-# This is somewhat retarted. We execute README.txt as a doctest, mainly just
+# This is somewhat retarted. We execute README.rst as a doctest, mainly just
 # to test that the code samples import cleanly and are valid Python. However,
 # in there we also have a code sample of a doctest, which gets executed by the
 # doctest runner. Since the method inside the example code block is not yet
@@ -46,7 +46,7 @@ class DummyFile(SimpleItem):
 
     def __call__(self):
         path = get_distribution('plone.testing').location
-        path = os.path.join(path, 'plone', 'testing', 'z2.txt')
+        path = os.path.join(path, 'plone', 'testing', 'z2.rst')
 
         request = self.REQUEST
         response = request.response
@@ -67,12 +67,12 @@ def test_suite():
     suite = unittest.TestSuite()
     suite.addTests([
         doctest.DocFileSuite(
-            'layer.txt',
-            'zca.txt',
-            'security.txt',
-            'publisher.txt',
-            'zodb.txt',
-            'z2.txt',
+            'layer.rst',
+            'zca.rst',
+            'security.rst',
+            'publisher.rst',
+            'zodb.rst',
+            'z2.rst',
             setUp=setUp,
             tearDown=tearDown,
             optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE,

@@ -491,7 +491,7 @@ and then the layer attribute set on it:
 
     >>> def test_suite():
     ...     suite = unittest.TestSuite()
-    ...     layerDoctest = doctest.DocFileSuite('layer.txt', package='plone.testing')
+    ...     layerDoctest = doctest.DocFileSuite('layer.rst', package='plone.testing')
     ...     layerDoctest.layer = DOCTEST_LAYER
     ...     suite.addTest(layerDoctest)
     ...     return suite
@@ -512,7 +512,7 @@ a helper function called ``layered`` is provided:
     >>> def test_suite():
     ...     suite = unittest.TestSuite()
     ...     suite.addTests([
-    ...         layered(doctest.DocFileSuite('layer.txt', package='plone.testing'), layer=DOCTEST_LAYER),
+    ...         layered(doctest.DocFileSuite('layer.rst', package='plone.testing'), layer=DOCTEST_LAYER),
     ...         # repeat with more suites if necessary
     ...     ])
     ...     return suite

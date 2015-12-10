@@ -10,6 +10,9 @@ New:
 
 Fixes:
 
+- Rename all txt doctest files to rst.
+  [thet]
+
 - PEP 8.
   [thet]
 

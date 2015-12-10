@@ -37,11 +37,11 @@ setup(
                       open("CHANGES.rst").read() + "\n\n" +
                       "Detailed documentation\n" +
                       "======================\n\n" +
-                      open(os.path.join("src", "plone", "testing", "layer.txt")).read() + "\n\n" +
-                      open(os.path.join("src", "plone", "testing", "zca.txt")).read() + "\n\n" +
-                      open(os.path.join("src", "plone", "testing", "security.txt")).read() + "\n\n" +
-                      open(os.path.join("src", "plone", "testing", "publisher.txt")).read() + "\n\n" +
-                      open(os.path.join("src", "plone", "testing", "zodb.txt")).read()),
+                      open(os.path.join("src", "plone", "testing", "layer.rst")).read() + "\n\n" +
+                      open(os.path.join("src", "plone", "testing", "zca.rst")).read() + "\n\n" +
+                      open(os.path.join("src", "plone", "testing", "security.rst")).read() + "\n\n" +
+                      open(os.path.join("src", "plone", "testing", "publisher.rst")).read() + "\n\n" +
+                      open(os.path.join("src", "plone", "testing", "zodb.rst")).read()),
     classifiers=[
         "Environment :: Web Environment",
         "Framework :: Plone",

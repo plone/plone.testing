@@ -158,7 +158,7 @@ To load additional ZCML, you can use the ``configurationContext`` resource:
     >>> z2.STARTUP['configurationContext']
     <zope.configuration.config.ConfigurationMachine object ...>
 
-See ``zca.txt`` for details about how to use ``zope.configuration`` for this
+See ``zca.rst`` for details about how to use ``zope.configuration`` for this
 purpose.
 
 The ``STARTUP`` layer does not perform any specific test setup or tear-down.
