@@ -33,15 +33,17 @@ setup(
     name='plone.testing',
     version=version,
     description="Testing infrastructure for Zope and Plone projects.",
-    long_description=(open(os.path.join("src", "plone", "testing", "README.rst")).read() + "\n\n" +
-                      open("CHANGES.rst").read() + "\n\n" +
-                      "Detailed documentation\n" +
-                      "======================\n\n" +
-                      open(os.path.join("src", "plone", "testing", "layer.rst")).read() + "\n\n" +
-                      open(os.path.join("src", "plone", "testing", "zca.rst")).read() + "\n\n" +
-                      open(os.path.join("src", "plone", "testing", "security.rst")).read() + "\n\n" +
-                      open(os.path.join("src", "plone", "testing", "publisher.rst")).read() + "\n\n" +
-                      open(os.path.join("src", "plone", "testing", "zodb.rst")).read()),
+    long_description=(u'\n\n'.join([
+        open(os.path.join("src", "plone", "testing", "README.rst")).read(),
+        open("CHANGES.rst").read(),
+        "Detailed documentation\n" +
+        "======================",
+        open(os.path.join("src", "plone", "testing", "layer.rst")).read(),
+        open(os.path.join("src", "plone", "testing", "zca.rst")).read(),
+        open(os.path.join("src", "plone", "testing", "security.rst")).read(),
+        open(os.path.join("src", "plone", "testing", "publisher.rst")).read(),
+        open(os.path.join("src", "plone", "testing", "zodb.rst")).read()
+    ])),
     classifiers=[
         "Environment :: Web Environment",
         "Framework :: Plone",
