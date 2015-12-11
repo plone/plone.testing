@@ -3,7 +3,7 @@ import os.path
 import sys
 from setuptools import setup, find_packages
 
-version = '4.0.16.dev0'
+version = '4.1.0.dev0'
 
 install_requires = ['setuptools',
                     'zope.testing',
@@ -20,6 +20,7 @@ tests_require = ['zope.component',
                  'zope.event',
                  'zope.configuration',
                  'zope.testbrowser',
+                 'zope.testrunner',
                  'zope.app.publisher',  # XXX: Can probably go away in Zope 2.13
                  'ZODB3',
                  'Zope2',

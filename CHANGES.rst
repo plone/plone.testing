@@ -1,8 +1,8 @@
 Changelog
 =========
 
-4.0.16 (unreleased)
--------------------
+4.1.0 (unreleased)
+------------------
 
 New:
 
@@ -11,6 +11,12 @@ New:
 Fixes:
 
 - *add item here*
+- Depend on zope.testrunner, which was moved out from
+  zope.testing.testrunner.
+  [thet]
+
+- Add support for Zope 4.
+  [thet]
 
 
 4.0.15 (2015-08-14)
