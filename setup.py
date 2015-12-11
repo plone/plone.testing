@@ -34,7 +34,7 @@ setup(
     version=version,
     description="Testing infrastructure for Zope and Plone projects.",
     long_description=(u'\n\n'.join([
-        open(os.path.join("src", "plone", "testing", "README.rst")).read(),
+        open(os.path.join("docs", "overview.rst")).read(),
         open("CHANGES.rst").read(),
         "Detailed documentation\n" +
         "======================",
@@ -42,7 +42,8 @@ setup(
         open(os.path.join("src", "plone", "testing", "zca.rst")).read(),
         open(os.path.join("src", "plone", "testing", "security.rst")).read(),
         open(os.path.join("src", "plone", "testing", "publisher.rst")).read(),
-        open(os.path.join("src", "plone", "testing", "zodb.rst")).read()
+        open(os.path.join("src", "plone", "testing", "zodb.rst")).read(),
+        open(os.path.join("src", "plone", "testing", "z2.rst")).read()
     ])),
     classifiers=[
         "Environment :: Web Environment",

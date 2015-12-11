@@ -78,7 +78,7 @@ def test_suite():
             optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE,
         ),
         doctest.DocFileSuite(
-            'README.rst',
+            '../../../docs/overview.rst',
             globs={'canOutrunKlingons': _canOutrunKlingons, },
             setUp=setUp,
             tearDown=tearDown,
