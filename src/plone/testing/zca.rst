@@ -1,22 +1,21 @@
 Zope Component Architecture layers
 ----------------------------------
 
-The ZCA layers are found in the module ``plone.testing.zca``:
+The ZCA layers are found in the module ``plone.testing.zca``:::
 
     >>> from plone.testing import zca
 
-For testing, we need a testrunner
+For testing, we need a testrunner:::
 
     >>> from zope.testrunner import runner
 
 Unit testing
 ~~~~~~~~~~~~
 
-The ``UNIT_TESTING`` layer is used to set up a clean component registry
-between each test. It uses ``zope.testing.cleanup`` to clean up all global
-state.
+The ``UNIT_TESTING`` layer is used to set up a clean component registry between each test.
+It uses ``zope.testing.cleanup`` to clean up all global state.
 
-It has no bases:
+It has no bases:::
 
     >>> "%s.%s" % (zca.UNIT_TESTING.__module__, zca.UNIT_TESTING.__name__,)
     'plone.testing.zca.UnitTesting'
@@ -24,7 +23,7 @@ It has no bases:
     >>> zca.UNIT_TESTING.__bases__
     ()
 
-The component registry is cleaned up between each test.
+The component registry is cleaned up between each test.::
 
     >>> from zope.interface import Interface
     >>> from zope.component import provideUtility
@@ -41,40 +40,40 @@ The component registry is cleaned up between each test.
     >>> queryUtility(Interface, name="test-dummy")
     <Dummy>
 
-Layer setup does nothing.
+Layer setup does nothing.::
 
     >>> options = runner.get_options([], [])
     >>> setupLayers = {}
     >>> runner.setup_layer(options, zca.UNIT_TESTING, setupLayers)
     Set up plone.testing.zca.UnitTesting in ... seconds.
 
-Let's now simulate a test. Before any test setup has happened, our previously
-registered utility is still there.
+Let's now simulate a test.
+Before any test setup has happened, our previously registered utility is still there.::
 
     >>> queryUtility(Interface, name="test-dummy")
     <Dummy>
 
-On test setup, it disappears.
+On test setup, it disappears.::
 
     >>> zca.UNIT_TESTING.testSetUp()
 
     >>> queryUtility(Interface, name="test-dummy") is None
     True
 
-The test would now execute. It may register some components.
+The test would now execute. It may register some components.::
 
     >>> provideUtility(DummyUtility("Dummy2"), provides=Interface, name="test-dummy")
     >>> queryUtility(Interface, name="test-dummy")
     <Dummy2>
 
-On test tear-down, this disappears.
+On test tear-down, this disappears.::
 
     >>> zca.UNIT_TESTING.testTearDown()
 
     >>> queryUtility(Interface, name="test-dummy") is None
     True
 
-Layer tear-down does nothing.
+Layer tear-down does nothing.::
 
     >>> runner.tear_down_unneeded(options, [], setupLayers)
     Tear down plone.testing.zca.UnitTesting in ... seconds.
@@ -82,8 +81,7 @@ Layer tear-down does nothing.
 Event testing
 ~~~~~~~~~~~~~
 
-The ``EVENT_TESTING`` layer extends the ``UNIT_TESTING`` layer to add the
-necessary registrations for ``zope.component.eventtesting`` to work.
+The ``EVENT_TESTING`` layer extends the ``UNIT_TESTING`` layer to add the necessary registrations for ``zope.component.eventtesting`` to work.::
 
     >>> "%s.%s" % (zca.EVENT_TESTING.__module__, zca.EVENT_TESTING.__name__,)
     'plone.testing.zca.EventTesting'
@@ -91,8 +89,7 @@ necessary registrations for ``zope.component.eventtesting`` to work.
     >>> zca.EVENT_TESTING.__bases__
     (<Layer 'plone.testing.zca.UnitTesting'>,)
 
-Before the test, the component registry is empty and ``getEvents()`` returns
-nothing, even if an event is fired.
+Before the test, the component registry is empty and ``getEvents()`` returns nothing, even if an event is fired.::
 
     >>> from zope.component.eventtesting import getEvents
 
@@ -106,7 +103,7 @@ nothing, even if an event is fired.
     >>> getEvents()
     []
 
-Layer setup does nothing.
+Layer setup does nothing.::
 
     >>> options = runner.get_options([], [])
     >>> setupLayers = {}
@@ -114,7 +111,7 @@ Layer setup does nothing.
     Set up plone.testing.zca.UnitTesting in ... seconds.
     Set up plone.testing.zca.EventTesting in ... seconds.
 
-Let's now simulate a test. On test setup, the event testing list is emptied.
+Let's now simulate a test. On test setup, the event testing list is emptied.::
 
     >>> zca.UNIT_TESTING.testSetUp()
     >>> zca.EVENT_TESTING.testSetUp()
@@ -122,14 +119,14 @@ Let's now simulate a test. On test setup, the event testing list is emptied.
     >>> getEvents()
     []
 
-The test would now execute. It may fire some events, which would show up in
-the event testing list.
+The test would now execute.
+It may fire some events, which would show up in the event testing list.::
 
     >>> notify(DummyEvent())
     >>> getEvents()
     [<Dummy event>]
 
-On test tear-down, the list is emptied again
+On test tear-down, the list is emptied again:::
 
     >>> zca.EVENT_TESTING.testTearDown()
     >>> zca.UNIT_TESTING.testTearDown()
@@ -137,7 +134,7 @@ On test tear-down, the list is emptied again
     >>> getEvents()
     []
 
-Layer tear-down does nothing.
+Layer tear-down does nothing.::
 
     >>> runner.tear_down_unneeded(options, [], setupLayers)
     Tear down plone.testing.zca.EventTesting in ... seconds.
@@ -146,11 +143,10 @@ Layer tear-down does nothing.
 Layer cleanup
 ~~~~~~~~~~~~~
 
-The ``LAYER_CLEANUP`` layer is used to set up a clean component registry
-at the set-up and tear-down of a layer. It uses ``zope.testing.cleanup`` to
-clean up all global state.
+The ``LAYER_CLEANUP`` layer is used to set up a clean component registry at the set-up and tear-down of a layer.
+It uses ``zope.testing.cleanup`` to clean up all global state.
 
-It has no bases:
+It has no bases:::
 
     >>> "%s.%s" % (zca.LAYER_CLEANUP.__module__, zca.LAYER_CLEANUP.__name__,)
     'plone.testing.zca.LayerCleanup'
@@ -158,8 +154,7 @@ It has no bases:
     >>> zca.LAYER_CLEANUP.__bases__
     ()
 
-The component registry is cleaned up on layer set-up and tear-down (but not
-between tests).
+The component registry is cleaned up on layer set-up and tear-down (but not between tests).::
 
     >>> from zope.interface import Interface
     >>> from zope.component import provideUtility
@@ -184,11 +179,11 @@ between tests).
     >>> queryUtility(Interface, name="test-dummy") is None
     True
 
-A sub-layer may register additional components:
+A sub-layer may register additional components:::
 
     >>> provideUtility(DummyUtility("Dummy2"), provides=Interface, name="test-dummy2")
 
-Let's now simulate a test. Test setup and tear-down does nothing.
+Let's now simulate a test. Test setup and tear-down does nothing.::
 
     >>> zca.LAYER_CLEANUP.testSetUp()
 
@@ -204,7 +199,7 @@ Let's now simulate a test. Test setup and tear-down does nothing.
     >>> queryUtility(Interface, name="test-dummy2")
     <Dummy2>
 
-On tear-down, the registry is cleaned again.
+On tear-down, the registry is cleaned again.::
 
     >>> runner.tear_down_unneeded(options, [], setupLayers)
     Tear down plone.testing.zca.LayerCleanup in ... seconds.
@@ -217,9 +212,8 @@ On tear-down, the registry is cleaned again.
 Basic ZCML directives
 ~~~~~~~~~~~~~~~~~~~~~
 
-The ``ZCML_DIRECTIVES`` layer creates a ZCML configuration context with the
-basic ``zope.component`` directives available. It extends the
-``LAYER_CLEANUP`` layer.
+The ``ZCML_DIRECTIVES`` layer creates a ZCML configuration context with the basic ``zope.component`` directives available.
+It extends the ``LAYER_CLEANUP`` layer.::
 
     >>> "%s.%s" % (zca.ZCML_DIRECTIVES.__module__, zca.ZCML_DIRECTIVES.__name__,)
     'plone.testing.zca.ZCMLDirectives'
@@ -227,8 +221,7 @@ basic ``zope.component`` directives available. It extends the
     >>> zca.ZCML_DIRECTIVES.__bases__
     (<Layer 'plone.testing.zca.LayerCleanup'>,)
 
-Before the test, we cannot use e.g. a ``<utility />`` directive without
-loading the necessary ``meta.zcml`` files.
+Before the test, we cannot use e.g. a ``<utility />`` directive without loading the necessary ``meta.zcml`` files.::
 
     >>> from zope.configuration import xmlconfig
     >>> xmlconfig.string("""\
@@ -240,8 +233,7 @@ loading the necessary ``meta.zcml`` files.
     ZopeXMLConfigurationError: File "<string>", line 2.4
         ConfigurationError: ('Unknown directive', u'http://namespaces.zope.org/zope', u'utility')
 
-Layer setup creates a configuration context we can use to load further
-configuration.
+Layer setup creates a configuration context we can use to load further configuration.::
 
     >>> options = runner.get_options([], [])
     >>> setupLayers = {}
@@ -249,8 +241,7 @@ configuration.
     Set up plone.testing.zca.LayerCleanup in ... seconds.
     Set up plone.testing.zca.ZCMLDirectives in ... seconds.
 
-Let's now simulate a test that uses this configuration context to load the
-same ZCML string.
+Let's now simulate a test that uses this configuration context to load the same ZCML string.::
 
     >>> zca.ZCML_DIRECTIVES.testSetUp()
 
@@ -261,17 +252,16 @@ same ZCML string.
     ... </configure>""", context=context) is context
     True
 
-The utility is now registered:
+The utility is now registered:::
 
     >>> queryUtility(Interface, name="test-dummy")
     <Dummy utility>
 
     >>> zca.UNIT_TESTING.testTearDown()
 
-Note that normally, we'd combine this with the ``UNIT_TESTING`` layer to tear
-down the component architecture as well.
+Note that normally, we'd combine this with the ``UNIT_TESTING`` layer to tear down the component architecture as well.
 
-Layer tear-down deletes the configuration context.
+Layer tear-down deletes the configuration context.::
 
     >>> runner.tear_down_unneeded(options, [], setupLayers)
     Tear down plone.testing.zca.ZCMLDirectives in ... seconds.
@@ -282,28 +272,18 @@ Layer tear-down deletes the configuration context.
 Configuration registry sandboxing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
-For simple unit tests, the full cleanup performed between each test using the
-``UNIT_TESTING`` layer is undoubtedly the safest and most convenient way to
-ensure proper isolation of tests using the global component architecture.
-However, if you are writing a complex layer that sets up a lot of components,
-you may wish to keep some components registered at the layer level, whilst
-still allowing tests and sub-layers to register their own components in
-isolation.
+For simple unit tests, the full cleanup performed between each test using the ``UNIT_TESTING`` layer is undoubtedly the safest and most convenient way to ensure proper isolation of tests using the global component architecture.
+However, if you are writing a complex layer that sets up a lot of components, you may wish to keep some components registered at the layer level, whilst still allowing tests and sub-layers to register their own components in isolation.
 
-This is a tricky problem, because the default ZCML directives and APIs
-(``provideAdapter()``, ``provideUtility()`` and so on) explicitly work on
-a single global adapter registry object. To get around this, you can use two
-helper methods in the ``zca`` module to push a new global component registry
-before registering components, and pop the registry after. Registries are
-stacked, so the components registered in a "lower" registry are automatically
-available in a "higher" registry.
+This is a tricky problem, because the default ZCML directives and APIs (``provideAdapter()``, ``provideUtility()`` and so on) explicitly work on a single global adapter registry object.
+To get around this, you can use two helper methods in the ``zca`` module to push a new global component registry before registering components, and pop the registry after.
+Registries are stacked, so the components registered in a "lower" registry are automatically available in a "higher" registry.
 
-Let's illustrate this with a layer that stacks two new global registries. The
-first registry is specific to the layer, and is used to house the components
-registered at the layer level. The second registry is set up and torn down for
-each test, allowing tests to register their own components freely.
+Let's illustrate this with a layer that stacks two new global registries.
+The first registry is specific to the layer, and is used to house the components registered at the layer level.
+The second registry is set up and torn down for each test, allowing tests to register their own components freely.
 
-First, we'll create a simple dummy utility to illustrate registrations.
+First, we'll create a simple dummy utility to illustrate registrations.::
 
     >>> from zope.interface import Interface, implements
 
@@ -321,11 +301,11 @@ The two key methods are:
 * ``zca.pushGlobalRegistry()``, which creates a new global registry.
 * ``zca.popGlobalRegistry()``, which restores the previous global registry.
 
-  **Warning:** You *must* balance your calls to these methods. If you call
-  ``pushGlobalRegistry()`` in ``setUp()``, call ``popGlobalRegistry()`` in
-  ``tearDown()``. Ditto for ``testSetUp()`` and ``testTearDown()``.
+  **Warning:** You *must* balance your calls to these methods.
+  If you call ``pushGlobalRegistry()`` in ``setUp()``, call ``popGlobalRegistry()`` in ``tearDown()``.
+  Ditto for ``testSetUp()`` and ``testTearDown()``.
 
-Let's now create our layer.
+Let's now create our layer.::
 
     >>> from zope.component import provideUtility
     >>> from plone.testing import Layer
@@ -345,7 +325,7 @@ Let's now create our layer.
 
 Let's now simulate a test using this layer.
 
-To begin with, we have the default registry.
+To begin with, we have the default registry.::
 
     >>> from zope.component import getGlobalSiteManager, getSiteManager
     >>> getSiteManager() is getGlobalSiteManager()
@@ -357,7 +337,7 @@ To begin with, we have the default registry.
     >>> queryUtility(IDummyUtility, name="layer") is None
     True
 
-We'll now simulate layer setup. This will push a new registry onto the stack:
+We'll now simulate layer setup. This will push a new registry onto the stack:::
 
     >>> COMPONENT_SANDBOX.setUp()
 
@@ -370,7 +350,7 @@ We'll now simulate layer setup. This will push a new registry onto the stack:
     >>> queryUtility(IDummyUtility, name="layer")
     <DummyUtility layer>
 
-We'll then simulate a test that registers a global component:
+We'll then simulate a test that registers a global component:::
 
     >>> COMPONENT_SANDBOX.testSetUp()
 
@@ -381,12 +361,12 @@ We'll then simulate a test that registers a global component:
     >>> getGlobalSiteManager() is layerGlobalSiteManager
     False
 
-Our previously registered component is still here.
+Our previously registered component is still here.::
 
     >>> queryUtility(IDummyUtility, name="layer")
     <DummyUtility layer>
 
-We can also register a new one.
+We can also register a new one.::
 
     >>> provideUtility(DummyUtility("test"), name="test")
     >>> queryUtility(IDummyUtility, name="layer")
@@ -394,7 +374,7 @@ We can also register a new one.
     >>> queryUtility(IDummyUtility, name="test")
     <DummyUtility test>
 
-On test tear-down, only the second utility disappears:
+On test tear-down, only the second utility disappears:::
 
     >>> COMPONENT_SANDBOX.testTearDown()
 
@@ -410,7 +390,7 @@ On test tear-down, only the second utility disappears:
     >>> queryUtility(IDummyUtility, name="test") is None
     True
 
-If we tear down the layer too, we're back where we started:
+If we tear down the layer too, we're back where we started:::
 
     >>> COMPONENT_SANDBOX.tearDown()
 
@@ -427,22 +407,21 @@ If we tear down the layer too, we're back where we started:
 ZCML files helper class
 ~~~~~~~~~~~~~~~~~~~~~~~
 
-One of the frequent use cases is a layer that loads a ZCML file and sandbox the
-resulting registry.
+One of the frequent use cases is a layer that loads a ZCML file and sandbox the resulting registry.
 
-The ``ZCMLSandbox`` can be instantiated with a `filename`` and ``package``
-arguments.
+The ``ZCMLSandbox`` can be instantiated with a `filename`` and ``package`` arguments.::
 
     >>> import plone.testing
     >>> ZCML_SANDBOX = zca.ZCMLSandbox(filename="testing_zca.zcml",
     ...     package=plone.testing)
 
-Before layer setup, the utility is not registered.
+Before layer setup, the utility is not registered.::
 
     >>> queryUtility(Interface, name="layer") is None
     True
 
-We'll now simulate layer setup. This pushes a new registry onto the stack:
+We'll now simulate layer setup.
+This pushes a new registry onto the stack:::
 
     >>> ZCML_SANDBOX.setUp()
 
@@ -453,12 +432,10 @@ We'll now simulate layer setup. This pushes a new registry onto the stack:
     >>> queryUtility(Interface, name="layer")
     <Dummy utility>
 
-The ``ZCMLSandbox`` class can also be used as ancestor
-for your own classes when you need to load more than a single ZCML file.
+The ``ZCMLSandbox`` class can also be used as ancestor for your own classes when you need to load more than a single ZCML file.
 
-Your class then needs to override the ``setUpZCMLFiles()`` method. It is in
-charge of calling ``loadZCMLFile()``, once for each ZCML file that the class
-needs to load.
+Your class then needs to override the ``setUpZCMLFiles()`` method.
+It is in charge of calling ``loadZCMLFile()``, once for each ZCML file that the class needs to load.::
 
     >>> class OtherZCML(zca.ZCMLSandbox):
     ...     def setUpZCMLFiles(self):
@@ -467,27 +444,27 @@ needs to load.
     ...             package=plone.testing)
     >>> OTHER_ZCML_SANDBOX = OtherZCML()
 
-Before layer setup, a second utility is not registered.
+Before layer setup, a second utility is not registered.::
 
     >>> queryUtility(Interface, name="more_specific_layer") is None
     True
 
-We'll now simulate the setup of the more specific layer.
+We'll now simulate the setup of the more specific layer.::
 
     >>> OTHER_ZCML_SANDBOX.setUp()
 
-After setUp, the second utility is registered :
+After setUp, the second utility is registered:::
 
     >>> queryUtility(Interface, name="more_specific_layer")
     <Dummy utility>
 
-After layer teardown, the second utility is not registered anymore.
+After layer teardown, the second utility is not registered anymore.::
 
     >>> OTHER_ZCML_SANDBOX.tearDown()
     >>> queryUtility(Interface, name="more_specific_layer") is None
     True
 
-After teardown of the first layer, the first utility is not registered anymore.
+After teardown of the first layer, the first utility is not registered anymore.::
 
     >>> ZCML_SANDBOX.tearDown()
     >>> queryUtility(Interface, name="layer") is None
