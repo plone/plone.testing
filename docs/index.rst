@@ -3,10 +3,6 @@ plone.testing documentation
 
 Documentation for the testing infrastructure for Zope and Plone projects.
 
-
-Contents
---------
-
 .. toctree::
    :maxdepth: 2
 
