@@ -1,7 +1,8 @@
+# -*- coding: utf-8 -*-
 """ZODB-specific helpers and layers
 """
-
 from plone.testing import Layer
+
 
 def stackDemoStorage(db=None, name=None):
     """Create a new DemoStorage that has the given database as a base.
@@ -11,7 +12,7 @@ def stackDemoStorage(db=None, name=None):
     The usual pattern in a layer is::
 
         def setUp(self):
-            self['zodbDB'] = stackDemoStorage(self.get('zodbDB'), name='mylayer')
+            self['zodbDB'] = stackDemoStorage(self.get('zodbDB'), name='mylayer')  # noqa
 
         def tearDown(self):
             self['zodbDB'].close()
@@ -27,6 +28,7 @@ def stackDemoStorage(db=None, name=None):
         storage = DemoStorage(name=name)
 
     return DB(storage)
+
 
 class EmptyZODB(Layer):
     """Set up a new ZODB database using ``DemoStorage``. The database object
@@ -55,7 +57,7 @@ class EmptyZODB(Layer):
 
     def testSetUp(self):
         self['zodbConnection'] = connection = self['zodbDB'].open()
-        self['zodbRoot']       = connection.root()
+        self['zodbRoot'] = connection.root()
 
         import transaction
         transaction.begin()

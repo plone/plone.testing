@@ -10,7 +10,14 @@ New:
 
 Fixes:
 
-- *add item here*
+
+- Rename all txt doctest files to rst. Reformat doctests.
+  Move src/plone/testing/README.rst to docs/overview.rst.
+  [thet]
+
+- PEP 8.
+  [thet]
+
 - Depend on zope.testrunner, which was moved out from
   zope.testing.testrunner.
   [thet]

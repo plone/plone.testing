@@ -1,8 +1,10 @@
+# -*- coding: utf-8 -*-
 """Helpers for working with common Zope publisher operations
 """
-
 from plone.testing import Layer
-from plone.testing import zca, security
+from plone.testing import security
+from plone.testing import zca
+
 
 class PublisherDirectives(Layer):
     """Enables the use of the ZCML directives from ``zope.app.publisher``
@@ -19,7 +21,8 @@ class PublisherDirectives(Layer):
         from zope.configuration import xmlconfig
 
         # Stack a new configuration context
-        self['configurationContext'] = context = zca.stackConfigurationContext(self.get('configurationContext'))
+        self['configurationContext'] = context = zca.stackConfigurationContext(
+            self.get('configurationContext'))
 
         import zope.security
         xmlconfig.file('meta.zcml', zope.security, context=context)

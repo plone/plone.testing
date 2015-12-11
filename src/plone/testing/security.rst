@@ -1,19 +1,18 @@
 Security
 --------
 
-The Zope Security layers are found in the module ``plone.testing.security``:
+The Zope Security layers are found in the module ``plone.testing.security``:::
 
     >>> from plone.testing import security
 
-For testing, we need a testrunner
+For testing, we need a testrunner:::
 
     >>> from zope.testrunner import runner
 
 Layers
 ~~~~~~
 
-The ``security.CHECKERS`` layer makes sure that ``zope.security`` checkers are
-correctly set up and torn down.
+The ``security.CHECKERS`` layer makes sure that ``zope.security`` checkers are correctly set up and torn down.::
 
     >>> "%s.%s" % (security.CHECKERS.__module__, security.CHECKERS.__name__,)
     'plone.testing.security.Checkers'
@@ -21,7 +20,7 @@ correctly set up and torn down.
     >>> security.CHECKERS.__bases__
     ()
 
-Before the test, our custom checker is not in the registry.
+Before the test, our custom checker is not in the registry.::
 
     >>> class DummyObject(object):
     ...     pass
@@ -36,16 +35,15 @@ Before the test, our custom checker is not in the registry.
     >>> getCheckerForInstancesOf(DummyObject) is None
     True
 
-Layer setup stacks the current checkers.
+Layer setup stacks the current checkers.::
 
     >>> options = runner.get_options([], [])
     >>> setupLayers = {}
     >>> runner.setup_layer(options, security.CHECKERS, setupLayers)
     Set up plone.testing.security.Checkers in ... seconds.
 
-We can now set up a checker. In real life, this may happen during ZCML
-configuration, but here will just call the API directlyMost likely, we'd do
-this in a child layer:
+We can now set up a checker.
+In real life, this may happen during ZCML configuration, but here will just call the API directlyMost likely, we'd do this in a child layer:::
 
     >>> from zope.security.checker import defineChecker
     >>> fauxChecker = FauxChecker()
@@ -54,19 +52,19 @@ this in a child layer:
     >>> getCheckerForInstancesOf(DummyObject) is fauxChecker
     True
 
-Let's now simulate a test that may use the checker.
+Let's now simulate a test that may use the checker.::
 
     >>> security.CHECKERS.testSetUp()
     >>> getCheckerForInstancesOf(DummyObject) is fauxChecker
     True
     >>> security.CHECKERS.testTearDown()
 
-We still have the checker after test tear-down:
+We still have the checker after test tear-down:::
 
     >>> getCheckerForInstancesOf(DummyObject) is fauxChecker
     True
 
-However, when we tear down the layer, the checker is gone:
+However, when we tear down the layer, the checker is gone:::
 
     >>> runner.tear_down_unneeded(options, [], setupLayers)
     Tear down plone.testing.security.Checkers in ... seconds.

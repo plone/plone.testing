@@ -1,22 +1,20 @@
+# -*- coding: utf-8 -*-
 """Zope2-specific helpers and layers
 """
-
+from plone.testing import Layer
+from plone.testing import zca
+from plone.testing import zodb
+from zope.schema.vocabulary import getVocabularyRegistry
+from zope.schema.vocabulary import setVocabularyRegistry
+from Zope2.App.schema import Zope2VocabularyRegistry
 import contextlib
 import os
-
-from plone.testing import Layer
-from plone.testing import zodb
-from plone.testing import zca
 
 try:
     from plone.testing._z2_testbrowser import Browser
 except ImportError:
     # Just in case zope.testbrowser causes an import error, don't break
     pass
-
-from zope.schema.vocabulary import getVocabularyRegistry
-from zope.schema.vocabulary import setVocabularyRegistry
-from Zope2.App.schema import Zope2VocabularyRegistry
 
 try:
     from OFS.metaconfigure import get_packages_to_initialize
@@ -25,6 +23,7 @@ except ImportError:
     HAS_ZOPE213 = False
 
 _INSTALLED_PRODUCTS = {}
+
 
 def installProduct(app, productName, quiet=False, multiinit=False):
     """Install the Zope 2 product with the given name, so that it will show
@@ -38,17 +37,14 @@ def installProduct(app, productName, quiet=False, multiinit=False):
     Note that products' ZCML is *not* loaded automatically, even if the
     product is in the Products namespace.
     """
-
-    import sys
-
-
-    from OFS.Folder import Folder
-    from OFS.Application import get_folder_permissions, get_products
-    from OFS.Application import install_product, install_package
-
     from App.class_init import InitializeClass
-
+    from OFS.Application import get_folder_permissions
+    from OFS.Application import get_products
+    from OFS.Application import install_package
+    from OFS.Application import install_product
+    from OFS.Folder import Folder
     import Products
+    import sys
 
     found = False
 
@@ -59,10 +55,21 @@ def installProduct(app, productName, quiet=False, multiinit=False):
         for priority, name, index, productDir in get_products():
             if ('Products.' + name) == productName:
 
-                install_product(app, productDir, name, [], get_folder_permissions(), raise_exc=1)
+                install_product(
+                    app,
+                    productDir,
+                    name,
+                    [],
+                    get_folder_permissions(),
+                    raise_exc=1)
                 InitializeClass(Folder)
 
-                _INSTALLED_PRODUCTS[productName] = (priority, name, index, productDir,)
+                _INSTALLED_PRODUCTS[productName] = (
+                    priority,
+                    name,
+                    index,
+                    productDir,
+                )
 
                 found = True
                 break
@@ -76,7 +83,8 @@ def installProduct(app, productName, quiet=False, multiinit=False):
             if module.__name__ == productName:
                 install_package(app, module, init_func, raise_exc=1)
                 if not HAS_ZOPE213:
-                    Products._packages_to_initialize.remove((module, init_func))
+                    Products._packages_to_initialize.remove(
+                        (module, init_func))
 
                 _INSTALLED_PRODUCTS[productName] = (module, init_func,)
 
@@ -87,6 +95,7 @@ def installProduct(app, productName, quiet=False, multiinit=False):
     if not found and not quiet:
         sys.stderr.write("Could not install product %s\n" % productName)
         sys.stderr.flush()
+
 
 def uninstallProduct(app, productName, quiet=False):
     """Uninstall the given Zope 2 product. This is the inverse of
@@ -130,12 +139,13 @@ def uninstallProduct(app, productName, quiet=False):
                         del cp[name]
 
                 # TODO: Also remove permissions from get_folder_permissions?
-                # Difficult to know if this would stomp on any other permissions
+                # Difficult to know if this would stomp on any other
+                # permissions
                 # InitializeClass(Folder)
 
                 found = True
                 break
-    elif productName in _INSTALLED_PRODUCTS: # must be a package
+    elif productName in _INSTALLED_PRODUCTS:  # must be a package
 
         module, init_func = _INSTALLED_PRODUCTS[productName]
         name = module.__name__
@@ -168,6 +178,7 @@ def uninstallProduct(app, productName, quiet=False):
         sys.stderr.write("Could not install product %s\n" % productName)
         sys.stderr.flush()
 
+
 def login(userFolder, userName):
     """Log in as the given user in the given user folder.
     """
@@ -181,12 +192,14 @@ def login(userFolder, userName):
         user = user.__of__(userFolder)
     newSecurityManager(None, user)
 
+
 def logout():
     """Log out, i.e. become anonymous
     """
 
     from AccessControl.SecurityManagement import noSecurityManager
     noSecurityManager()
+
 
 def setRoles(userFolder, userId, roles):
     """Set the given user's roles to a tuple of roles.
@@ -203,9 +216,9 @@ def setRoles(userFolder, userId, roles):
 def makeTestRequest(environ=None):
     """Return an HTTPRequest object suitable for testing views."""
     from sys import stdin, stdout
+    from zope.publisher.browser import setDefaultSkin
     from ZPublisher.HTTPRequest import HTTPRequest
     from ZPublisher.HTTPResponse import HTTPResponse
-    from zope.publisher.browser import setDefaultSkin
 
     if environ is None:
         environ = {}
@@ -272,18 +285,18 @@ def zopeApp(db=None, connection=None, environ=None):
     inner_exception = None
     try:
         yield app
-    except Exception, e:
+    except Exception as e:
         inner_exception = e
         try:
             transaction.abort()
-        except Exception, e:
+        except Exception as e:
             inner_exception = e
             raise
         raise
     else:
         try:
             transaction.commit()
-        except Exception, e:
+        except Exception as e:
             inner_exception = e
     finally:
         try:
@@ -296,6 +309,7 @@ def zopeApp(db=None, connection=None, environ=None):
                 raise inner_exception
             else:
                 raise
+
 
 # Startup layer - you probably don't want to use this one directly
 
@@ -414,36 +428,48 @@ class Startup(Layer):
         import Zope2.App.startup
 
         # Avoid expensive product import
-        def null_import_products(): pass
+        def null_import_products():
+            pass
         self._OFS_Application_import_products = OFS.Application.import_products
         OFS.Application.import_products = null_import_products
 
         # Avoid expensive product installation
-        def null_initialize(app): pass
+        def null_initialize(app):
+            pass
         self._OFS_Application_initialize = OFS.Application.initialize
         OFS.Application.initialize = null_initialize
 
         # Avoid expensive help registration
         try:
-            self._App_ProductContext_ProductContext_registerHelpTopic = App.ProductContext.ProductContext.registerHelpTopic
+            self._App_ProductContext_ProductContext_registerHelpTopic = App.ProductContext.ProductContext.registerHelpTopic  # noqa
         except AttributeError:
             # Zope 4
             pass
         else:
-            def null_register_topic(self,id,topic): pass
-            App.ProductContext.ProductContext.registerHelpTopic = null_register_topic
+            def null_register_topic(self, id, topic):
+                pass
+            App.ProductContext.ProductContext.registerHelpTopic = null_register_topic  # noqa
 
-            self._App_ProductContext_ProductContext_registerHelpTitle = App.ProductContext.ProductContext.registerHelpTitle
-            def null_register_title(self,title): pass
-            App.ProductContext.ProductContext.registerHelpTitle = null_register_title
+            self._App_ProductContext_ProductContext_registerHelpTitle = App.ProductContext.ProductContext.registerHelpTitle  # noqa
 
-            self._App_ProductContext_ProductContext_registerHelp = App.ProductContext.ProductContext.registerHelp
-            def null_register_help(self,directory='',clear=1,title_re=None): pass
+            def null_register_title(self, title):
+                pass
+            App.ProductContext.ProductContext.registerHelpTitle = null_register_title  # noqa
+
+            self._App_ProductContext_ProductContext_registerHelp = App.ProductContext.ProductContext.registerHelp  # noqa
+
+            def null_register_help(
+                    self,
+                    directory='',
+                    clear=1,
+                    title_re=None):
+                pass
             App.ProductContext.ProductContext.registerHelp = null_register_help
 
         # in Zope 2.13, prevent ZCML from loading during App startup
         if hasattr(Zope2.App.startup, 'load_zcml'):
-            def null_load_zcml(): pass
+            def null_load_zcml():
+                pass
             self._Zope2_App_startup_load_zcml = Zope2.App.startup.load_zcml
             Zope2.App.startup.load_zcml = null_load_zcml
 
@@ -461,17 +487,17 @@ class Startup(Layer):
         del self._OFS_Application_initialize
 
         try:
-            App.ProductContext.ProductContext.registerHelpTopic = self._App_ProductContext_ProductContext_registerHelpTopic
+            App.ProductContext.ProductContext.registerHelpTopic = self._App_ProductContext_ProductContext_registerHelpTopic  # noqa
         except AttributeError:
             # Zope 4
             pass
         else:
             del self._App_ProductContext_ProductContext_registerHelpTopic
 
-            App.ProductContext.ProductContext.registerHelpTitle = self._App_ProductContext_ProductContext_registerHelpTitle
+            App.ProductContext.ProductContext.registerHelpTitle = self._App_ProductContext_ProductContext_registerHelpTitle  # noqa
             del self._App_ProductContext_ProductContext_registerHelpTitle
 
-            App.ProductContext.ProductContext.registerHelp = self._App_ProductContext_ProductContext_registerHelp
+            App.ProductContext.ProductContext.registerHelp = self._App_ProductContext_ProductContext_registerHelp  # noqa
             del self._App_ProductContext_ProductContext_registerHelp
 
     def setUpThreads(self):
@@ -524,7 +550,9 @@ class Startup(Layer):
         # Layer a new storage for Zope 2 on top of the one from the base
         # layer, if there is one.
 
-        self['zodbDB'] = zodb.stackDemoStorage(self.get('zodbDB'), name='Startup')
+        self['zodbDB'] = zodb.stackDemoStorage(
+            self.get('zodbDB'),
+            name='Startup')
 
         # Create a facade for the database object that will delegate to the
         # correct underlying database. This allows resource shadowing to work
@@ -551,7 +579,8 @@ class Startup(Layer):
             """
 
             def __init__(self, db):
-                self.db_factories = {'testing': None} # value is never used when we have an open db
+                # value is never used when we have an open db
+                self.db_factories = {'testing': None}
                 self.mount_paths = {'/': 'testing'}
                 self.databases = {'testing': db}
 
@@ -658,8 +687,10 @@ class Startup(Layer):
         except ImportError:
             # Zope <= 2.12
             from Products.Five import fiveconfigure as metaconfigure
-        metaconfigure._register_monkies = list(set(metaconfigure._register_monkies))
-        metaconfigure._meta_type_regs = list(set(metaconfigure._meta_type_regs))
+        metaconfigure._register_monkies = list(
+            set(metaconfigure._register_monkies))
+        metaconfigure._meta_type_regs = list(
+            set(metaconfigure._meta_type_regs))
 
     def setUpZCML(self):
         """Load the basic ZCML configuration from Five. Exposes a resource
@@ -673,7 +704,8 @@ class Startup(Layer):
         # Load something akin to the default site.zcml without actually auto-
         # loading products
 
-        self['configurationContext'] = context = zca.stackConfigurationContext(self.get('configurationContext'))
+        self['configurationContext'] = context = zca.stackConfigurationContext(
+            self.get('configurationContext'))
 
         from zope.configuration import xmlconfig
         xmlconfig.string("""\
@@ -720,6 +752,7 @@ class Startup(Layer):
 
 STARTUP = Startup()
 
+
 # Basic integration and functional test and layers. These are the simplest
 # Zope 2 layers that are generally useful
 
@@ -744,7 +777,7 @@ class IntegrationTesting(Layer):
             ...
 
         MY_FIXTURE = MyFixture(bases=(z2.STARTUP,), name='MyFixture')
-        MY_INTEGRATION_TESTING = z2.IntegrationTesting(bases=(MY_FIXTURE,), name='MyFixture:Integration')
+        MY_INTEGRATION_TESTING = z2.IntegrationTesting(bases=(MY_FIXTURE,), name='MyFixture:Integration')  # noqa
     """
 
     defaultBases = (STARTUP,)
@@ -804,6 +837,7 @@ class IntegrationTesting(Layer):
 
 INTEGRATION_TESTING = IntegrationTesting()
 
+
 class FunctionalTesting(Layer):
     """An alternative to ``INTEGRATION_TESTING`` suitable for functional testing.
     This one pushes and pops a ``DemoStorage`` layer for each test. The
@@ -825,7 +859,7 @@ class FunctionalTesting(Layer):
             ...
 
         MY_FIXTURE = MyFixture(bases=(z2.STARTUP,), name='MyFixture')
-        MY_FUNCTIONAL_TESTING = z2.FunctionalTesting(bases=(MY_FIXTURE,), name='MyFixture:Functional')
+        MY_FUNCTIONAL_TESTING = z2.FunctionalTesting(bases=(MY_FIXTURE,), name='MyFixture:Functional')  # noqa
     """
 
     defaultBases = (STARTUP,)
@@ -840,7 +874,9 @@ class FunctionalTesting(Layer):
         # this layer, we can't just assign a new shadow. We therefore keep
         # track of the original so that we can restore it on tear-down.
 
-        self['zodbDB'] = zodb.stackDemoStorage(self.get('zodbDB'), name='FunctionalTest')
+        self['zodbDB'] = zodb.stackDemoStorage(
+            self.get('zodbDB'),
+            name='FunctionalTest')
 
         # Save the app
 
@@ -894,6 +930,7 @@ class FunctionalTesting(Layer):
 
 FUNCTIONAL_TESTING = FunctionalTesting()
 
+
 # More advanced functional testing - running ZServer and FTP server
 
 class ZServer(Layer):
@@ -931,9 +968,9 @@ class ZServer(Layer):
         self.setUpServer()
 
         self.thread = Thread(
-                name="%s server" % self.__name__,
-                target=self.runner,
-            )
+            name="%s server" % self.__name__,
+            target=self.runner,
+        )
 
         self.thread.start()
         time.sleep(0.5)
@@ -963,7 +1000,11 @@ class ZServer(Layer):
 
         zopeLog = logger.file_logger(log)
 
-        server = zhttp_server(ip=self.host, port=self.port, resolver=None, logger_object=zopeLog)
+        server = zhttp_server(
+            ip=self.host,
+            port=self.port,
+            resolver=None,
+            logger_object=zopeLog)
         zhttpHandler = zhttp_handler(module='Zope2', uri_base='')
         server.install_handler(zhttpHandler)
 
@@ -993,7 +1034,12 @@ class ZServer(Layer):
 ZSERVER_FIXTURE = ZServer()
 
 # Functional testing layer that uses the ZSERVER_FIXTURE
-ZSERVER = FunctionalTesting(bases=(ZSERVER_FIXTURE,), name="ZServer:Functional")
+ZSERVER = FunctionalTesting(
+    bases=(
+        ZSERVER_FIXTURE,
+    ),
+    name="ZServer:Functional")
+
 
 class FTPServer(ZServer):
     """FTP variant of the ZServer layer.
@@ -1031,7 +1077,11 @@ class FTPServer(ZServer):
 
         zopeLog = logger.file_logger(log)
 
-        self.ftpServer = FTPServer('Zope2', ip=self.host, port=self.port, logger_object=zopeLog)
+        self.ftpServer = FTPServer(
+            'Zope2',
+            ip=self.host,
+            port=self.port,
+            logger_object=zopeLog)
 
     def tearDownServer(self):
         """Close the FTPServer socket
@@ -1043,4 +1093,8 @@ class FTPServer(ZServer):
 FTP_SERVER_FIXTURE = FTPServer()
 
 # Functional testing layer that uses the FTP_SERVER_FIXTURE
-FTP_SERVER = FunctionalTesting(bases=(FTP_SERVER_FIXTURE,), name="FTPServer:Functional")
+FTP_SERVER = FunctionalTesting(
+    bases=(
+        FTP_SERVER_FIXTURE,
+    ),
+    name="FTPServer:Functional")
