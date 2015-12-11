@@ -549,8 +549,8 @@ Above, we are really saying that *instances* of ``ZIGSpaceShip`` will, by defaul
         * Subclassing an existing layer class is just straightforward OOP re-use: the test runner is not aware of the subclassing relationship.
 
         * A layer *instance* can be associated with any number of layer *bases*, via its ``__bases__`` property (which is usually via the ``defaultBases`` variable in the class body and/or overridden using the ``bases`` argument to the ``Layer`` constructor).
-         These bases are layer *instances*, not classes.
-         The test runner will inspect the ``__bases__`` attribute of each layer instance it sets up to calculate layer pre-requisites and dependencies.
+          These bases are layer *instances*, not classes.
+          The test runner will inspect the ``__bases__`` attribute of each layer instance it sets up to calculate layer pre-requisites and dependencies.
 
     Also note that the `zope.testing`_ documentation contains examples of layers that are "old-style" classes where the ``setUp()`` and ``tearDown()`` methods are ``classmethod`` methods and class inheritance syntax is used to specify base layers.
     Whilst this pattern works, we discourage its use, because the classes created using this pattern are not really used as classes.
@@ -796,7 +796,7 @@ A few things to note:
 * The ``layer`` class attribute is set to a layer instance (not a layer class!) defined previously.
   This would typically be imported from a ``testing`` module.
 
-* There are two tests here: ``test_warp8()`` and ``test_max_speed()``.  
+* There are two tests here: ``test_warp8()`` and ``test_max_speed()``.
 
 * We have used the ``self.assertEqual()`` assertion in both tests to check the result of executing the ``start()`` method on the warp drive.
 
@@ -1374,7 +1374,7 @@ The ``ZCMLSandbox`` can be instantiated with a ``filename`` and ``package`` argu
 That layer ``setUp`` loads the ZCML file.
 It avoids the need to using (and understand) ``configurationContext`` and ``globalRegistry`` until you need more flexibility or modularity for your layer and tests.
 
-See above for more details about loading custom ZCML in a layer or test.  
+See above for more details about loading custom ZCML in a layer or test.
 
 Helper functions
 ~~~~~~~~~~~~~~~~
@@ -1911,7 +1911,7 @@ Several helper functions are available in the ``plone.testing.z2`` module.
     To initialise the request environment with non-default values, pass a dictionary as ``environ``.
 
     .. note::
-    
+
        This method is rarely used, because both the ``zopeApp()``
        context manager and the layer set-up/tear-down for
        ``z2.INTEGRATION_TESTING`` and ``z2.FUNCTIONAL_TESTING`` will wrap the
