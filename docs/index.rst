@@ -10,7 +10,7 @@ Contents
 .. toctree::
    :maxdepth: 2
 
-   ../src/plone/testing/overview.rst
+   overview.rst
    ../src/plone/testing/layer.rst
    ../src/plone/testing/publisher.rst
    ../src/plone/testing/security.rst
