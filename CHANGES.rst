@@ -10,7 +10,9 @@ New:
 
 Fixes:
 
-- Rename all txt doctest files to rst.
+
+- Rename all txt doctest files to rst. Reformat doctests.
+  Move src/plone/testing/README.rst to docs/overview.rst.
   [thet]
 
 - PEP 8.
