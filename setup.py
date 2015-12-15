@@ -34,7 +34,7 @@ setup(
     version=version,
     description="Testing infrastructure for Zope and Plone projects.",
     long_description=(u'\n\n'.join([
-        open(os.path.join("docs", "overview.rst")).read(),
+        open(os.path.join("src", "plone", "testing", "README.rst")).read(),
         open("CHANGES.rst").read(),
         "Detailed documentation\n" +
         "======================",

@@ -6,7 +6,7 @@ Documentation for the testing infrastructure for Zope and Plone projects.
 .. toctree::
    :maxdepth: 2
 
-   overview.rst
+   ../src/plone/testing/README.rst
    ../src/plone/testing/layer.rst
    ../src/plone/testing/publisher.rst
    ../src/plone/testing/security.rst
