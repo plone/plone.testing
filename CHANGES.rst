@@ -4,12 +4,7 @@ Changelog
 4.1.0 (unreleased)
 ------------------
 
-New:
-
-- *add item here*
-
 Fixes:
-
 
 - Rename all txt doctest files to rst. Reformat doctests.
   [thet]
