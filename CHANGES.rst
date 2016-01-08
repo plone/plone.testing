@@ -1,6 +1,18 @@
 Changelog
 =========
 
+4.1.1 (unreleased)
+------------------
+
+New:
+
+- *add item here*
+
+Fixes:
+
+- *add item here*
+
+
 4.1.0 (2016-01-08)
 ------------------
 
