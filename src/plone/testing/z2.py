@@ -9,6 +9,7 @@ from zope.schema.vocabulary import setVocabularyRegistry
 from Zope2.App.schema import Zope2VocabularyRegistry
 import contextlib
 import os
+import pkg_resources
 
 try:
     from plone.testing._z2_testbrowser import Browser
@@ -21,6 +22,12 @@ try:
     HAS_ZOPE213 = True
 except ImportError:
     HAS_ZOPE213 = False
+
+try:
+    pkg_resources.get_distribution('Zope2')
+    HAS_ZOPETESTCASE = True
+except pkg_resources.DistributionNotFound:
+    HAS_ZOPETESTCASE = False
 
 _INSTALLED_PRODUCTS = {}
 
@@ -543,6 +550,14 @@ class Startup(Layer):
         that the database that is opened by Zope 2 is in fact the top of
         the resource stack.
         """
+
+        if HAS_ZOPETESTCASE:
+            from Testing.ZopeTestCase.ZopeLite import _patched as ZOPETESTCASEALERT
+        if HAS_ZOPETESTCASE and ZOPETESTCASEALERT:
+            raise Exception('You try to run plone.testing tests together with '
+                            'ZopeTestCase tests. This will result in random '
+                            'failures. Convert the ZopeTestCase Tests or '
+                            'do not run them together')
 
         import Zope2.Startup.datatypes
         import App.config

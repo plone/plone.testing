@@ -6,7 +6,8 @@ Changelog
 
 New:
 
-- *add item here*
+- Check that tests don't run together with ZopeTestCase
+  [do3cc]
 
 Fixes:
 
