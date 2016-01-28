@@ -67,23 +67,23 @@ At this point, it is also possible to get hold of a Zope application root.
 If you are setting up a layer fixture, you can obtain an application root with the correct database that is properly closed by using the ``zopeApp()`` context manager.::
 
     >>> with z2.zopeApp() as app:
-    ...     print app.objectIds()
-    ['acl_users', 'Control_Panel']
+    ...     'acl_users' in app.objectIds()
+    True
 
 If you want to use a specific database, you can pass that to ``zopeApp()`` as the ``db`` parameter.
 A new connection will be opened and closed.::
 
     >>> with z2.zopeApp(db=z2.STARTUP['zodbDB']) as app:
-    ...     print app.objectIds()
-    ['acl_users', 'Control_Panel']
+    ...     'acl_users' in app.objectIds()
+    True
 
 If you want to re-use an existing connection, you can pass one to ``zopeApp()`` as the ``connection`` argument.
 In this case, you will need to close the connection yourself.::
 
     >>> conn = z2.STARTUP['zodbDB'].open()
     >>> with z2.zopeApp(connection=conn) as app:
-    ...     print app.objectIds()
-    ['acl_users', 'Control_Panel']
+    ...     'acl_users' in app.objectIds()
+    True
 
     >>> conn.opened is not None
     True
@@ -211,8 +211,8 @@ The test may now inspect and modify the environment.::
 
     >>> app = z2.INTEGRATION_TESTING['app'] # would normally be self.layer['app']
     >>> app.manage_addFolder('folder1')
-    >>> app.objectIds()
-    ['acl_users', 'Control_Panel', 'folder1']
+    >>> 'acl_users' and 'folder1' in app.objectIds()
+    True
 
 The request is also available:::
 
@@ -260,8 +260,9 @@ On tear-down, the transaction is rolled back:::
     False
 
     >>> with z2.zopeApp() as app:
-    ...     print app.objectIds()
-    ['acl_users', 'Control_Panel']
+    ...     'acl_users' in app.objectIds() and 'folder1' not in app.objectIds()
+    True
+
 
 Let's tear down the layers:::
 
@@ -312,8 +313,8 @@ It may also commit things.::
 
     >>> app = z2.FUNCTIONAL_TESTING['app'] # would normally be self.layer['app']
     >>> app.manage_addFolder('folder1')
-    >>> app.objectIds()
-    ['acl_users', 'Control_Panel', 'folder1']
+    >>> 'acl_users' and 'folder1' in app.objectIds()
+    True
 
     >>> import transaction
     >>> transaction.commit()
@@ -330,8 +331,8 @@ On tear-down, the database is torn down.::
     False
 
     >>> with z2.zopeApp() as app:
-    ...     print app.objectIds()
-    ['acl_users', 'Control_Panel']
+    ...     'acl_users' in app.objectIds() and 'folder1' not in app.objectIds()
+    True
 
 Let's tear down the layer:::
 
@@ -420,8 +421,10 @@ On tear-down, the database is torn down.::
     False
 
     >>> with z2.zopeApp() as app:
-    ...     print app.objectIds()
-    ['acl_users', 'Control_Panel']
+    ...     'acl_users' in app.objectIds()\
+    ...         and 'folder1' not in app.objectIds()\
+    ...         and 'file1' not in app.objectIds()
+    True
 
 Let's tear down the layer:::
 
@@ -513,8 +516,8 @@ Test tear-down does nothing beyond what the base layers do.::
     False
 
     >>> with z2.zopeApp() as app:
-    ...     print app.objectIds()
-    ['acl_users', 'Control_Panel']
+    ...     'acl_users' in app.objectIds() and 'folder1' not in app.objectIds()
+    True
 
 When the server is torn down, the ZServer thread is stopped.::
 
@@ -611,8 +614,7 @@ We can now look for this new object through the server.::
 
     >>> ftpClient.retrlines('LIST')
     drwxrwx---   1 Zope     Zope            0 ... .
-    drwxrwx---   1 Zope     Zope            0 ... Control_Panel
-    --w--w----   1 Zope     Zope            0 ... acl_users
+    ...--w--w----   1 Zope     Zope            0 ... acl_users
     drwxrwx---   1 Zope     Zope            0 ... folder1
     '226 Transfer complete'
 
@@ -632,8 +634,8 @@ Test tear-down does nothing beyond what the base layers do.::
     False
 
     >>> with z2.zopeApp() as app:
-    ...     print app.objectIds()
-    ['acl_users', 'Control_Panel']
+    ...     'acl_users' in app.objectIds() and 'folder1' not in app.objectIds()
+    True
 
 When the server is torn down, the FTP thread is stopped.::
 
