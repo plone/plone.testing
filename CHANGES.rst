@@ -10,7 +10,8 @@ New:
 
 Fixes:
 
-- *add item here*
+- Fix tests for Zope 4, where the app root Control_Panel is not available anymore.
+  [thet]
 
 
 4.1.0 (2016-01-08)
