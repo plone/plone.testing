@@ -6,7 +6,8 @@ Changelog
 
 New:
 
-- *add item here*
+- Refuse to work if user breaks test isolation.
+  [do3cc]
 
 Fixes:
 

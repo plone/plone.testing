@@ -25,6 +25,10 @@ except ImportError:
 _INSTALLED_PRODUCTS = {}
 
 
+class TestIsolationBroken(BaseException):
+    pass
+
+
 def installProduct(app, productName, quiet=False, multiinit=False):
     """Install the Zope 2 product with the given name, so that it will show
     up in the Zope 2 control panel and have its ``initialize()`` hook called.
@@ -809,6 +813,16 @@ class IntegrationTesting(Layer):
         # Start a transaction
         transaction.begin()
 
+        self._original_commit = transaction.commit
+
+        def you_broke_it():
+            raise TestIsolationBroken(
+        """You are in a Test Layer (FunctionalTesting)
+that is fast by just aborting transactions between each test.
+You just committed something. That breaks the test isolation.
+So I stop here and let you fix it""")
+        transaction.commit = you_broke_it
+
         # Save resources for tests to access
         self['app'] = app
         self['request'] = request
@@ -818,6 +832,8 @@ class IntegrationTesting(Layer):
 
         # Abort the transaction
         transaction.abort()
+
+        transaction.commit = self._original_commit
 
         # Make sure we have a zope.globalrequest request
         try:
