@@ -7,6 +7,7 @@ Changelog
 New:
 
 - Refuse to work if user breaks test isolation.
+  [do3cc]
 - Check that tests don't run together with ZopeTestCase
   [do3cc]
 
