@@ -4,7 +4,9 @@ Changelog
 4.2.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+Rerelease of 4.2.0 as 5.0.0.
+
+The version 4.2.0 had changed error handling in the public api, causing exceptions where before everything continued to work.
 
 
 4.2.0 (2016-02-18)
