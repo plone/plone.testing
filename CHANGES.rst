@@ -4,10 +4,6 @@ Changelog
 4.1.1 (unreleased)
 ------------------
 
-New:
-
-- *add item here*
-
 Fixes:
 
 - Fix tests for Zope 4, where the app root Control_Panel is not available anymore.
