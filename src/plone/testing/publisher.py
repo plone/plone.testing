@@ -7,9 +7,10 @@ from plone.testing import zca
 
 
 class PublisherDirectives(Layer):
-    """Enables the use of the ZCML directives from ``zope.app.publisher``
-    (most of the ``browser`` namespace, excluding viewlets), and
-    ``zope.security`` (the ``permission`` directive).
+    """Enables the use of the ZCML directives from ``zope.browsermenu``,
+    ``zope.browserpage``, ``zope.browserresource`` and ``zope.publisher`` (most
+    of the ``browser`` namespace, excluding viewlets), and ``zope.security``
+    (the ``permission`` directive).
 
     Extends ``zca.ZCML_DIRECTIVES`` and uses its ``configurationContext``
     resource.
@@ -27,10 +28,14 @@ class PublisherDirectives(Layer):
         import zope.security
         xmlconfig.file('meta.zcml', zope.security, context=context)
 
-        # XXX: In Zope 2.13, this has split into zope.publisher,
-        # zope.browserresource, zope.browsermenu and zope.browserpage
-        import zope.app.publisher
-        xmlconfig.file('meta.zcml', zope.app.publisher, context=context)
+        import zope.browsermenu
+        xmlconfig.file('meta.zcml', zope.browsermenu, context=context)
+        import zope.browserpage
+        xmlconfig.file('meta.zcml', zope.browserpage, context=context)
+        import zope.browserresource
+        xmlconfig.file('meta.zcml', zope.browserresource, context=context)
+        import zope.publisher
+        xmlconfig.file('meta.zcml', zope.publisher, context=context)
 
     def tearDown(self):
         # Zap the stacked configuration context

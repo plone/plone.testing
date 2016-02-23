@@ -4,7 +4,8 @@ Changelog
 5.0.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Remove BBB code and imports for Zope < 2.13.
+  [thet]
 
 
 5.0.0 (2016-02-19)

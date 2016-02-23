@@ -279,7 +279,7 @@ The available extras are:
 ``publisher``
 
     Zope Publisher testing.
-    Depends on ``zope.app.publisher`` and sets up ZCML directives.
+    Depends on ``zope.publisher``, ``zope.browsermenu``, ``zope.browserpage``, ``zope.browserresource`` and ``zope.security`` and sets up ZCML directives.
     The relevant layers and helpers are in the module ``plone.testing.publisher``.
 
 ``z2``
@@ -1413,7 +1413,7 @@ The following helper functions are available in the ``plone.testing.zca`` module
     If the calls to push and pop are not balanced, you will leave your global registry in a mess, which is not pretty.
 
     Returns the new default global site manager.
-    Also causes the site manager hook from ``zope.site`` to be reset, clearing any local site managers as appropriate.
+    Also causes the site manager hook from ``zope.component.hooks`` to be reset, clearing any local site managers as appropriate.
 
 ``popGlobalRegistry()``
 
@@ -1422,7 +1422,7 @@ The following helper functions are available in the ``plone.testing.zca`` module
     Please heed the warning above: push and pop must be balanced.
 
     Returns the new default global site manager.
-    Also causes the site manager hook from ``zope.site`` to be reset, clearing any local site managers as appropriate.
+    Also causes the site manager hook from ``zope.component.hooks`` to be reset, clearing any local site managers as appropriate.
 
 Zope Security
 -------------
