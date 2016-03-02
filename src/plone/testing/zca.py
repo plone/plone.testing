@@ -33,13 +33,8 @@ def _hookRegistry(reg):
 
     # Set the default global site manager for new threads when zope.component
     # hooks are in place
-
-    try:
-        from zope.component.hooks import SiteInfo
-    except ImportError:
-        pass
-    else:
-        SiteInfo.sm = reg
+    from zope.component.hooks import SiteInfo
+    SiteInfo.sm = reg
 
     # Set the five.localsitemanager hook, too, if applicable
     try:
