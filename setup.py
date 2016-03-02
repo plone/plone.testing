@@ -16,16 +16,18 @@ if sys.version_info < (2, 7):
     install_requires.append('unittest2')
 
 tests_require = [
+    'ZODB3',
+    'zope.browsermenu',
+    'zope.browserpage',
+    'zope.browserresource',
     'zope.component',
+    'zope.configuration',
+    'zope.event',
     'zope.interface',
     'zope.publisher',
     'zope.security',
-    'zope.event',
-    'zope.configuration',
     'zope.testbrowser',
     'zope.testrunner',
-    'zope.app.publisher',  # XXX: Can probably go away in Zope 2.13
-    'ZODB3',
     'Zope2',
 ]
 
@@ -84,11 +86,14 @@ setup(
         'publisher': [
             'zope.configuration',
             'zope.security',
-            'zope.app.publisher',  # XXX: Can probably go away in Zope 2.13
+            'zope.browsermenu',
+            'zope.browserpage',
+            'zope.browserresource',
+            'zope.publisher',
         ],
         'z2': [
             'Zope2',
-            'zope.site',
+            'zope.component',
             'zope.testbrowser',
             'zope.publisher',
         ],

@@ -1,33 +1,19 @@
 # -*- coding: utf-8 -*-
 """Zope2-specific helpers and layers
 """
+from OFS.metaconfigure import get_packages_to_initialize
 from plone.testing import Layer
 from plone.testing import zca
 from plone.testing import zodb
+from plone.testing._z2_testbrowser import Browser  # noqa # BBB
+from Testing.ZopeTestCase.ZopeLite import _patched as ZOPETESTCASEALERT
 from zope.schema.vocabulary import getVocabularyRegistry
 from zope.schema.vocabulary import setVocabularyRegistry
 from Zope2.App.schema import Zope2VocabularyRegistry
+
 import contextlib
 import os
-import pkg_resources
 
-try:
-    from plone.testing._z2_testbrowser import Browser
-except ImportError:
-    # Just in case zope.testbrowser causes an import error, don't break
-    pass
-
-try:
-    from OFS.metaconfigure import get_packages_to_initialize
-    HAS_ZOPE213 = True
-except ImportError:
-    HAS_ZOPE213 = False
-
-try:
-    pkg_resources.get_distribution('Zope2')
-    HAS_ZOPETESTCASE = True
-except pkg_resources.DistributionNotFound:
-    HAS_ZOPETESTCASE = False
 
 _INSTALLED_PRODUCTS = {}
 
@@ -54,7 +40,6 @@ def installProduct(app, productName, quiet=False, multiinit=False):
     from OFS.Application import install_package
     from OFS.Application import install_product
     from OFS.Folder import Folder
-    import Products
     import sys
 
     found = False
@@ -86,17 +71,10 @@ def installProduct(app, productName, quiet=False, multiinit=False):
                 break
 
     else:
-        if HAS_ZOPE213:
-            packages = tuple(get_packages_to_initialize())
-        else:
-            packages = getattr(Products, '_packages_to_initialize', [])
+        packages = tuple(get_packages_to_initialize())
         for module, init_func in packages:
             if module.__name__ == productName:
                 install_package(app, module, init_func, raise_exc=1)
-                if not HAS_ZOPE213:
-                    Products._packages_to_initialize.remove(
-                        (module, init_func))
-
                 _INSTALLED_PRODUCTS[productName] = (module, init_func,)
 
                 found = True
@@ -120,7 +98,6 @@ def uninstallProduct(app, productName, quiet=False):
     # from App.class_init import InitializeClass
 
     from OFS.Application import Application, get_products
-    import Products
 
     global _INSTALLED_PRODUCTS
     found = False
@@ -175,10 +152,7 @@ def uninstallProduct(app, productName, quiet=False):
 
                 del cp[name]
 
-        if HAS_ZOPE213:
-            packages = get_packages_to_initialize()
-        else:
-            packages = Products._packages_to_initialize
+        packages = get_packages_to_initialize()
         packages.append((module, init_func))
         found = True
 
@@ -554,10 +528,7 @@ class Startup(Layer):
         that the database that is opened by Zope 2 is in fact the top of
         the resource stack.
         """
-
-        if HAS_ZOPETESTCASE:
-            from Testing.ZopeTestCase.ZopeLite import _patched as ZOPETESTCASEALERT
-        if HAS_ZOPETESTCASE and ZOPETESTCASEALERT:
+        if ZOPETESTCASEALERT:
             raise Exception('You try to run plone.testing tests together with '
                             'ZopeTestCase tests. This will result in random '
                             'failures. Convert the ZopeTestCase Tests or '
@@ -831,11 +802,10 @@ class IntegrationTesting(Layer):
         self._original_commit = transaction.commit
 
         def you_broke_it():
-            raise TestIsolationBroken(
-        """You are in a Test Layer (IntegrationTesting)
-that is fast by just aborting transactions between each test.
-You just committed something. That breaks the test isolation.
-So I stop here and let you fix it""")
+            raise TestIsolationBroken("""You are in a Test Layer
+(IntegrationTesting) that is fast by just aborting transactions between each
+test.  You just committed something. That breaks the test isolation.  So I stop
+here and let you fix it.""")
         transaction.commit = you_broke_it
 
         # Save resources for tests to access

@@ -2,7 +2,6 @@
 from cStringIO import StringIO
 import base64
 import mechanize
-import pkg_resources
 import re
 import rfc822
 import sys
@@ -15,14 +14,8 @@ from zope.testbrowser.testing import PublisherConnection, PublisherResponse
 import zope.testbrowser.browser
 
 
-try:
-    pkg_resources.get_distribution('Zope2>=2.13')
-
-    def get_cookies(request):
-        return request.response._cookie_list()
-except (pkg_resources.VersionConflict, pkg_resources.DistributionNotFound):
-    def get_cookies(request):
-        return [(c[:10], c[12:]) for c in request.response._cookie_list()]
+def get_cookies(request):
+    return request.response._cookie_list()
 
 
 class Browser(zope.testbrowser.browser.Browser):
@@ -135,8 +128,8 @@ def saveState(func):
     """
     from AccessControl.SecurityManagement import getSecurityManager
     from AccessControl.SecurityManagement import setSecurityManager
-    from zope.site.hooks import getSite
-    from zope.site.hooks import setSite
+    from zope.component.hooks import getSite
+    from zope.component.hooks import setSite
 
     def wrapped_func(*args, **kw):
         sm, site = getSecurityManager(), getSite()
