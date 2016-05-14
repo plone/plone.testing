@@ -122,7 +122,7 @@ class ResourceManager(object):
     def _resourceResolutionOrder(self, instance):
         return self._mergeResourceManagers(
             [[instance]] +
-            map(self._resourceResolutionOrder, instance.__bases__) +
+            list(map(self._resourceResolutionOrder, instance.__bases__)) +
             [list(instance.__bases__)]
         )
 
