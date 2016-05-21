@@ -7,6 +7,8 @@ Changelog
 - Remove BBB code and imports for Zope < 2.13.
   [thet]
 
+- Fix issue, which prevented using layered-helper on Python 3.
+  [datakurre]
 
 5.0.0 (2016-02-19)
 ------------------
