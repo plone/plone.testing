@@ -706,7 +706,7 @@ class Startup(Layer):
     <include package="Products.Five" />
     <meta:redefinePermission from="zope2.Public" to="zope.Public" />
 
-    <securityPolicy component="Products.Five.security.FiveSecurityPolicy" />
+    <securityPolicy component="AccessControl.security.SecurityPolicy" />
 
 </configure>
 """, context=context)
