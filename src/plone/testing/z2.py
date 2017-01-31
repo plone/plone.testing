@@ -5,6 +5,7 @@ from OFS.metaconfigure import get_packages_to_initialize
 from plone.testing import Layer
 from plone.testing import zca
 from plone.testing import zodb
+from plone.testing._z2_testbrowser import Browser  # noqa
 from Testing.ZopeTestCase.ZopeLite import _patched as ZOPETESTCASEALERT
 from Zope2.App.schema import Zope2VocabularyRegistry
 from zope.schema.vocabulary import getVocabularyRegistry
