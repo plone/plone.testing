@@ -3,7 +3,6 @@ from ZPublisher.httpexceptions import HTTPExceptionHandler
 from ZPublisher.WSGIPublisher import publish_module
 import base64
 import re
-import urlparse
 
 
 BASIC_RE = re.compile('Basic (.+)?:(.+)?$')
@@ -52,6 +51,7 @@ class Zope2Caller(object):
 
     @saveState
     def __call__(self, environ, start_response):
+
         # Base64 encode auth header
         http_auth = 'HTTP_AUTHORIZATION'
         if http_auth in environ:
@@ -78,10 +78,7 @@ class Browser(browser.Browser):
         wsgi_app = Zope2Caller(self, app)
         super(Browser, self).__init__(url=url, wsgi_app=wsgi_app)
 
-    def _absoluteUrl(self, url):
-        url = super(Browser, self)._absoluteUrl(url)
-        # use `localhost` as the internal host rather than `nohost`
-        parsed = urlparse.urlparse(url)
-        if parsed.netloc == 'nohost':
-            parsed = parsed._replace(netloc='localhost')
-        return parsed.geturl()
+
+# Add `nohost` to testbrowser's set of allowed hosts
+from zope.testbrowser.browser import _allowed
+_allowed.add('nohost')
