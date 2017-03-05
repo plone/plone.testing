@@ -7,6 +7,8 @@ from plone.testing import zodb
 from zope.schema.vocabulary import getVocabularyRegistry
 from zope.schema.vocabulary import setVocabularyRegistry
 from Zope2.App.schema import Zope2VocabularyRegistry
+from ZPublisher import publish_module
+from ZServer import PubCore
 import contextlib
 import os
 
@@ -933,6 +935,23 @@ FUNCTIONAL_TESTING = FunctionalTesting()
 
 # More advanced functional testing - running ZServer and FTP server
 
+
+def threadlessPubCoreHandler(name, request, response):
+    """ This replaces the `ZServer.PubCore` handler (i.e. the
+        `ZServerPublisher`/`ZRendezvous` loop) with a threadless version
+        suitable for testing.  This allows complete `coverage` reporting,
+        see https://bitbucket.org/ned/coveragepy/issues/244 """
+    try:
+        assert name == 'Zope2'
+        try:
+            publish_module(name, request=request, response=response)
+        finally:
+            response._finish()
+            request = response = None
+    except:
+        pass    # see `ZopeTestCase.threadutils.QuietPublisher`
+
+
 class ZServer(Layer):
     """Start a ZServer that accesses the fixture managed by the
     ``STARTUP`` layer.
@@ -967,6 +986,8 @@ class ZServer(Layer):
 
         self.setUpServer()
 
+        PubCore._handle = threadlessPubCoreHandler
+
         self.thread = Thread(
             name="%s server" % self.__name__,
             target=self.runner,
@@ -981,6 +1002,8 @@ class ZServer(Layer):
         self._shutdown = True
         self.thread.join(self.timeout)
         time.sleep(0.5)
+
+        PubCore._handle = None
 
         self.tearDownServer()
 

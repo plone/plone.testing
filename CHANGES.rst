@@ -10,7 +10,9 @@ New:
 
 Fixes:
 
-- *add item here*
+- Replace `ZServer.PubCore` handler with a threadless version, which fixes
+  `coverage` reporting.  See https://bitbucket.org/ned/coveragepy/issues/244.
+  [witsch]
 
 
 4.1.1 (2016-02-21)
