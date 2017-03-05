@@ -4,10 +4,6 @@ Changelog
 4.1.2 (unreleased)
 ------------------
 
-New:
-
-- *add item here*
-
 Fixes:
 
 - Replace `ZServer.PubCore` handler with a threadless version, which fixes
