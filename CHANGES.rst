@@ -1,20 +1,16 @@
 Changelog
 =========
 
-4.1.3 (unreleased)
+4.3.0 (unreleased)
 ------------------
 
-Breaking changes:
+- No changes.
 
-- *add item here*
+Notes
+~~~~~
 
-New features:
-
-- *add item here*
-
-Bug fixes:
-
-- *add item here*
+This is a rerelease of 4.1.2 (without any changes) meant to discourage the
+use of the 4.2.x series which has turned into 5.0.x.
 
 
 4.1.2 (2017-03-05)
