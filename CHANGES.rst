@@ -4,7 +4,7 @@ Changelog
 4.1.2 (unreleased)
 ------------------
 
-Fixes:
+Bugfixes:
 
 - Replace `ZServer.PubCore` handler with a threadless version, which fixes
   `coverage` reporting.  See https://bitbucket.org/ned/coveragepy/issues/244.
@@ -14,7 +14,7 @@ Fixes:
 4.1.1 (2016-02-21)
 ------------------
 
-Fixes:
+Bugfixes:
 
 - Fix tests for Zope 4, where the app root Control_Panel is not available anymore.
   [thet]
@@ -23,7 +23,7 @@ Fixes:
 4.1.0 (2016-01-08)
 ------------------
 
-Fixes:
+Bugfixes:
 
 - Rename all txt doctest files to rst. Reformat doctests.
   [thet]
