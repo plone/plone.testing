@@ -13,6 +13,7 @@ from Zope2.App.schema import Zope2VocabularyRegistry
 
 import contextlib
 import os
+import transaction
 
 
 _INSTALLED_PRODUCTS = {}
@@ -249,7 +250,6 @@ def zopeApp(db=None, connection=None, environ=None):
     """
 
     import Zope2
-    import transaction
 
     closeConn = True
     if connection is not None:
@@ -543,8 +543,6 @@ class Startup(Layer):
         self['zodbDB'] = zodb.stackDemoStorage(
             self.get('zodbDB'),
             name='Startup')
-        import transaction
-        transaction.begin()
 
         # Create a facade for the database object that will delegate to the
         # correct underlying database. This allows resource shadowing to work
@@ -593,7 +591,6 @@ class Startup(Layer):
         del self._dbtab
 
         # Close and pop the zodbDB resource
-        import transaction
         transaction.abort()
         self['zodbDB'].close()
         del self['zodbDB']
@@ -744,6 +741,7 @@ class Startup(Layer):
 
         setVocabularyRegistry(self._oldVocabularyRegistry)
 
+
 STARTUP = Startup()
 
 
@@ -780,7 +778,6 @@ class IntegrationTesting(Layer):
 
     def testSetUp(self):
         import Zope2
-        import transaction
 
         # Open a new app and save it as the resource ``app``.
 
@@ -817,7 +814,6 @@ here and let you fix it.""")
         self['request'] = request
 
     def testTearDown(self):
-        import transaction
 
         # Abort the transaction
         transaction.abort()
@@ -873,7 +869,6 @@ class FunctionalTesting(Layer):
 
     def testSetUp(self):
         import Zope2
-        import transaction
 
         # Override zodbDB from the layer setup. Since it was set up by
         # this layer, we can't just assign a new shadow. We therefore keep
@@ -909,8 +904,6 @@ class FunctionalTesting(Layer):
         self['request'] = request
 
     def testTearDown(self):
-        import transaction
-
         # Abort any open transactions
         transaction.abort()
 
