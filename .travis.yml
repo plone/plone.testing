@@ -1,0 +1,15 @@
+language: python
+python: 2.7
+sudo: false
+cache:
+  pip: true
+  directories:
+    - $HOME/buildout-cache
+before_install:
+  - mkdir -p $HOME/buildout-cache/{eggs,downloads}
+  - virtualenv .
+  - bin/pip install --upgrade pip setuptools zc.buildout
+install:
+  - bin/buildout -N -t 3
+script:
+  - bin/test
