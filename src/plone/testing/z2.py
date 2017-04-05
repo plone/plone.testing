@@ -289,7 +289,7 @@ def zopeApp(db=None, connection=None, environ=None):
 
             if closeConn:
                 connection.close()
-        except:
+        except Exception:
             if inner_exception:
                 raise inner_exception
             else:
@@ -543,6 +543,8 @@ class Startup(Layer):
         self['zodbDB'] = zodb.stackDemoStorage(
             self.get('zodbDB'),
             name='Startup')
+        import transaction
+        transaction.begin()
 
         # Create a facade for the database object that will delegate to the
         # correct underlying database. This allows resource shadowing to work
@@ -591,6 +593,8 @@ class Startup(Layer):
         del self._dbtab
 
         # Close and pop the zodbDB resource
+        import transaction
+        transaction.abort()
         self['zodbDB'].close()
         del self['zodbDB']
 
