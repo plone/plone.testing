@@ -7,9 +7,9 @@ from plone.testing import zca
 from plone.testing import zodb
 from plone.testing._z2_testbrowser import Browser  # noqa # BBB
 from Testing.ZopeTestCase.ZopeLite import _patched as ZOPETESTCASEALERT
+from Zope2.App.schema import Zope2VocabularyRegistry
 from zope.schema.vocabulary import getVocabularyRegistry
 from zope.schema.vocabulary import setVocabularyRegistry
-from Zope2.App.schema import Zope2VocabularyRegistry
 
 import contextlib
 import os
@@ -248,7 +248,6 @@ def zopeApp(db=None, connection=None, environ=None):
     pass an open connection as ``connection`` (the connection will not be
     closed).
     """
-
     import Zope2
 
     closeConn = True
@@ -286,8 +285,8 @@ def zopeApp(db=None, connection=None, environ=None):
     finally:
         try:
             app.REQUEST.close()
-
             if closeConn:
+                transaction.abort()
                 connection.close()
         except Exception:
             if inner_exception:
