@@ -4,6 +4,9 @@ Changelog
 5.0.1 (unreleased)
 ------------------
 
+- Fix for ZODB 5: Abort transaction before DB close.
+  [jensens, jimfulton]
+
 - Remove BBB code and imports for Zope < 2.13.
   [thet]
 
