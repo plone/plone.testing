@@ -9,8 +9,10 @@ from zope.schema.vocabulary import setVocabularyRegistry
 from Zope2.App.schema import Zope2VocabularyRegistry
 from ZPublisher import publish_module
 from ZServer import PubCore
+
 import contextlib
 import os
+import transaction
 
 try:
     from plone.testing._z2_testbrowser import Browser
@@ -264,9 +266,7 @@ def zopeApp(db=None, connection=None, environ=None):
     pass an open connection as ``connection`` (the connection will not be
     closed).
     """
-
     import Zope2
-    import transaction
 
     closeConn = True
     if connection is not None:
@@ -303,10 +303,10 @@ def zopeApp(db=None, connection=None, environ=None):
     finally:
         try:
             app.REQUEST.close()
-
             if closeConn:
+                transaction.abort()
                 connection.close()
-        except:
+        except Exception:
             if inner_exception:
                 raise inner_exception
             else:
@@ -603,6 +603,7 @@ class Startup(Layer):
         del self._dbtab
 
         # Close and pop the zodbDB resource
+        transaction.abort()
         self['zodbDB'].close()
         del self['zodbDB']
 
@@ -752,6 +753,7 @@ class Startup(Layer):
 
         setVocabularyRegistry(self._oldVocabularyRegistry)
 
+
 STARTUP = Startup()
 
 
@@ -788,7 +790,6 @@ class IntegrationTesting(Layer):
 
     def testSetUp(self):
         import Zope2
-        import transaction
 
         # Open a new app and save it as the resource ``app``.
 
@@ -816,7 +817,6 @@ class IntegrationTesting(Layer):
         self['request'] = request
 
     def testTearDown(self):
-        import transaction
 
         # Abort the transaction
         transaction.abort()
@@ -870,7 +870,6 @@ class FunctionalTesting(Layer):
 
     def testSetUp(self):
         import Zope2
-        import transaction
 
         # Override zodbDB from the layer setup. Since it was set up by
         # this layer, we can't just assign a new shadow. We therefore keep
@@ -906,8 +905,6 @@ class FunctionalTesting(Layer):
         self['request'] = request
 
     def testTearDown(self):
-        import transaction
-
         # Abort any open transactions
         transaction.abort()
 

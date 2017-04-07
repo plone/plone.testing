@@ -14,7 +14,9 @@ New features:
 
 Bug fixes:
 
-- *add item here*
+- Fix for ZODB 5: Abort transaction before DB close.
+  [jensens, jimfulton, ale-rt]
+
 
 
 4.3.0 (2017-03-05)
