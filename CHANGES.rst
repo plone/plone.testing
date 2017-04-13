@@ -1,8 +1,8 @@
 Changelog
 =========
 
-5.0.1 (unreleased)
-------------------
+5.1 (2017-04-13)
+----------------
 
 - Fix for ZODB 5: Abort transaction before DB close.
   [jensens, jimfulton]
