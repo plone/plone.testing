@@ -5,7 +5,6 @@ from OFS.metaconfigure import get_packages_to_initialize
 from plone.testing import Layer
 from plone.testing import zca
 from plone.testing import zodb
-from plone.testing._z2_testbrowser import Browser  # noqa # BBB
 from Testing.ZopeTestCase.ZopeLite import _patched as ZOPETESTCASEALERT
 from Zope2.App.schema import Zope2VocabularyRegistry
 from zope.schema.vocabulary import getVocabularyRegistry
@@ -14,6 +13,12 @@ from zope.schema.vocabulary import setVocabularyRegistry
 import contextlib
 import os
 import transaction
+
+try:
+    from plone.testing._z2_testbrowser import Browser  # noqa # BBB
+except ImportError:
+    # Just in case zope.testbrowser causes an import error, don't break
+    pass
 
 
 _INSTALLED_PRODUCTS = {}
