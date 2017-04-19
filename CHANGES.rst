@@ -4,7 +4,8 @@ Changelog
 5.1.1 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Do not break on import of ``plone.testing.z2`` when using
+  `zope.testbrowser` >= 5.0 which no longer depends on `mechanize`.
 
 
 5.1 (2017-04-13)
