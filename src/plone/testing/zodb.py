@@ -94,4 +94,5 @@ class EmptyZODB(Layer):
         from ZODB.DB import DB
         return DB(storage)
 
+
 EMPTY_ZODB = EmptyZODB()

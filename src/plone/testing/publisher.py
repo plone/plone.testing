@@ -41,4 +41,5 @@ class PublisherDirectives(Layer):
         # Zap the stacked configuration context
         del self['configurationContext']
 
+
 PUBLISHER_DIRECTIVES = PublisherDirectives()

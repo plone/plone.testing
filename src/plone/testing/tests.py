@@ -3,15 +3,14 @@ try:
     import unittest2 as unittest
 except ImportError:  # Python 2.7
     import unittest
-import doctest
+from OFS.SimpleItem import SimpleItem
+from pkg_resources import get_distribution
+from ZPublisher.Iterators import filestream_iterator
 
+import doctest
+import os.path
 import zope.component.testing
 
-import os.path
-
-from pkg_resources import get_distribution
-from OFS.SimpleItem import SimpleItem
-from ZPublisher.Iterators import filestream_iterator
 
 # This is somewhat retarted. We execute README.rst as a doctest, mainly just
 # to test that the code samples import cleanly and are valid Python. However,
@@ -30,7 +29,7 @@ def _canOutrunKlingons(warpDrive):
 class DummyUtility(object):
 
     def __repr__(self):
-        return "<Dummy utility>"
+        return '<Dummy utility>'
 
 
 class DummyView(object):
@@ -39,7 +38,7 @@ class DummyView(object):
         pass
 
     def __call__(self):
-        return u""
+        return u''
 
 
 class DummyFile(SimpleItem):

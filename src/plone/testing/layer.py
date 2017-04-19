@@ -1,5 +1,7 @@
 # -*- coding: utf-8 -*-
 import sys
+
+
 _marker = object()
 
 
@@ -112,7 +114,7 @@ class ResourceManager(object):
                     break
 
             if not cand:
-                raise TypeError(u"Inconsistent layer hierarchy!")
+                raise TypeError(u'Inconsistent layer hierarchy!')
 
             res.append(cand)
             for seq in nonemptyseqs:  # remove cand
@@ -188,7 +190,7 @@ class Layer(ResourceManager):
         super(Layer, self).__init__()
 
     def __repr__(self):
-        return "<Layer '%s.%s'>" % (self.__module__, self.__name__,)
+        return "<Layer '{0}.{1}'>".format(self.__module__, self.__name__,)
 
     # Layer lifecycle methods - overriden by subclasses
 

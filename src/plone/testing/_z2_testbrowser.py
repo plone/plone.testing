@@ -1,5 +1,8 @@
 # -*- coding: utf-8 -*-
 from cStringIO import StringIO
+from zope.testbrowser.testing import PublisherConnection
+from zope.testbrowser.testing import PublisherResponse
+
 import base64
 import mechanize
 import re
@@ -7,10 +10,6 @@ import rfc822
 import sys
 import urllib
 import urllib2
-
-# Using a from-import here to avoid an AttributeError below when using
-# zope.testbrowser 4.x without zope.app.testing:
-from zope.testbrowser.testing import PublisherConnection, PublisherResponse
 import zope.testbrowser.browser
 
 
@@ -55,7 +54,7 @@ class Zope2MechanizeBrowser(mechanize.Browser):
             return Zope2HTTPHandler(app)
 
         self.handler_classes = mechanize.Browser.handler_classes.copy()
-        self.handler_classes["http"] = httpHandlerFactory
+        self.handler_classes['http'] = httpHandlerFactory
         self.default_others = [cls for cls in self.default_others
                                if cls in mechanize.Browser.handler_classes]
         mechanize.Browser.__init__(self, *args, **kws)
@@ -100,13 +99,15 @@ class Zope2Connection(PublisherConnection):
         for key, val in self.response.headers.items():
             if key.lower() == key:
                 # only change non-literal header names
-                key = "%s%s" % (key[:1].upper(), key[1:])
+                key = '{0}{1}'.format(key[:1].upper(), key[1:])
                 start = 0
                 l = key.find('-', start)
                 while l >= start:
-                    key = "%s-%s%s" % (key[:l],
-                                       key[l + 1:l + 2].upper(),
-                                       key[l + 2:])
+                    key = '{0}-{1}{2}'.format(
+                        key[:l],
+                        key[l + 1:l + 2].upper(),
+                        key[l + 2:],
+                    )
                     start = l + 1
                     l = key.find('-', start)
             headers.append((key, val))
@@ -115,8 +116,8 @@ class Zope2Connection(PublisherConnection):
         cookies = get_cookies(self)
         headers.extend(cookies)
         headers.sort()
-        headers.insert(0, ('Status', "%s %s" % (status, reason)))
-        headers = '\r\n'.join('%s: %s' % h for h in headers)
+        headers.insert(0, ('Status', '{0} {1}'.format(status, reason)))
+        headers = '\r\n'.join('{0}: {1}'.format(*h) for h in headers)
         content = self.response.getBody()
 
         return PublisherResponse(content, headers, status, reason)
@@ -140,11 +141,13 @@ def saveState(func):
             setSite(site)
     return wrapped_func
 
+
 HEADER_RE = re.compile('(\S+): (.+)$')
 
 
 def splitHeader(header):
     return HEADER_RE.match(header).group(1, 2)
+
 
 BASIC_RE = re.compile('Basic (.+)?:(.+)?$')
 
@@ -157,8 +160,8 @@ def authHeader(header):
             u = ''
         if p is None:
             p = ''
-        auth = base64.encodestring('%s:%s' % (u, p))
-        return 'Basic %s' % auth[:-1]
+        auth = base64.encodestring('{0}:{1}'.format(u, p))
+        return 'Basic {0}'.format(auth[:-1])
     return header
 
 
@@ -195,10 +198,10 @@ class Zope2Caller(object):
 
         instream = StringIO(requestString)
 
-        env = {"HTTP_HOST": 'localhost',
-               "HTTP_REFERER": 'localhost',
-               "REQUEST_METHOD": method,
-               "SERVER_PROTOCOL": protocol,
+        env = {'HTTP_HOST': 'localhost',
+               'HTTP_REFERER': 'localhost',
+               'REQUEST_METHOD': method,
+               'SERVER_PROTOCOL': protocol,
                }
 
         p = url.split('?', 1)
