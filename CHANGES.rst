@@ -1,7 +1,7 @@
 Changelog
 =========
 
-5.1.1 (unreleased)
+5.1.1 (2017-04-19)
 ------------------
 
 - Do not break on import of ``plone.testing.z2`` when using
