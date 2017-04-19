@@ -14,6 +14,7 @@ import contextlib
 import os
 import transaction
 
+
 try:
     from plone.testing._z2_testbrowser import Browser  # noqa # BBB
 except ImportError:
@@ -88,7 +89,9 @@ def installProduct(app, productName, quiet=False, multiinit=False):
                     break
 
     if not found and not quiet:
-        sys.stderr.write("Could not install product %s\n" % productName)
+        sys.stderr.write(
+            'Could not install product {0}\n'.format(productName)
+        )
         sys.stderr.flush()
 
 
@@ -166,7 +169,9 @@ def uninstallProduct(app, productName, quiet=False):
         del _INSTALLED_PRODUCTS[productName]
 
     if not found and not quiet:
-        sys.stderr.write("Could not install product %s\n" % productName)
+        sys.stderr.write(
+            'Could not install product {0}\n'.format(productName)
+        )
         sys.stderr.flush()
 
 
@@ -363,7 +368,7 @@ class Startup(Layer):
 
         # Set Python security mode
         from AccessControl.Implementation import setImplementation
-        setImplementation("Python")
+        setImplementation('Python')
 
         # Set a flag so that other code can know that we are running tests.
         # Some of the speed-related patches in Plone use this, for instance.
@@ -376,7 +381,7 @@ class Startup(Layer):
         """
 
         from AccessControl.Implementation import setImplementation
-        setImplementation("C")
+        setImplementation('C')
 
         import App.config
         config = App.config.getConfiguration()
@@ -840,6 +845,7 @@ here and let you fix it.""")
         del self['request']
         del self['app']
 
+
 INTEGRATION_TESTING = IntegrationTesting()
 
 
@@ -930,6 +936,7 @@ class FunctionalTesting(Layer):
         self['zodbDB'].close()
         del self['zodbDB']
 
+
 FUNCTIONAL_TESTING = FunctionalTesting()
 
 
@@ -970,7 +977,7 @@ class ZServer(Layer):
         self.setUpServer()
 
         self.thread = Thread(
-            name="%s server" % self.__name__,
+            name='{0} server'.format(self.__name__),
             target=self.runner,
         )
 
@@ -1031,6 +1038,7 @@ class ZServer(Layer):
         while socket_map and not self._shutdown:
             asyncore.poll(self.timeout, socket_map)
 
+
 # Fixture layer - use as a base layer, but don't use directly, as it has no
 # test lifecycle
 ZSERVER_FIXTURE = ZServer()
@@ -1040,7 +1048,7 @@ ZSERVER = FunctionalTesting(
     bases=(
         ZSERVER_FIXTURE,
     ),
-    name="ZServer:Functional")
+    name='ZServer:Functional')
 
 
 class FTPServer(ZServer):
@@ -1090,6 +1098,7 @@ class FTPServer(ZServer):
         """
         self.ftpServer.close()
 
+
 # Fixture layer - use as a base layer, but don't use directly, as it has no
 # test lifecycle
 FTP_SERVER_FIXTURE = FTPServer()
@@ -1099,4 +1108,4 @@ FTP_SERVER = FunctionalTesting(
     bases=(
         FTP_SERVER_FIXTURE,
     ),
-    name="FTPServer:Functional")
+    name='FTPServer:Functional')

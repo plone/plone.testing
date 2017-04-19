@@ -3,6 +3,7 @@
 """
 from plone.testing import Layer
 
+
 _checkersStack = []
 
 
@@ -43,5 +44,6 @@ class Checkers(Layer):
 
     def tearDown(self):
         popCheckers()
+
 
 CHECKERS = Checkers()

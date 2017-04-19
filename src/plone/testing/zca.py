@@ -3,6 +3,7 @@
 """
 from plone.testing import Layer
 from zope.configuration.config import ConfigurationMachine
+
 import logging
 
 
@@ -25,7 +26,7 @@ def _hookRegistry(reg):
     from zope.component import _api
     from zope.component import globalregistry
 
-    logger.debug("Hook component registry: %s", reg.__name__)
+    logger.debug('Hook component registry: %s', reg.__name__)
 
     _api.base = reg
     globalregistry.base = reg
@@ -77,14 +78,14 @@ def pushGlobalRegistry(new=None):
             lambda self: (loadRegistry, (self.__name__,)))
 
     if new is None:
-        name = 'test-stack-%d' % len(_REGISTRIES)
+        name = 'test-stack-{0}'.format(len(_REGISTRIES))
         new = globalregistry.BaseGlobalComponents(name=name, bases=(current,))
         logger.debug(
-            "New component registry: %s based on %s",
+            'New component registry: %s based on %s',
             name,
             current.__name__)
     else:
-        logger.debug("Push component registry: %s", new.__name__)
+        logger.debug('Push component registry: %s', new.__name__)
 
     _REGISTRIES.append(new)
 
@@ -116,8 +117,8 @@ def popGlobalRegistry():
     from zope.component import globalregistry
 
     if not _REGISTRIES or not _REGISTRIES[-1] is globalregistry.base:
-        msg = ("popGlobalRegistry() called out of sync with "
-               "pushGlobalRegistry()")
+        msg = ('popGlobalRegistry() called out of sync with '
+               'pushGlobalRegistry()')
         raise ValueError(msg)
 
     current = _REGISTRIES.pop()
@@ -156,14 +157,19 @@ class NamedConfigurationMachine(ConfigurationMachine):
         self.__name__ = name
 
     def __str__(self):
-        return ('<zope.configuration.config.ConfigurationMachine object %s>'
-                % self.__name__)
+        pkg = 'zope.configuration.config.ConfigurationMachine'
+        return (
+            '<{0} object {1}>'.format(
+                pkg,
+                self.__name__,
+            )
+        )
 
     def __repr__(self):
         return self.__str__()
 
 
-def stackConfigurationContext(context=None, name="not named"):
+def stackConfigurationContext(context=None, name='not named'):
     """Return a new ``ConfigurationMachine`` configuration context that
     is a clone of the passed-in context. If no context is passed in, a fresh
     configuration context is returned.
@@ -238,6 +244,7 @@ class UnitTesting(Layer):
         import zope.component.testing
         zope.component.testing.tearDown()
 
+
 UNIT_TESTING = UnitTesting()
 
 
@@ -256,6 +263,7 @@ class EventTesting(Layer):
         import zope.component.eventtesting
         zope.component.eventtesting.setUp()
 
+
 EVENT_TESTING = EventTesting()
 
 
@@ -273,6 +281,7 @@ class LayerCleanup(Layer):
     def tearDown(self):
         import zope.testing.cleanup
         zope.testing.cleanup.cleanUp()
+
 
 LAYER_CLEANUP = LayerCleanup()
 
@@ -298,6 +307,7 @@ class ZCMLDirectives(Layer):
     def tearDown(self):
         del self['configurationContext']
 
+
 ZCML_DIRECTIVES = ZCMLDirectives()
 
 
@@ -313,19 +323,20 @@ class ZCMLSandbox(Layer):
 
     def setUp(self):
         name = self.__name__ if self.__name__ is not None else 'not-named'
-        contextName = "ZCMLSandbox-%s" % name
+        contextName = 'ZCMLSandbox-{0}'.format(name)
         self['configurationContext'] = stackConfigurationContext(
             self.get('configurationContext'),
-            name=contextName)
+            name=contextName,
+        )
         pushGlobalRegistry()
         self.setUpZCMLFiles()
 
     def setUpZCMLFiles(self):
         if self.filename is None:
-            raise ValueError("ZCML file name has not been provided.")
+            raise ValueError('ZCML file name has not been provided.')
         if self.package is None:
-            raise ValueError("The package that contains the ZCML file "
-                             "has not been provided.")
+            raise ValueError('The package that contains the ZCML file '
+                             'has not been provided.')
         self.loadZCMLFile(self.filename, self.package)
 
     def loadZCMLFile(self, filename, package):

@@ -4,7 +4,8 @@ Changelog
 5.1.2 (unreleased)
 ------------------
 
-- Nothing changed yet.
+- Update code to follow Plone styleguide.
+  [gforcada]
 
 
 5.1.1 (2017-04-19)
