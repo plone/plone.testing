@@ -4,14 +4,6 @@ Changelog
 4.3.1 (unreleased)
 ------------------
 
-Breaking changes:
-
-- *add item here*
-
-New features:
-
-- *add item here*
-
 Bug fixes:
 
 - Fix for ZODB 5: Abort transaction before DB close.
