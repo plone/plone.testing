@@ -120,7 +120,7 @@ def uninstallProduct(app, productName, quiet=False):
             if ('Products.' + name) == productName:
 
                 if name in Application.misc_.__dict__:
-                    del Application.misc_.__dict__[name]
+                    delattr(Application.misc_, name)
 
                 try:
                     cp = app['Control_Panel']['Products']
