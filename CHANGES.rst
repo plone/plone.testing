@@ -7,6 +7,9 @@ Changelog
 - Update code to follow Plone styleguide.
   [gforcada]
 
+- Make compatible with ``Zope >= 4.0b2``.
+  [icemac]
+
 
 5.1.1 (2017-04-19)
 ------------------
