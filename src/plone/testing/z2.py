@@ -655,12 +655,12 @@ class Startup(Layer):
         # Clear out the app reference cached in get_module_info's
         # 'modules' parameter default dict. (waaaaa)
         import ZPublisher.Publish
-        defaults = ZPublisher.Publish.get_module_info.func_defaults
+        defaults = ZPublisher.Publish.get_module_info.__defaults__
 
         if defaults:
             d = list(defaults)
             d[0] = {}
-            ZPublisher.Publish.get_module_info.func_defaults = tuple(d)
+            ZPublisher.Publish.get_module_info.__defaults__ = tuple(d)
 
     def setUpBasicProducts(self):
         """Install a minimal set of products required for Zope 2.
