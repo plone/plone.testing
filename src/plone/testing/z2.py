@@ -5,6 +5,7 @@ from OFS.metaconfigure import get_packages_to_initialize
 from plone.testing import Layer
 from plone.testing import zca
 from plone.testing import zodb
+from plone.testing._z2_testbrowser import Browser  # noqa
 from Testing.ZopeTestCase.ZopeLite import _patched as ZOPETESTCASEALERT
 from Zope2.App.schema import Zope2VocabularyRegistry
 from zope.schema.vocabulary import getVocabularyRegistry
@@ -816,7 +817,12 @@ class IntegrationTesting(Layer):
 (IntegrationTesting) that is fast by just aborting transactions between each
 test.  You just committed something. That breaks the test isolation.  So I stop
 here and let you fix it.""")
-        transaction.commit = you_broke_it
+
+        # XXX TODO Restore this.
+        # Temporarily allow commits in integration tests.
+        # Plone 5.1 still uses plone.testing 4.1.1, and for Zope 4 integration
+        # we want master, but without the commit-breaking for now.
+        # transaction.commit = you_broke_it
 
         # Save resources for tests to access
         self['app'] = app
