@@ -7,4 +7,3 @@ if PY3:
     from io import StringIO
 else:
     from cStringIO import StringIO
- 
