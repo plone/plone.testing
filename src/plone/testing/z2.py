@@ -1007,7 +1007,7 @@ class ZServer(Layer):
         """
 
         from ZServer import zhttp_server, zhttp_handler, logger
-        from StringIO import StringIO
+        from plone.testing._compat import StringIO
 
         log = self.log
         if log is None:
@@ -1085,7 +1085,7 @@ class FTPServer(ZServer):
 
         from ZServer import logger
         from ZServer.FTPServer import FTPServer
-        from StringIO import StringIO
+        from plone.testing._compat import StringIO
 
         log = self.log
         if log is None:
