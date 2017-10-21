@@ -1,5 +1,4 @@
 from zope.testbrowser import browser
-from ZPublisher.httpexceptions import HTTPExceptionHandler
 from ZPublisher.WSGIPublisher import publish_module
 import base64
 import re
@@ -59,6 +58,8 @@ class Zope2Caller(object):
 
         publish = publish_module
         if self.browser.handleErrors:
+            # Zope 4 specific
+            from ZPublisher.httpexceptions import HTTPExceptionHandler
             publish = HTTPExceptionHandler(publish)
         wsgi_result = publish(environ, start_response)
 

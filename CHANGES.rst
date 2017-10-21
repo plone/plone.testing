@@ -4,6 +4,9 @@ Changelog
 5.1.2 (unreleased)
 ------------------
 
+- Do not break on import of ``HTTPExceptionHandler`` which is Zope4 specific
+  [ale-rt, rudaporto]
+
 - Update code to follow Plone styleguide.
   [gforcada]
 
