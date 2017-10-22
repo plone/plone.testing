@@ -9,6 +9,9 @@ Changelog
   + Only support ``Zope >= 4``, no longer support ``Zope2``.
   + Drop support for Python 2.6.
 
+- No longer use deprecated import for getSite/setSite.
+  [jensens]
+
 - Update code to follow Plone styleguide.
   [gforcada]
 

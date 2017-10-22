@@ -27,8 +27,8 @@ def saveState(func):
     """
     from AccessControl.SecurityManagement import getSecurityManager
     from AccessControl.SecurityManagement import setSecurityManager
-    from zope.site.hooks import getSite
-    from zope.site.hooks import setSite
+    from zope.component.hooks import getSite
+    from zope.component.hooks import setSite
 
     def wrapped_func(*args, **kw):
         sm, site = getSecurityManager(), getSite()
