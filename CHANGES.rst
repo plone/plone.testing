@@ -4,6 +4,9 @@ Changelog
 5.1.2 (unreleased)
 ------------------
 
+- Python 2 / 3 compatible imports.
+  [rudaporto]
+
 - Update code to follow Plone styleguide.
   [gforcada]
 
