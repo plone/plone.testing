@@ -488,16 +488,16 @@ A simple layer may look like this::
     >>> class SpaceShip(Layer):
     ...
     ...     def setUp(self):
-    ...         print "Assembling space ship"
+    ...         print("Assembling space ship")
     ...
     ...     def tearDown(self):
-    ...         print "Disasembling space ship"
+    ...         print("Disasembling space ship")
     ...
     ...     def testSetUp(self):
-    ...         print "Fuelling space ship in preparation for test"
+    ...         print("Fuelling space ship in preparation for test")
     ...
     ...     def testTearDown(self):
-    ...         print "Emptying the fuel tank"
+    ...         print("Emptying the fuel tank")
 
 Before this layer can be used, it must be instantiated.
 Layers are normally instantiated exactly once, since by nature they are shared between tests.
@@ -522,7 +522,7 @@ Here is an example of another layer that depends on it:::
     ...     defaultBases = (SPACE_SHIP,)
     ...
     ...     def setUp(self):
-    ...         print "Installing main canon"
+    ...         print("Installing main canon")
 
     >>> ZIG = ZIGSpaceShip()
 
@@ -567,10 +567,10 @@ Normally, of course, you would just re-use the layer instance, either directly i
     >>> class CATSMessage(Layer):
     ...
     ...     def setUp(self):
-    ...         print "All your base are belong to us"
+    ...         print("All your base are belong to us")
     ...
     ...     def tearDown(self):
-    ...         print "For great justice"
+    ...         print("For great justice")
 
     >>> CATS_MESSAGE = CATSMessage()
 
@@ -619,9 +619,9 @@ The resource storage uses dictionary notation:::
     ...
     ...     def start(self, speed):
     ...         if speed > self.maxSpeed:
-    ...             print "We need more power!"
+    ...             print("We need more power!")
     ...         else:
-    ...             print "Going to warp at speed", speed
+    ...             print("Going to warp at speed", speed)
     ...             self.running = True
     ...
     ...     def stop(self):
