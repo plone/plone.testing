@@ -26,10 +26,11 @@ Before the test, our custom checker is not in the registry.::
     ...     pass
 
     >>> from zope.security.interfaces import IChecker
-    >>> from zope.interface import implements
-    >>> class FauxChecker(object):
-    ...     implements(IChecker)
+    >>> from zope.interface import implementer
+    >>> @implementer(IChecker)
+    ... class FauxChecker(object):
     ...     # we should really implement the interface here, but oh well
+    ...     pass
 
     >>> from zope.security.checker import getCheckerForInstancesOf
     >>> getCheckerForInstancesOf(DummyObject) is None

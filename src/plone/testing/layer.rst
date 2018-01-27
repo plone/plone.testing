@@ -55,7 +55,7 @@ The ``name`` argument is required when using ``Layer`` directly (but not when us
     >>> class NullLayer(Layer):
     ...     pass
     >>> NullLayer()
-    <Layer '__builtin__.NullLayer'>
+    <Layer 'builtins.NullLayer'>
 
 Using ``Layer`` as a base class
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -66,10 +66,10 @@ This can then override the lifecycle methods as appropriate, as well as set a de
     >>> class BaseLayer(Layer):
     ...
     ...     def setUp(self):
-    ...         print "Setting up base layer"
+    ...         print("Setting up base layer")
     ...
     ...     def tearDown(self):
-    ...         print "Tearing down base layer"
+    ...         print("Tearing down base layer")
 
     >>> BASE_LAYER = BaseLayer()
 
@@ -80,7 +80,7 @@ The layer name and module are taken from the class.::
     >>> BASE_LAYER.__name__
     'BaseLayer'
     >>> BASE_LAYER.__module__
-    '__builtin__'
+    'builtins'
 
 We can now create a new layer that has this one as a base.
 We can do this in the instance constructor, as shown above, but the most common pattern is to set the default bases in the class body, using the variable ``defaultBases``.
@@ -95,21 +95,21 @@ This is mostly cosmetic, but may be desirable if the class name would be mislead
     ...         super(ChildLayer, self).__init__(bases, name, module)
     ...
     ...     def setUp(self):
-    ...         print "Setting up child layer"
+    ...         print("Setting up child layer")
     ...
     ...     def tearDown(self):
-    ...         print "Tearing down child layer"
+    ...         print("Tearing down child layer")
 
     >>> CHILD_LAYER = ChildLayer()
 
 Notice how the bases have now been set using the value in ``defaultBases``.::
 
     >>> CHILD_LAYER.__bases__
-    (<Layer '__builtin__.BaseLayer'>,)
+    (<Layer 'builtins.BaseLayer'>,)
     >>> CHILD_LAYER.__name__
     'Child layer'
     >>> CHILD_LAYER.__module__
-    '__builtin__'
+    'builtins'
 
 Overriding the default list of bases
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
@@ -125,11 +125,11 @@ When creating a second instance of a layer (most layers are global singletons cr
     >>> NEW_CHILD_LAYER = ChildLayer(bases=(SIMPLE_LAYER, BASE_LAYER,), name='New child')
 
     >>> NEW_CHILD_LAYER.__bases__
-    (<Layer 'plone.testing.tests.Simple layer'>, <Layer '__builtin__.BaseLayer'>)
+    (<Layer 'plone.testing.tests.Simple layer'>, <Layer 'builtins.BaseLayer'>)
     >>> NEW_CHILD_LAYER.__name__
     'New child'
     >>> NEW_CHILD_LAYER.__module__
-    '__builtin__'
+    'builtins'
 
 Inconsistent bases
 ~~~~~~~~~~~~~~~~~~
@@ -138,12 +138,12 @@ Layer bases are maintained in an order that is semantically equivalent to the "m
 We can get this from the ``baseResolutionOrder`` attribute:::
 
     >>> CHILD_LAYER.baseResolutionOrder
-    (<Layer '__builtin__.Child layer'>, <Layer '__builtin__.BaseLayer'>)
+    (<Layer 'builtins.Child layer'>, <Layer 'builtins.BaseLayer'>)
 
     >>> NEW_CHILD_LAYER.baseResolutionOrder
-    (<Layer '__builtin__.New child'>, <Layer 'plone.testing.tests.Simple layer'>,
+    (<Layer 'builtins.New child'>, <Layer 'plone.testing.tests.Simple layer'>,
      <Layer 'plone.testing.layer.Null layer'>,
-     <Layer '__builtin__.BaseLayer'>)
+     <Layer 'builtins.BaseLayer'>)
 
 As with Python classes, it is possible to construct an invalid set of bases.
 In this case, layer instantiation will fail.::
@@ -211,10 +211,10 @@ The layers are ordered in a known "resource resolution order", which is used to 
 This is based on the same algorithm as Python's method resolution order.::
 
     >>> LAYER4.baseResolutionOrder
-    (<Layer '__builtin__.Layer4'>,
-     <Layer '__builtin__.Layer2'>,
-     <Layer '__builtin__.Layer1'>,
-     <Layer '__builtin__.Layer3'>)
+    (<Layer 'builtins.Layer4'>,
+     <Layer 'builtins.Layer2'>,
+     <Layer 'builtins.Layer1'>,
+     <Layer 'builtins.Layer3'>)
 
 When fetching and item from a layer, it will be obtained according to the resource resolution order.::
 
@@ -283,7 +283,7 @@ We want to demonstrate having two "branches" of bases that both happen to define
     ...     def setUp(self):
     ...         self['resource'] = "Base 1"
     ...     def testSetUp(self):
-    ...         print self['resource']
+    ...         print(self['resource'])
     ...     def tearDown(self):
     ...         del self['resource']
 
@@ -292,7 +292,7 @@ We want to demonstrate having two "branches" of bases that both happen to define
     >>> class ResourceBaseLayer2(Layer):
     ...     defaultBases = (RESOURCE_BASE_LAYER1,)
     ...     def testSetUp(self):
-    ...         print self['resource']
+    ...         print(self['resource'])
 
     >>> RESOURCE_BASE_LAYER2 = ResourceBaseLayer2()
 
@@ -300,7 +300,7 @@ We want to demonstrate having two "branches" of bases that both happen to define
     ...     def setUp(self):
     ...         self['resource'] = "Base 3"
     ...     def testSetUp(self):
-    ...         print self['resource']
+    ...         print(self['resource'])
     ...     def tearDown(self):
     ...         del self['resource']
 
@@ -313,7 +313,7 @@ We'll then create the child layer that overrides this resource.::
     ...     def setUp(self):
     ...         self['resource'] = "Child"
     ...     def testSetUp(self):
-    ...         print self['resource']
+    ...         print(self['resource'])
     ...     def tearDown(self):
     ...         del self['resource']
 

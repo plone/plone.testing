@@ -2,10 +2,12 @@
 from OFS.SimpleItem import SimpleItem
 from pkg_resources import get_distribution
 from ZPublisher.Iterators import filestream_iterator
+from zope.testing import renormalizing
 
 import doctest
 import os.path
 import unittest
+import re
 import zope.component.testing
 
 
@@ -66,6 +68,23 @@ def tearDown(self):
     zope.component.testing.tearDown()
 
 
+checker = renormalizing.RENormalizing([
+    # normalize py2 output to py3
+    (re.compile(r'__buildin__'), r'buildins'),
+
+    (re.compile(
+        r"'Unknown directive', u'http://namespaces.zope.org/zope', u'"),
+     r"'Unknown directive', 'http://namespaces.zope.org/zope', '"),
+
+    # normalize py3 output to py3
+    (re.compile(
+        r"zope\.configuration\.xmlconfig\.ZopeXMLConfigurationError"),
+     r"ZopeXMLConfigurationError"),
+    (re.compile(r"builtins\.PopulatedZODB"), r"PopulatedZODB"),
+    (re.compile(r"builtins\.ExpandedZODB"), r"ExpandedZODB"),
+])
+
+
 def test_suite():
     suite = unittest.TestSuite()
     suite.addTests([
@@ -76,6 +95,7 @@ def test_suite():
             'publisher.rst',
             'zodb.rst',
             'wsgi.rst',
+            checker=checker,
             setUp=setUp,
             tearDown=tearDown,
             optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE,
