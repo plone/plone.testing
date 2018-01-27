@@ -500,7 +500,7 @@ We can now look for this new object through the server.::
 
     >>> import urllib2
     >>> conn = urllib2.urlopen(app_url + '/folder1', timeout=5)
-    >>> print conn.read()
+    >>> print(conn.read())
     <Folder at folder1>
     >>> conn.close()
 
