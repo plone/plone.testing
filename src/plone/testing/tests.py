@@ -8,6 +8,7 @@ import doctest
 import os.path
 import unittest
 import re
+import unittest
 import zope.component.testing
 
 
@@ -70,8 +71,7 @@ def tearDown(self):
 
 checker = renormalizing.RENormalizing([
     # normalize py2 output to py3
-    (re.compile(r'__buildin__'), r'buildins'),
-
+    (re.compile(r'__builtin__'), r'builtins'),
     (re.compile(
         r"'Unknown directive', u'http://namespaces.zope.org/zope', u'"),
      r"'Unknown directive', 'http://namespaces.zope.org/zope', '"),
