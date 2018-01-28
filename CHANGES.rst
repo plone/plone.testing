@@ -4,6 +4,12 @@ Changelog
 5.1.2 (unreleased)
 ------------------
 
+- Fix most doctests for python 3.
+  [rudaporto]
+
+- Python 2 / 3 compatible imports.
+  [rudaporto]
+
 - Update code to follow Plone styleguide.
   [gforcada]
 

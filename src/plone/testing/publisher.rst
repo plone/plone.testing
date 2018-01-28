@@ -43,7 +43,7 @@ the ``<permission />`` or ``<browser:view />`` directives without loading the ne
     Traceback (most recent call last):
     ...
     ZopeXMLConfigurationError: File "<string>", line 5.4
-        ConfigurationError: ('Unknown directive', u'http://namespaces.zope.org/zope', u'permission')
+        ConfigurationError: ('Unknown directive', 'http://namespaces.zope.org/zope', 'permission')
 
 Layer setup creates a configuration context we can use to load further configuration.::
 

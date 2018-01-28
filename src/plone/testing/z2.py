@@ -655,12 +655,12 @@ class Startup(Layer):
         # Clear out the app reference cached in get_module_info's
         # 'modules' parameter default dict. (waaaaa)
         import ZPublisher.Publish
-        defaults = ZPublisher.Publish.get_module_info.func_defaults
+        defaults = ZPublisher.Publish.get_module_info.__defaults__
 
         if defaults:
             d = list(defaults)
             d[0] = {}
-            ZPublisher.Publish.get_module_info.func_defaults = tuple(d)
+            ZPublisher.Publish.get_module_info.__defaults__ = tuple(d)
 
     def setUpBasicProducts(self):
         """Install a minimal set of products required for Zope 2.
@@ -1007,7 +1007,7 @@ class ZServer(Layer):
         """
 
         from ZServer import zhttp_server, zhttp_handler, logger
-        from StringIO import StringIO
+        from six import StringIO
 
         log = self.log
         if log is None:
@@ -1085,7 +1085,7 @@ class FTPServer(ZServer):
 
         from ZServer import logger
         from ZServer.FTPServer import FTPServer
-        from StringIO import StringIO
+        from six import StringIO
 
         log = self.log
         if log is None:
