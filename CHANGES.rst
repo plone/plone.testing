@@ -35,6 +35,9 @@ Bug fixes:
 
 - No longer use deprecated import for getSite/setSite.
   [jensens]
+- Fix most doctests for python 3.
+  [rudaporto]
+
 - Python 2 / 3 compatible imports.
   [rudaporto]
 
