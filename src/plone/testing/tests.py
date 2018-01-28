@@ -1,8 +1,4 @@
 # -*- coding: utf-8 -*-
-try:
-    import unittest2 as unittest
-except ImportError:  # Python 2.7
-    import unittest
 from OFS.SimpleItem import SimpleItem
 from pkg_resources import get_distribution
 from ZPublisher.Iterators import filestream_iterator
@@ -11,6 +7,7 @@ from zope.testing import renormalizing
 import doctest
 import os.path
 import re
+import unittest
 import zope.component.testing
 
 
@@ -66,8 +63,7 @@ def tearDown(self):
 
 checker = renormalizing.RENormalizing([
     # normalize py2 output to py3
-    (re.compile(r'__buildin__'), r'buildins'),
-
+    (re.compile(r'__builtin__'), r'builtins'),
     (re.compile(
         r"'Unknown directive', u'http://namespaces.zope.org/zope', u'"),
      r"'Unknown directive', 'http://namespaces.zope.org/zope', '"),
