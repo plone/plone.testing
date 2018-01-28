@@ -7,7 +7,7 @@ cache:
     - $HOME/buildout-cache
 before_install:
   - mkdir -p $HOME/buildout-cache/{eggs,downloads}
-  - virtualenv .
+  - virtualenv -p `which python` .
   - bin/pip install --upgrade pip setuptools zc.buildout
 install:
   - bin/buildout -N -t 3
