@@ -1,14 +1,11 @@
 # -*- coding: utf-8 -*-
-try:
-    import unittest2 as unittest
-except ImportError:  # Python 2.7
-    import unittest
 from OFS.SimpleItem import SimpleItem
 from pkg_resources import get_distribution
 from ZPublisher.Iterators import filestream_iterator
 
 import doctest
 import os.path
+import unittest
 import zope.component.testing
 
 

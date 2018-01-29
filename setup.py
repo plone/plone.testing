@@ -11,10 +11,6 @@ install_requires = [
     'zope.testing',
 ]
 
-
-if sys.version_info < (2, 7):
-    install_requires.append('unittest2')
-
 tests_require = [
     'ZODB3',
     'zope.browsermenu',
@@ -56,7 +52,6 @@ setup(
         "Framework :: Plone :: 5.0",
         "Operating System :: OS Independent",
         "Programming Language :: Python",
-        "Programming Language :: Python :: 2.6",
         "Programming Language :: Python :: 2.7",
         "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
         "License :: OSI Approved :: BSD License",
