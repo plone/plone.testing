@@ -335,7 +335,7 @@ class Startup(Layer):
         self.setUpDebugMode()
         self.setUpClientCache()
         self.setUpPatches()
-        self.setUpThreads()
+        #self.setUpThreads()
         self.setUpHostPort()
         self.setUpDatabase()
         self.setUpApp()
@@ -350,7 +350,7 @@ class Startup(Layer):
         self.tearDownApp()
         self.tearDownDatabase()
         self.tearDownHostPort()
-        self.tearDownThreads()
+        #self.tearDownThreads()
         self.tearDownPatches()
         self.tearDownClientCache()
         self.tearDownDebugMode()
@@ -624,7 +624,7 @@ class Startup(Layer):
         # That DB then gets stored as Zope2.DB and becomes the default.
 
         import Zope2
-        Zope2.startup()
+        Zope2.startup_wsgi()
 
         # At this point, Zope2.DB is set to the test database facade. This is
         # the database will be used by default when someone does Zope2.app().
@@ -652,15 +652,8 @@ class Startup(Layer):
             App.config.setConfiguration(config)
             del self._testingHome
 
-        # Clear out the app reference cached in get_module_info's
-        # 'modules' parameter default dict. (waaaaa)
-        import ZPublisher.Publish
-        defaults = ZPublisher.Publish.get_module_info.func_defaults
-
-        if defaults:
-            d = list(defaults)
-            d[0] = {}
-            ZPublisher.Publish.get_module_info.func_defaults = tuple(d)
+        import ZPublisher.WSGIPublisher
+        ZPublisher.WSGIPublisher._MODULES.clear()
 
     def setUpBasicProducts(self):
         """Install a minimal set of products required for Zope 2.
@@ -944,174 +937,3 @@ class FunctionalTesting(Layer):
 
 
 FUNCTIONAL_TESTING = FunctionalTesting()
-
-
-# More advanced functional testing - running ZServer and FTP server
-
-class ZServer(Layer):
-    """Start a ZServer that accesses the fixture managed by the
-    ``STARTUP`` layer.
-
-    The host and port are available as the resources ``host`` and ``port``,
-    respectively.
-
-    This should *not* be used in parallel with the ``FTP_SERVER`` layer, since
-    it shares the same async loop.
-
-    The ``ZSERVER_FIXTURE`` layer must be used as the base for a layer that
-    uses the ``FunctionalTesting`` layer class. The ``ZSERVER`` layer is
-    an example of such a layer.
-    """
-
-    defaultBases = (STARTUP,)
-
-    host = os.environ.get('ZSERVER_HOST', 'localhost')
-    port = int(os.environ.get('ZSERVER_PORT', 55001))
-    timeout = 5.0
-    log = None
-
-    def setUp(self):
-
-        import time
-        from threading import Thread
-
-        self['host'] = self.host
-        self['port'] = self.port
-
-        self._shutdown = False
-
-        self.setUpServer()
-
-        self.thread = Thread(
-            name='{0} server'.format(self.__name__),
-            target=self.runner,
-        )
-
-        self.thread.start()
-        time.sleep(0.5)
-
-    def tearDown(self):
-        import time
-
-        self._shutdown = True
-        self.thread.join(self.timeout)
-        time.sleep(0.5)
-
-        self.tearDownServer()
-
-        del self['host']
-        del self['port']
-
-    def setUpServer(self):
-        """Create a ZServer server instance and save it in self.zserver
-        """
-
-        from ZServer import zhttp_server, zhttp_handler, logger
-        from StringIO import StringIO
-
-        log = self.log
-        if log is None:
-            log = StringIO()
-
-        zopeLog = logger.file_logger(log)
-
-        server = zhttp_server(
-            ip=self.host,
-            port=self.port,
-            resolver=None,
-            logger_object=zopeLog)
-        zhttpHandler = zhttp_handler(module='Zope2', uri_base='')
-        server.install_handler(zhttpHandler)
-
-        self.zserver = server
-
-    def tearDownServer(self):
-        """Close the ZServer socket
-        """
-        self.zserver.close()
-
-    # Thread runner
-
-    def runner(self):
-        """Thread runner for the main asyncore loop. This function runs in a
-        separate thread.
-        """
-
-        import asyncore
-
-        # Poll
-        socket_map = asyncore.socket_map
-        while socket_map and not self._shutdown:
-            asyncore.poll(self.timeout, socket_map)
-
-
-# Fixture layer - use as a base layer, but don't use directly, as it has no
-# test lifecycle
-ZSERVER_FIXTURE = ZServer()
-
-# Functional testing layer that uses the ZSERVER_FIXTURE
-ZSERVER = FunctionalTesting(
-    bases=(
-        ZSERVER_FIXTURE,
-    ),
-    name='ZServer:Functional')
-
-
-class FTPServer(ZServer):
-    """FTP variant of the ZServer layer.
-
-    This will not play well with the ZServer layer. If you need both
-    ZServer and FTPServer running together, you can subclass the ZServer
-    layer class (like this layer class does) and implement setUpServer()
-    and tearDownServer() to set up and close down two servers on different
-    ports. They will then share a main loop.
-
-    The ``FTP_SERVER_FIXTURE`` layer must be used as the base for a layer that
-    uses the ``FunctionalTesting`` layer class. The ``FTP_SERVER`` layer is
-    an example of such a layer.
-    """
-
-    defaultBases = (STARTUP,)
-
-    host = os.environ.get('FTPSERVER_HOST', 'localhost')
-    port = int(os.environ.get('FTPSERVER_PORT', 55002))
-    threads = 1
-    timeout = 5.0
-    log = None
-
-    def setUpServer(self):
-        """Create an FTP server instance and save it in self.ftpServer
-        """
-
-        from ZServer import logger
-        from ZServer.FTPServer import FTPServer
-        from StringIO import StringIO
-
-        log = self.log
-        if log is None:
-            log = StringIO()
-
-        zopeLog = logger.file_logger(log)
-
-        self.ftpServer = FTPServer(
-            'Zope2',
-            ip=self.host,
-            port=self.port,
-            logger_object=zopeLog)
-
-    def tearDownServer(self):
-        """Close the FTPServer socket
-        """
-        self.ftpServer.close()
-
-
-# Fixture layer - use as a base layer, but don't use directly, as it has no
-# test lifecycle
-FTP_SERVER_FIXTURE = FTPServer()
-
-# Functional testing layer that uses the FTP_SERVER_FIXTURE
-FTP_SERVER = FunctionalTesting(
-    bases=(
-        FTP_SERVER_FIXTURE,
-    ),
-    name='FTPServer:Functional')

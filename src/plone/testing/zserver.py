@@ -259,7 +259,7 @@ def zopeApp(db=None, connection=None, environ=None):
     pass an open connection as ``connection`` (the connection will not be
     closed).
     """
-    import Zope2
+    from ZServer import Zope2
 
     closeConn = True
     if connection is not None:
@@ -634,9 +634,10 @@ class Startup(Layer):
         """
 
         import Zope2
+        import ZServer.Zope2
         Zope2.app()._p_jar.close()
 
-        Zope2._began_startup = 0
+        ZServer.Zope2._began_startup = 0
 
         Zope2.DB = None
         Zope2.bobo_application = None
