@@ -1,15 +1,18 @@
 language: python
-python: 2.7
 sudo: false
+python:
+    - 2.7
+install:
+    - pip install setuptools zc.buildout
+    - pip install coveralls coverage
+    - buildout bootstrap
+    - buildout
+script:
+    - coverage run bin/test -v1
+after_success:
+    - coverage combine
+    - coveralls
 cache:
   pip: true
   directories:
-    - $HOME/buildout-cache
-before_install:
-  - mkdir -p $HOME/buildout-cache/{eggs,downloads}
-  - pip install setuptools zc.buildout
-install:
-  - buildout bootstrap
-  - buildout
-script:
-  - bin/test
+    - eggs/
