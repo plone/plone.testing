@@ -48,7 +48,7 @@ class DummyFile(SimpleItem):
 
     def __call__(self):
         path = get_distribution('plone.testing').location
-        path = os.path.join(path, 'plone', 'testing', 'z2.rst')
+        path = os.path.join(path, 'plone', 'testing', 'wsgi.rst')
 
         request = self.REQUEST
         response = request.response
@@ -74,6 +74,7 @@ def test_suite():
             'security.rst',
             'publisher.rst',
             'zodb.rst',
+            'wsgi.rst',
             setUp=setUp,
             tearDown=tearDown,
             optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE,
@@ -89,7 +90,7 @@ def test_suite():
     if HAS_ZSERVER:
         suite.addTests([
             doctest.DocFileSuite(
-                'z2.rst',
+                'zserver.rst',
                 setUp=setUp,
                 tearDown=tearDown,
                 optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE,
