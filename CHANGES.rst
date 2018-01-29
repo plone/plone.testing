@@ -27,6 +27,8 @@ Bug fixes:
   + Only support ``Zope >= 4``, no longer support ``Zope2``.
   + Drop support for Python 2.6.
 
+- Make it possible to run the tests without having ``ZServer`` installed.
+
 - No longer use deprecated import for getSite/setSite.
   [jensens]
 
