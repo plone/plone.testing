@@ -1,7 +1,10 @@
 *.egg-info
 *.pyc
 *.tox
+.coverage
 .installed.cfg
 bin
+coverage.xml
 develop-eggs
 eggs
+htmlcov/
