@@ -25,7 +25,6 @@ tests_require = [
     'zope.testbrowser',
     'zope.testrunner',
     'Zope',
-    'ZServer',
 ]
 
 setup(
@@ -87,6 +86,7 @@ setup(
         ],
         'z2': [
             'Zope',
+            'ZServer',
             'zope.component',
             'zope.testbrowser',
             'zope.publisher',
