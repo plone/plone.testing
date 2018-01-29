@@ -728,7 +728,7 @@ Don't forget the ``__init__.py`` in the ``tests`` package, too!
 unittest
 ~~~~~~~~
 
-Please note that the `zope.testing`_ test runner at the time of writing (version 3.9.3) does not (yet) support the new ``setUpClass()``, ``tearDownClass()``, ``setUpModule()`` and ``tearDownModule()`` hooks from ``unittest``.
+Please note that the `zope.testing`_ test runner at the time of writing (version 4.6.2) does not (yet) support the new ``setUpClass()``, ``tearDownClass()``, ``setUpModule()`` and ``tearDownModule()`` hooks from ``unittest``.
 This is not normally a problem, since we tend to use layers to manage complex fixtures, but it is important to be aware of nonetheless.
 
 Test modules, classes and functions
