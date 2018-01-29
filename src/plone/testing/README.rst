@@ -28,7 +28,7 @@ Compatibility
 
 ``plone.testing`` 6.x has only been tested with Python 2.7.
 If you're using the optional Zope layers, you must use Zope version 4 or later.
-Look at oder ``plone.testing`` versions for supporting older Zope versions.
+Look at older ``plone.testing`` versions for supporting older Zope versions.
 
 Definitions
 -----------
