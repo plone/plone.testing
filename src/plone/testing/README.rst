@@ -26,9 +26,9 @@ The core concepts should be consistent, however.
 Compatibility
 -------------
 
-``plone.testing`` 4.x has only been tested with Python 2.6 and 2.7.
-If you're using the optional Zope 2 layers, you must use Zope version 2.12 or later.
-Look at ``plone.testing`` 3.x for Zope 2.10 support.
+``plone.testing`` 6.x has only been tested with Python 2.7.
+If you're using the optional Zope layers, you must use Zope version 4 or later.
+Look at oder ``plone.testing`` versions for supporting older Zope versions.
 
 Definitions
 -----------
@@ -240,7 +240,7 @@ This will generate a ``coverage.xml`` file in the buildout root.
 Optional dependencies
 ---------------------
 
-``plone.testing`` comes with a core set of tools for managing layers, which depends only on `zope.testing`_ and (for Python < 2.7) `unittest2`_.
+``plone.testing`` comes with a core set of tools for managing layers, which depends only on `zope.testing`_.
 In addition, there are several layers and helper functions which can be used in your own tests (or as bases for your own layers).
 Some of these have deeper dependencies.
 However, these dependencies are optional and not installed by default.
@@ -683,10 +683,7 @@ Conversely, ``warpDrive`` is a shared resource that is exposed to other layers a
 The distinction becomes even more important when you consider how a test case may access the shared resource.
 We'll discuss how to write test cases that use layers shortly, but consider the following test:::
 
-    >>> try:
-    ...     import unittest2 as unittest
-    ... except ImportError: # Python 2.7
-    ...     import unittest
+    >>> import unittest
     >>> class TestFasterThanLightTravel(unittest.TestCase):
     ...     layer = GALAXY_CLASS_SPACE_SHIP
     ...
@@ -710,7 +707,7 @@ Writing tests
 
 Tests are usually written in one of two ways: As methods on a class that derives from ``unittest.TestCase`` (this is sometimes known as "Python tests" or "JUnit-style tests"), or using doctest syntax.
 
-You should realise that although the relevant frameworks (``unittest``, ``unittest2`` and ``doctest``) often talk about unit testing, these tools are also used to write integration and functional tests.
+You should realise that although the relevant frameworks (``unittest`` and ``doctest``) often talk about unit testing, these tools are also used to write integration and functional tests.
 The distinction between unit, integration and functional tests is largely practical: you use the same techniques to set up a fixture or write assertions for an integration test as you would for a unit test.
 The difference lies in what that fixture contains, and how you invoke the code under test.
 In general, a true unit test will have a minimal or no test fixture, whereas an integration test will have a fixture that contains the components your code is integrating with.
@@ -719,7 +716,7 @@ A functional test will have a fixture that contains enough of the full system to
 Python tests
 ------------
 
-Python tests use the Python `unittest`_ module, or its cousin `unittest2`_ (see below).
+Python tests use the Python `unittest`_ module.
 They should be placed in a module or package called ``tests`` for the test runner to pick them up.
 
 For small packages, a single module called ``tests.py`` will normally contain all tests.
@@ -728,17 +725,10 @@ These need to start with the word ``test``, e.g.
 ``tests/test_foo.py`` or ``tests/test_bar.py``.
 Don't forget the ``__init__.py`` in the ``tests`` package, too!
 
-unittest2
-~~~~~~~~~
+unittest
+~~~~~~~~
 
-In Python 2.7+, the ``unittest`` module has grown several new and useful features.
-To make use of these in Python 2.4, 2.5 and 2.6, an add-on module called `unittest2`_ can be installed.
-``plone.testing`` depends on ``unittest2`` for these versions (and uses it for its own tests), so you will have access to it if you depend on ``plone.testing``.
-
-We will use ``unittest2`` for the examples in this document, but try to import it with an alias of ``unittest``.
-This makes the code forward compatible with Python 2.7, where the built-in ``unittest`` module will have all the features of the ``unittest2`` module.
-
-Please note that the `zope.testing`_ test runner at the time of writing (version 3.9.3) does not (yet) support the new ``setUpClass()``, ``tearDownClass()``, ``setUpModule()`` and ``tearDownModule()`` hooks from ``unittest2``.
+Please note that the `zope.testing`_ test runner at the time of writing (version 3.9.3) does not (yet) support the new ``setUpClass()``, ``tearDownClass()``, ``setUpModule()`` and ``tearDownModule()`` hooks from ``unittest``.
 This is not normally a problem, since we tend to use layers to manage complex fixtures, but it is important to be aware of nonetheless.
 
 Test modules, classes and functions
@@ -761,14 +751,11 @@ If layers are used in conjunction with ``setUp()`` and ``tearDown()`` methods in
 The ``TestCase`` base class contains a number of methods which can be used to write assertions.
 They all take the form ``self.assertSomething()``, e.g.
 ``self.assertEqual(result, expectedValue)``.
-See the `unittest`_ and/or `unittest2`_ documentation for details.
+See the `unittest`_ documentation for details.
 
 Putting this together, let's expand on our previous example unit test:::
 
-    >>> try:
-    ...     import unittest2 as unittest
-    ... except ImportError: # Python 2.7
-    ...     import unittest
+    >>> import unittest
 
     >>> class TestFasterThanLightTravel(unittest.TestCase):
     ...     layer = GALAXY_CLASS_SPACE_SHIP
@@ -1055,7 +1042,7 @@ This is equivalent to:::
 Zope testing tools
 ==================
 
-Everything described so far in this document relies only on the standard `unittest`_/`unittest2`_ and `doctest`_ modules and `zope.testing`_, and you can use this package without any other dependencies.
+Everything described so far in this document relies only on the standard `unittest`_ and `doctest`_ modules and `zope.testing`_, and you can use this package without any other dependencies.
 
 However, there are also some tools (and layers) available in this package, as well as in other packages, that are specifically useful for testing applications that use various Zope-related frameworks.
 
@@ -1945,7 +1932,6 @@ Several helper functions are available in the ``plone.testing.z2`` module.
 .. _Cobertura: http://wiki.hudson-ci.org/display/HUDSON/Cobertura+Plugin
 .. _Hudson: http://www.hudson-labs.org/
 .. _unittest: http://doc.python.org/library/unittest.html
-.. _unittest2: http://pypi.python.org/pypi/unittest2
 .. _doctest: http://docs.python.org/dev/library/doctest.html
 .. _Windmill: http://getwindmill.com/
 .. _Selenium: http://seleniumhq.org/

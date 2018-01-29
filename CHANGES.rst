@@ -4,13 +4,13 @@ Changelog
 6.0 (unreleased)
 ----------------
 
-- Breaking change: Only support ``Zope >= 4``, no longer support ``Zope2``.
+- Breaking changes:
+
+  + Only support ``Zope >= 4``, no longer support ``Zope2``.
+  + Drop support for Python 2.6.
 
 - Update code to follow Plone styleguide.
   [gforcada]
-
-- Make compatible with ``Zope >= 4.0b2``.
-  [icemac]
 
 
 5.1.1 (2017-04-19)

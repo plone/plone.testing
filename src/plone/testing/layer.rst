@@ -458,10 +458,7 @@ Therefore, the syntax for creating a doctest with a layer and adding it to a tes
     ...     pass
     >>> DOCTEST_LAYER = DoctestLayer()
 
-    >>> try:
-    ...     import unittest2 as unittest
-    ... except ImportError: # Python 2.7
-    ...     import unittest
+    >>> import unittest
     >>> import doctest
 
     >>> def test_suite():
