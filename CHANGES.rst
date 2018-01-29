@@ -1,8 +1,10 @@
 Changelog
 =========
 
-5.1.2 (unreleased)
-------------------
+6.0 (unreleased)
+----------------
+
+- Breaking change: Only support ``Zope >= 4``, no longer support ``Zope2``.
 
 - Update code to follow Plone styleguide.
   [gforcada]
