@@ -9,6 +9,9 @@ Changelog
   + Only support ``Zope >= 4``, no longer support ``Zope2``.
   + Drop support for Python 2.6.
 
+- Do not break on import of ``HTTPExceptionHandler`` which is Zope4 specific
+  [ale-rt, rudaporto]
+
 - Update code to follow Plone styleguide.
   [gforcada]
 
