@@ -626,6 +626,9 @@ class Startup(Layer):
         import Zope2
         Zope2.startup()
 
+        from ZServer.ZPublisher.exceptionhook import EXCEPTION_HOOK
+        setattr(Zope2, 'zpublisher_exception_hook', EXCEPTION_HOOK)
+
         # At this point, Zope2.DB is set to the test database facade. This is
         # the database will be used by default when someone does Zope2.app().
 
