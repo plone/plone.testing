@@ -33,6 +33,8 @@ Bug fixes:
 - Update code to follow Plone styleguide.
   [gforcada]
 
+- Fix import location.
+  [gforcada]
 
 5.1.1 (2017-04-19)
 ------------------
