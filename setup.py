@@ -4,7 +4,7 @@ import os.path
 import sys
 from setuptools import setup, find_packages
 
-version = '6.0.0'
+version = '6.0.1.dev0'
 
 install_requires = [
     'setuptools',
