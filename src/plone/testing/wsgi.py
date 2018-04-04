@@ -1,5 +1,5 @@
 # -*- coding: utf-8 -*-
-"""Zope2-specific helpers and layers
+"""Zope-specific helpers and layers using WSGI
 """
 from OFS.metaconfigure import get_packages_to_initialize
 from plone.testing import Layer
@@ -12,15 +12,7 @@ from zope.schema.vocabulary import getVocabularyRegistry
 from zope.schema.vocabulary import setVocabularyRegistry
 
 import contextlib
-import os
 import transaction
-
-
-try:
-    from plone.testing._z2_testbrowser import Browser  # noqa # BBB
-except ImportError:
-    # Just in case zope.testbrowser causes an import error, don't break
-    pass
 
 
 _INSTALLED_PRODUCTS = {}
@@ -335,7 +327,7 @@ class Startup(Layer):
         self.setUpDebugMode()
         self.setUpClientCache()
         self.setUpPatches()
-        #self.setUpThreads()
+        self.setUpThreads()
         self.setUpHostPort()
         self.setUpDatabase()
         self.setUpApp()
@@ -350,7 +342,7 @@ class Startup(Layer):
         self.tearDownApp()
         self.tearDownDatabase()
         self.tearDownHostPort()
-        #self.tearDownThreads()
+        self.tearDownThreads()
         self.tearDownPatches()
         self.tearDownClientCache()
         self.tearDownDebugMode()
@@ -496,23 +488,14 @@ class Startup(Layer):
             del self._App_ProductContext_ProductContext_registerHelp
 
     def setUpThreads(self):
-        """Set the thread count for ZServer. This defaults to 1.
+        """Set the thread count. Only needed in ZServer.
         """
-
-        # We can't use setNumberOfThreads() because that function self-
-        # destructs, literally, when called.
-
-        import ZServer.PubCore
-        self._zserverThreads = ZServer.PubCore._n
-        ZServer.PubCore._n = self.threads
+        pass
 
     def tearDownThreads(self):
-        """Reset the ZServer thread count.
+        """Reset the thread count. Only needed in ZServer.
         """
-
-        import ZServer.PubCore
-        ZServer.PubCore._n = self._zserverThreads
-        del self._zserverThreads
+        pass
 
     def setUpHostPort(self):
         """Set up the 'host' and 'port' resources
@@ -749,7 +732,7 @@ STARTUP = Startup()
 
 
 # Basic integration and functional test and layers. These are the simplest
-# Zope 2 layers that are generally useful
+# Zope layers that are generally useful
 
 class IntegrationTesting(Layer):
     """This layer extends ``STARTUP`` to add rollback of the transaction
