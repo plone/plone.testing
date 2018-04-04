@@ -755,15 +755,15 @@ class IntegrationTesting(Layer):
     create a new layer that has ``STARTUP`` as a base. Then instantiate
     this layer with your new "fixture" layer as a base, e.g.::
 
-        from plone.testing import z2
+        from plone.testing import wsgi
         from plone.testing import Layer
 
         class MyFixture(Layer):
 
             ...
 
-        MY_FIXTURE = MyFixture(bases=(z2.STARTUP,), name='MyFixture')
-        MY_INTEGRATION_TESTING = z2.IntegrationTesting(bases=(MY_FIXTURE,), name='MyFixture:Integration')  # noqa
+        MY_FIXTURE = MyFixture(bases=(wsgi.STARTUP,), name='MyFixture')
+        MY_INTEGRATION_TESTING = wsgi.IntegrationTesting(bases=(MY_FIXTURE,), name='MyFixture:Integration')  # noqa
     """
 
     defaultBases = (STARTUP,)
@@ -852,15 +852,15 @@ class FunctionalTesting(Layer):
     create a new layer that has ``STARTUP`` as a base. Then instantiate
     this layer with your new "fixture" layer as a base, e.g.::
 
-        from plone.testing import z2
+        from plone.testing import wsgi
         from plone.testing import Layer
 
         class MyFixture(Layer):
 
             ...
 
-        MY_FIXTURE = MyFixture(bases=(z2.STARTUP,), name='MyFixture')
-        MY_FUNCTIONAL_TESTING = z2.FunctionalTesting(bases=(MY_FIXTURE,), name='MyFixture:Functional')  # noqa
+        MY_FIXTURE = MyFixture(bases=(wsgi.STARTUP,), name='MyFixture')
+        MY_FUNCTIONAL_TESTING = wsgi.FunctionalTesting(bases=(MY_FIXTURE,), name='MyFixture:Functional')  # noqa
     """
 
     defaultBases = (STARTUP,)
