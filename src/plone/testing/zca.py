@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Core Zope Component Architecture helpers and layers
 """
+from __future__ import absolute_import
 from plone.testing import Layer
 from zope.configuration.config import ConfigurationMachine
 

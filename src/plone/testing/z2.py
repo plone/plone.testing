@@ -1,32 +1,33 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
 from zope.deferredimport import deprecated
 
 import plone.testing
-import plone.testing.wsgi
+import plone.testing.zope
 import warnings
 
 
 deprecated(
-    'Please import from plone.testing.wsgi.',
-    Browser='plone.testing.wsgi:Browser',
-    TestIsolationBroken='plone.testing.wsgi:TestIsolationBroken',
-    installProduct='plone.testing.wsgi:installProduct',
-    uninstallProduct='plone.testing.wsgi:uninstallProduct',
-    login='plone.testing.wsgi:login',
-    logout='plone.testing.wsgi:logout',
-    setRoles='plone.testing.wsgi:setRoles',
-    makeTestRequest='plone.testing.wsgi:makeTestRequest',
-    addRequestContainer='plone.testing.wsgi:addRequestContainer',
-    zopeApp='plone.testing.wsgi:zopeApp',
-    Startup='plone.testing.wsgi:Startup',
-    STARTUP='plone.testing.wsgi:STARTUP',
-    IntegrationTesting='plone.testing.wsgi:IntegrationTesting',
-    INTEGRATION_TESTING='plone.testing.wsgi:INTEGRATION_TESTING',
-    FunctionalTesting='plone.testing.wsgi:FunctionalTesting',
-    FUNCTIONAL_TESTING='plone.testing.wsgi:FUNCTIONAL_TESTING',
-    ZServer='plone.testing.wsgi:WSGIServer',
-    ZSERVER_FIXTURE='plone.testing.wsgi:WSGI_SERVER_FIXTURE',
-    ZSERVER='plone.testing.wsgi:WSGI_SERVER',
+    'Please import from plone.testing.zope.',
+    Browser='plone.testing.zope:Browser',
+    TestIsolationBroken='plone.testing.zope:TestIsolationBroken',
+    installProduct='plone.testing.zope:installProduct',
+    uninstallProduct='plone.testing.zope:uninstallProduct',
+    login='plone.testing.zope:login',
+    logout='plone.testing.zope:logout',
+    setRoles='plone.testing.zope:setRoles',
+    makeTestRequest='plone.testing.zope:makeTestRequest',
+    addRequestContainer='plone.testing.zope:addRequestContainer',
+    zopeApp='plone.testing.zope:zopeApp',
+    Startup='plone.testing.zope:Startup',
+    STARTUP='plone.testing.zope:STARTUP',
+    IntegrationTesting='plone.testing.zope:IntegrationTesting',
+    INTEGRATION_TESTING='plone.testing.zope:INTEGRATION_TESTING',
+    FunctionalTesting='plone.testing.zope:FunctionalTesting',
+    FUNCTIONAL_TESTING='plone.testing.zope:FUNCTIONAL_TESTING',
+    ZServer='plone.testing.zope:WSGIServer',
+    ZSERVER_FIXTURE='plone.testing.zope:WSGI_SERVER_FIXTURE',
+    ZSERVER='plone.testing.zope:WSGI_SERVER',
 )
 
 
@@ -48,7 +49,7 @@ class FTPServer(plone.testing.Layer):
 
 FTP_SERVER_FIXTURE = FTPServer()
 
-FTP_SERVER = plone.testing.wsgi.FunctionalTesting(
+FTP_SERVER = plone.testing.zope.FunctionalTesting(
     bases=(
         FTP_SERVER_FIXTURE,
     ),

@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
 from zope.testbrowser import browser
 from ZPublisher.httpexceptions import HTTPExceptionHandler
 from ZPublisher.WSGIPublisher import publish_module

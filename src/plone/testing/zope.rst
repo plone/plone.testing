@@ -1,9 +1,9 @@
 Zope WSGI layers
--------------
+----------------
 
-The Zope WSGI layers are found in the module ``plone.testing.wsgi``:::
+The Zope WSGI layers are found in the module ``plone.testing.zope``:::
 
-    >>> from plone.testing import wsgi
+    >>> from plone.testing import zope
 
 For testing, we need a testrunner:::
 
@@ -19,10 +19,10 @@ It extends the ``zca.LAYER_CLEANUP`` layer to maximise the chances of having and
 **Note**: You should probably use at least ``INTEGRATION_TESTING`` for any real test, although ``STARTUP`` is a useful base layer if you are setting up your own fixture.
 See the description of ``INTEGRATION_TESTING`` below.::
 
-    >>> "%s.%s" % (wsgi.STARTUP.__module__, wsgi.STARTUP.__name__,)
-    'plone.testing.wsgi.Startup'
+    >>> "%s.%s" % (zope.STARTUP.__module__, zope.STARTUP.__name__,)
+    'plone.testing.zope.Startup'
 
-    >>> wsgi.STARTUP.__bases__
+    >>> zope.STARTUP.__bases__
     (<Layer 'plone.testing.zca.LayerCleanup'>,)
 
 On layer setup, Zope is initialised in a lightweight manner.
@@ -43,45 +43,45 @@ Five sets a special vocabulary registry upon the layer setup, but there's a defa
 
     >>> options = runner.get_options([], [])
     >>> setupLayers = {}
-    >>> runner.setup_layer(options, wsgi.STARTUP, setupLayers)
+    >>> runner.setup_layer(options, zope.STARTUP, setupLayers)
     Set up plone.testing.zca.LayerCleanup in ... seconds.
-    Set up plone.testing.wsgi.Startup in ... seconds.
+    Set up plone.testing.zope.Startup in ... seconds.
 
 After layer setup, the ``zodbDB`` resource is available, pointing to the default ZODB.::
 
-    >>> wsgi.STARTUP['zodbDB']
+    >>> zope.STARTUP['zodbDB']
     <ZODB.DB.DB object at ...>
 
-    >>> wsgi.STARTUP['zodbDB'].storage
+    >>> zope.STARTUP['zodbDB'].storage
     Startup
 
 In addition, the resources ``host`` and ``port`` are set to the default hostname and port that are used for URLs generated from Zope.
 These are hardcoded, but shadowed by layers that provide actual running Zope instances.::
 
-    >>> wsgi.STARTUP['host']
+    >>> zope.STARTUP['host']
     'nohost'
-    >>> wsgi.STARTUP['port']
+    >>> zope.STARTUP['port']
     80
 
 At this point, it is also possible to get hold of a Zope application root.
 If you are setting up a layer fixture, you can obtain an application root with the correct database that is properly closed by using the ``zopeApp()`` context manager.::
 
-    >>> with wsgi.zopeApp() as app:
+    >>> with zope.zopeApp() as app:
     ...     'acl_users' in app.objectIds()
     True
 
 If you want to use a specific database, you can pass that to ``zopeApp()`` as the ``db`` parameter.
 A new connection will be opened and closed.::
 
-    >>> with wsgi.zopeApp(db=wsgi.STARTUP['zodbDB']) as app:
+    >>> with zope.zopeApp(db=zope.STARTUP['zodbDB']) as app:
     ...     'acl_users' in app.objectIds()
     True
 
 If you want to re-use an existing connection, you can pass one to ``zopeApp()`` as the ``connection`` argument.
 In this case, you will need to close the connection yourself.::
 
-    >>> conn = wsgi.STARTUP['zodbDB'].open()
-    >>> with wsgi.zopeApp(connection=conn) as app:
+    >>> conn = zope.STARTUP['zodbDB'].open()
+    >>> with zope.zopeApp(connection=conn) as app:
     ...     'acl_users' in app.objectIds()
     True
 
@@ -92,7 +92,7 @@ In this case, you will need to close the connection yourself.::
 
 If an exception is raised within the ``with`` block, the transaction is aborted, but the connection is still closed (if it was opened by the context manager):::
 
-    >>> with wsgi.zopeApp() as app:
+    >>> with zope.zopeApp() as app:
     ...     raise Exception("Test error")
     Traceback (most recent call last):
     ...
@@ -101,14 +101,14 @@ If an exception is raised within the ``with`` block, the transaction is aborted,
 It is common to combine the ``zopeApp()`` context manager with a stacked ``DemoStorage`` to set up a layer-specific fixture.
 As a sketch:::
 
-    from plone.testing import Layer, wsgi, zodb
+    from plone.testing import Layer, zope, zodb
 
     class MyLayer(Layer):
-        defaultBases = (wsgi.STARTUP,)
+        defaultBases = (zope.STARTUP,)
 
         def setUp(self):
             self['zodbDB'] = zodb.stackDemoStorage(self.get('zodbDB'), name='MyLayer')
-            with wsgi.zopeApp() as app:
+            with zope.zopeApp() as app:
 
                 # Set up a fixture, e.g.:
                 app.manage_addFolder('folder1')
@@ -124,7 +124,7 @@ As a sketch:::
             self['zodbDB'].close()
             del self['zodbDB']
 
-Note that you would normally *not* use the ``wsgi.zopeApp()`` in a test or in a ``testSetUp()`` or ``testTearDown()`` method.
+Note that you would normally *not* use the ``zope.zopeApp()`` in a test or in a ``testSetUp()`` or ``testTearDown()`` method.
 The ``IntegrationTesting`` and ``FunctionalTesting`` layer classes manage the application object for you, exposing them as the resource ``app`` (see below).
 
 After layer setup, the global component registry contains a number of components needed by Zope.::
@@ -139,7 +139,7 @@ And Five has set a ``Zope2VocabularyRegistry`` vocabulary registry:::
 
 To load additional ZCML, you can use the ``configurationContext`` resource:::
 
-    >>> wsgi.STARTUP['configurationContext']
+    >>> zope.STARTUP['configurationContext']
     <zope.configuration.config.ConfigurationMachine object ...>
 
 See ``zca.rst`` for details about how to use ``zope.configuration`` for this purpose.
@@ -147,13 +147,13 @@ See ``zca.rst`` for details about how to use ``zope.configuration`` for this pur
 The ``STARTUP`` layer does not perform any specific test setup or tear-down.
 That is left up to the ``INTEGRATION_TESTING`` and ``FUNCTIONAL_TESTING`` layers, or other layers using their layer classes - ``IntegrationTesting`` and ``FunctionalTesting``.::
 
-    >>> wsgi.STARTUP.testSetUp()
-    >>> wsgi.STARTUP.testTearDown()
+    >>> zope.STARTUP.testSetUp()
+    >>> zope.STARTUP.testTearDown()
 
 Layer tear-down resets the environment.::
 
     >>> runner.tear_down_unneeded(options, [], setupLayers)
-    Tear down plone.testing.wsgi.Startup in ... seconds.
+    Tear down plone.testing.zope.Startup in ... seconds.
     Tear down plone.testing.zca.LayerCleanup in ... seconds.
 
     >>> import Zope2
@@ -187,45 +187,45 @@ In a test, you should use this instead of the ``zopeApp`` context manager (which
 
 ``request`` is a test request. It is the same as ``app.REQUEST``.::
 
-    >>> "%s.%s" % (wsgi.INTEGRATION_TESTING.__module__, wsgi.INTEGRATION_TESTING.__name__,)
-    'plone.testing.wsgi.IntegrationTesting'
+    >>> "%s.%s" % (zope.INTEGRATION_TESTING.__module__, zope.INTEGRATION_TESTING.__name__,)
+    'plone.testing.zope.IntegrationTesting'
 
-    >>> wsgi.INTEGRATION_TESTING.__bases__
-    (<Layer 'plone.testing.wsgi.Startup'>,)
+    >>> zope.INTEGRATION_TESTING.__bases__
+    (<Layer 'plone.testing.zope.Startup'>,)
 
     >>> options = runner.get_options([], [])
     >>> setupLayers = {}
-    >>> runner.setup_layer(options, wsgi.INTEGRATION_TESTING, setupLayers)
+    >>> runner.setup_layer(options, zope.INTEGRATION_TESTING, setupLayers)
     Set up plone.testing.zca.LayerCleanup in ... seconds.
-    Set up plone.testing.wsgi.Startup in ... seconds.
-    Set up plone.testing.wsgi.IntegrationTesting in ... seconds.
+    Set up plone.testing.zope.Startup in ... seconds.
+    Set up plone.testing.zope.IntegrationTesting in ... seconds.
 
 Let's now simulate a test.
 On test setup, the ``app`` resource is made available.
 In a test, you should always use this to access the application root.::
 
-    >>> wsgi.STARTUP.testSetUp()
-    >>> wsgi.INTEGRATION_TESTING.testSetUp()
+    >>> zope.STARTUP.testSetUp()
+    >>> zope.INTEGRATION_TESTING.testSetUp()
 
 The test may now inspect and modify the environment.::
 
-    >>> app = wsgi.INTEGRATION_TESTING['app'] # would normally be self.layer['app']
+    >>> app = zope.INTEGRATION_TESTING['app'] # would normally be self.layer['app']
     >>> app.manage_addFolder('folder1')
     >>> 'acl_users' in app.objectIds() and 'folder1' in app.objectIds()
     True
 
 The request is also available:::
 
-    >>> wsgi.INTEGRATION_TESTING['request'] # would normally be self.layer['request']
+    >>> zope.INTEGRATION_TESTING['request'] # would normally be self.layer['request']
     <HTTPRequest, URL=http://nohost>
 
-We can create a user and simulate logging in as that user, using the ``wsgi.login()`` helper:::
+We can create a user and simulate logging in as that user, using the ``zope.login()`` helper:::
 
     >>> app._addRole('role1')
     >>> ignore = app['acl_users'].userFolderAddUser('user1', 'secret', ['role1'], [])
-    >>> wsgi.login(app['acl_users'], 'user1')
+    >>> zope.login(app['acl_users'], 'user1')
 
-The first argument to ``wsgi.login()`` is the user folder that contains the relevant user.
+The first argument to ``zope.login()`` is the user folder that contains the relevant user.
 The second argument is the user's name.
 There is no need to give the password.::
 
@@ -233,33 +233,33 @@ There is no need to give the password.::
     >>> getSecurityManager().getUser()
     <User 'user1'>
 
-You can change the roles of a user using the ``wsgi.setRoles()`` helper:::
+You can change the roles of a user using the ``zope.setRoles()`` helper:::
 
     >>> sorted(getSecurityManager().getUser().getRolesInContext(app))
     ['Authenticated', 'role1']
 
-    >>> wsgi.setRoles(app['acl_users'], 'user1', [])
+    >>> zope.setRoles(app['acl_users'], 'user1', [])
     >>> getSecurityManager().getUser().getRolesInContext(app)
     ['Authenticated']
 
-To become the anonymous user again, use ``wsgi.logout()``:::
+To become the anonymous user again, use ``zope.logout()``:::
 
-    >>> wsgi.logout()
+    >>> zope.logout()
     >>> getSecurityManager().getUser()
     <SpecialUser 'Anonymous User'>
 
 On tear-down, the transaction is rolled back:::
 
-    >>> wsgi.INTEGRATION_TESTING.testTearDown()
-    >>> wsgi.STARTUP.testTearDown()
+    >>> zope.INTEGRATION_TESTING.testTearDown()
+    >>> zope.STARTUP.testTearDown()
 
-    >>> 'app' in wsgi.INTEGRATION_TESTING
+    >>> 'app' in zope.INTEGRATION_TESTING
     False
 
-    >>> 'request' in wsgi.INTEGRATION_TESTING
+    >>> 'request' in zope.INTEGRATION_TESTING
     False
 
-    >>> with wsgi.zopeApp() as app:
+    >>> with zope.zopeApp() as app:
     ...     'acl_users' in app.objectIds() and 'folder1' not in app.objectIds()
     True
 
@@ -267,8 +267,8 @@ On tear-down, the transaction is rolled back:::
 Let's tear down the layers:::
 
     >>> runner.tear_down_unneeded(options, [], setupLayers)
-    Tear down plone.testing.wsgi.IntegrationTesting in ... seconds.
-    Tear down plone.testing.wsgi.Startup in ... seconds.
+    Tear down plone.testing.zope.IntegrationTesting in ... seconds.
+    Tear down plone.testing.zope.Startup in ... seconds.
     Tear down plone.testing.zca.LayerCleanup in ... seconds.
 
 Functional testing
@@ -287,31 +287,31 @@ See the ``plone.testing`` ``README`` file for an example.
 
 Like ``INTEGRATION_TESTING``, ``FUNCTIONAL_TESTING`` is based on ``STARTUP``.::
 
-    >>> "%s.%s" % (wsgi.FUNCTIONAL_TESTING.__module__, wsgi.FUNCTIONAL_TESTING.__name__,)
-    'plone.testing.wsgi.FunctionalTesting'
+    >>> "%s.%s" % (zope.FUNCTIONAL_TESTING.__module__, zope.FUNCTIONAL_TESTING.__name__,)
+    'plone.testing.zope.FunctionalTesting'
 
-    >>> wsgi.FUNCTIONAL_TESTING.__bases__
-    (<Layer 'plone.testing.wsgi.Startup'>,)
+    >>> zope.FUNCTIONAL_TESTING.__bases__
+    (<Layer 'plone.testing.zope.Startup'>,)
 
     >>> options = runner.get_options([], [])
     >>> setupLayers = {}
-    >>> runner.setup_layer(options, wsgi.FUNCTIONAL_TESTING, setupLayers)
+    >>> runner.setup_layer(options, zope.FUNCTIONAL_TESTING, setupLayers)
     Set up plone.testing.zca.LayerCleanup in ... seconds.
-    Set up plone.testing.wsgi.Startup in ... seconds.
-    Set up plone.testing.wsgi.FunctionalTesting in ... seconds.
+    Set up plone.testing.zope.Startup in ... seconds.
+    Set up plone.testing.zope.FunctionalTesting in ... seconds.
 
 Let's now simulate a test.
 On test setup, the ``app`` resource is made available.
 In a test, you should always use this to access the application root.
 The ``request`` resource can be used to access the test request.::
 
-    >>> wsgi.STARTUP.testSetUp()
-    >>> wsgi.FUNCTIONAL_TESTING.testSetUp()
+    >>> zope.STARTUP.testSetUp()
+    >>> zope.FUNCTIONAL_TESTING.testSetUp()
 
 The test may now inspect and modify the environment.
 It may also commit things.::
 
-    >>> app = wsgi.FUNCTIONAL_TESTING['app'] # would normally be self.layer['app']
+    >>> app = zope.FUNCTIONAL_TESTING['app'] # would normally be self.layer['app']
     >>> app.manage_addFolder('folder1')
     >>> 'acl_users' in app.objectIds() and 'folder1' in app.objectIds()
     True
@@ -321,24 +321,24 @@ It may also commit things.::
 
 On tear-down, the database is torn down.::
 
-    >>> wsgi.FUNCTIONAL_TESTING.testTearDown()
-    >>> wsgi.STARTUP.testTearDown()
+    >>> zope.FUNCTIONAL_TESTING.testTearDown()
+    >>> zope.STARTUP.testTearDown()
 
-    >>> 'app' in wsgi.FUNCTIONAL_TESTING
+    >>> 'app' in zope.FUNCTIONAL_TESTING
     False
 
-    >>> 'request' in wsgi.FUNCTIONAL_TESTING
+    >>> 'request' in zope.FUNCTIONAL_TESTING
     False
 
-    >>> with wsgi.zopeApp() as app:
+    >>> with zope.zopeApp() as app:
     ...     'acl_users' in app.objectIds() and 'folder1' not in app.objectIds()
     True
 
 Let's tear down the layer:::
 
     >>> runner.tear_down_unneeded(options, [], setupLayers)
-    Tear down plone.testing.wsgi.FunctionalTesting in ... seconds.
-    Tear down plone.testing.wsgi.Startup in ... seconds.
+    Tear down plone.testing.zope.FunctionalTesting in ... seconds.
+    Tear down plone.testing.zope.Startup in ... seconds.
     Tear down plone.testing.zca.LayerCleanup in ... seconds.
 
 The test browser
@@ -351,20 +351,20 @@ To use the test browser with a ``FunctionalTesting`` layer (such as the default 
 
     >>> options = runner.get_options([], [])
     >>> setupLayers = {}
-    >>> runner.setup_layer(options, wsgi.FUNCTIONAL_TESTING, setupLayers)
+    >>> runner.setup_layer(options, zope.FUNCTIONAL_TESTING, setupLayers)
     Set up plone.testing.zca.LayerCleanup in ... seconds.
-    Set up plone.testing.wsgi.Startup in ... seconds.
-    Set up plone.testing.wsgi.FunctionalTesting in ... seconds.
+    Set up plone.testing.zope.Startup in ... seconds.
+    Set up plone.testing.zope.FunctionalTesting in ... seconds.
 
 Let's simulate a test:::
 
-    >>> wsgi.STARTUP.testSetUp()
-    >>> wsgi.FUNCTIONAL_TESTING.testSetUp()
+    >>> zope.STARTUP.testSetUp()
+    >>> zope.FUNCTIONAL_TESTING.testSetUp()
 
 In the test, we can create a test browser client like so:::
 
-    >>> app = wsgi.FUNCTIONAL_TESTING['app'] # would normally be self.layer['app']
-    >>> browser = wsgi.Browser(app)
+    >>> app = zope.FUNCTIONAL_TESTING['app'] # would normally be self.layer['app']
+    >>> browser = zope.Browser(app)
 
 It is usually best to let Zope errors be shown with full tracebacks:::
 
@@ -410,16 +410,16 @@ See the ``zope.testbrowser`` documentation for more information about how to use
 
 On tear-down, the database is torn down.::
 
-    >>> wsgi.FUNCTIONAL_TESTING.testTearDown()
-    >>> wsgi.STARTUP.testTearDown()
+    >>> zope.FUNCTIONAL_TESTING.testTearDown()
+    >>> zope.STARTUP.testTearDown()
 
-    >>> 'app' in wsgi.FUNCTIONAL_TESTING
+    >>> 'app' in zope.FUNCTIONAL_TESTING
     False
 
-    >>> 'request' in wsgi.FUNCTIONAL_TESTING
+    >>> 'request' in zope.FUNCTIONAL_TESTING
     False
 
-    >>> with wsgi.zopeApp() as app:
+    >>> with zope.zopeApp() as app:
     ...     'acl_users' in app.objectIds()\
     ...         and 'folder1' not in app.objectIds()\
     ...         and 'file1' not in app.objectIds()
@@ -428,8 +428,8 @@ On tear-down, the database is torn down.::
 Let's tear down the layer:::
 
     >>> runner.tear_down_unneeded(options, [], setupLayers)
-    Tear down plone.testing.wsgi.FunctionalTesting in ... seconds.
-    Tear down plone.testing.wsgi.Startup in ... seconds.
+    Tear down plone.testing.zope.FunctionalTesting in ... seconds.
+    Tear down plone.testing.zope.Startup in ... seconds.
     Tear down plone.testing.zca.LayerCleanup in ... seconds.
 
 HTTP server
@@ -440,34 +440,34 @@ This makes it possible to connect to the test instance using a web browser or a 
 
 The ``WSGI_SERVER`` layer provides a ``FunctionalTesting`` layer that has ``WSGI_SERVER_FIXTURE`` as its base.::
 
-    >>> "%s.%s" % (wsgi.WSGI_SERVER_FIXTURE.__module__, wsgi.WSGI_SERVER_FIXTURE.__name__,)
-    'plone.testing.wsgi.WSGIServer'
+    >>> "%s.%s" % (zope.WSGI_SERVER_FIXTURE.__module__, zope.WSGI_SERVER_FIXTURE.__name__,)
+    'plone.testing.zope.WSGIServer'
 
-    >>> wsgi.WSGI_SERVER_FIXTURE.__bases__
-    (<Layer 'plone.testing.wsgi.Startup'>,)
+    >>> zope.WSGI_SERVER_FIXTURE.__bases__
+    (<Layer 'plone.testing.zope.Startup'>,)
 
 
-    >>> "%s.%s" % (wsgi.WSGI_SERVER.__module__, wsgi.WSGI_SERVER.__name__,)
-    'plone.testing.wsgi.WSGIServer:Functional'
+    >>> "%s.%s" % (zope.WSGI_SERVER.__module__, zope.WSGI_SERVER.__name__,)
+    'plone.testing.zope.WSGIServer:Functional'
 
-    >>> wsgi.WSGI_SERVER.__bases__
-    (<Layer 'plone.testing.wsgi.WSGIServer'>,)
+    >>> zope.WSGI_SERVER.__bases__
+    (<Layer 'plone.testing.zope.WSGIServer'>,)
 
     >>> options = runner.get_options([], [])
     >>> setupLayers = {}
-    >>> runner.setup_layer(options, wsgi.WSGI_SERVER, setupLayers)
+    >>> runner.setup_layer(options, zope.WSGI_SERVER, setupLayers)
     Set up plone.testing.zca.LayerCleanup in ... seconds.
-    Set up plone.testing.wsgi.Startup in ... seconds.
-    Set up plone.testing.wsgi.WSGIServer in ... seconds.
-    Set up plone.testing.wsgi.WSGIServer:Functional in ... seconds.
+    Set up plone.testing.zope.Startup in ... seconds.
+    Set up plone.testing.zope.WSGIServer in ... seconds.
+    Set up plone.testing.zope.WSGIServer:Functional in ... seconds.
 
 After layer setup, the resources ``host`` and ``port`` are available, and indicate where Zope is running.::
 
-    >>> host = wsgi.WSGI_SERVER['host']
+    >>> host = zope.WSGI_SERVER['host']
     >>> host
     'localhost'
 
-    >>> port = wsgi.WSGI_SERVER['port']
+    >>> port = zope.WSGI_SERVER['port']
     >>> import os
     >>> port == int(os.environ.get('WSGI_SERVER_PORT', 55001))
     True
@@ -475,15 +475,15 @@ After layer setup, the resources ``host`` and ``port`` are available, and indica
 Let's now simulate a test.
 Test setup does nothing beyond what the base layers do.::
 
-    >>> wsgi.STARTUP.testSetUp()
-    >>> wsgi.FUNCTIONAL_TESTING.testSetUp()
-    >>> wsgi.WSGI_SERVER.testSetUp()
+    >>> zope.STARTUP.testSetUp()
+    >>> zope.FUNCTIONAL_TESTING.testSetUp()
+    >>> zope.WSGI_SERVER.testSetUp()
 
 It is common in a test to use the Python API to change the state of the server (e.g.
 create some content or change a setting) and then use the HTTP protocol to look at the results.
-Bear in mind that the server is running in a separate thread, with a separate security manager, so calls to ``wsgi.login()`` and ``wsgi.logout()``, for instance, do not affect the server thread.::
+Bear in mind that the server is running in a separate thread, with a separate security manager, so calls to ``zope.login()`` and ``zope.logout()``, for instance, do not affect the server thread.::
 
-    >>> app = wsgi.WSGI_SERVER['app'] # would normally be self.layer['app']
+    >>> app = zope.WSGI_SERVER['app'] # would normally be self.layer['app']
     >>> _ = app.manage_addDTMLDocument('dtml-doc-3')
 
 Note that we need to commit the transaction before it will show up in the other thread.::
@@ -504,26 +504,26 @@ We can now look for this new object through the server.::
 
 Test tear-down does nothing beyond what the base layers do.::
 
-    >>> wsgi.WSGI_SERVER.testTearDown()
-    >>> wsgi.FUNCTIONAL_TESTING.testTearDown()
-    >>> wsgi.STARTUP.testTearDown()
+    >>> zope.WSGI_SERVER.testTearDown()
+    >>> zope.FUNCTIONAL_TESTING.testTearDown()
+    >>> zope.STARTUP.testTearDown()
 
-    >>> 'app' in wsgi.WSGI_SERVER
+    >>> 'app' in zope.WSGI_SERVER
     False
 
-    >>> 'request' in wsgi.WSGI_SERVER
+    >>> 'request' in zope.WSGI_SERVER
     False
 
-    >>> with wsgi.zopeApp() as app:
+    >>> with zope.zopeApp() as app:
     ...     'acl_users' in app.objectIds() and 'folder1' not in app.objectIds()
     True
 
 When the server is torn down, the WSGIServer thread is stopped.::
 
     >>> runner.tear_down_unneeded(options, [], setupLayers)
-    Tear down plone.testing.wsgi.WSGIServer:Functional in ... seconds.
-    Tear down plone.testing.wsgi.WSGIServer in ... seconds.
-    Tear down plone.testing.wsgi.Startup in ... seconds.
+    Tear down plone.testing.zope.WSGIServer:Functional in ... seconds.
+    Tear down plone.testing.zope.WSGIServer in ... seconds.
+    Tear down plone.testing.zope.Startup in ... seconds.
     Tear down plone.testing.zca.LayerCleanup in ... seconds.
 
     >>> conn = urlopen(app_url + '/folder1', timeout=5)
