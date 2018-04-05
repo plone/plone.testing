@@ -28,6 +28,14 @@ tests_require = [
     'Zope',
 ]
 
+zope_requires = [
+    'Zope',
+    'zope.component',
+    'zope.testbrowser',
+    'zope.publisher',
+],
+
+
 setup(
     name='plone.testing',
     version=version,
@@ -92,12 +100,10 @@ setup(
             'zope.browserresource',
             'zope.publisher',
         ],
-        'z2': [
-            'Zope',
+        'z2': zope_requires,  # BBB
+        'zope': zope_requires,
+        'zserver': [
             'ZServer',
-            'zope.component',
-            'zope.testbrowser',
-            'zope.publisher',
         ],
     },
 )
