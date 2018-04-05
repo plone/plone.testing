@@ -4,12 +4,12 @@ import os.path
 import sys
 from setuptools import setup, find_packages
 
-version = '6.1.dev0'
+version = '7.0.dev0'
 
 install_requires = [
     'setuptools',
     'six',
-    'zope.testing',
+    'zope.testing >= 3.8',
 ]
 
 tests_require = [
