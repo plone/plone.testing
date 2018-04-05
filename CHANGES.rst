@@ -19,6 +19,7 @@ New features:
 - Make ``ZServer`` an optional dependency.
 
 - Add support for Python 3.6.
+  [rudaporto, icemac]
 
 Bug fixes:
 
@@ -35,11 +36,6 @@ Bug fixes:
 
 - No longer use deprecated import for getSite/setSite.
   [jensens]
-- Fix most doctests for python 3.
-  [rudaporto]
-
-- Python 2 / 3 compatible imports.
-  [rudaporto]
 
 - Update code to follow Plone styleguide.
   [gforcada]
