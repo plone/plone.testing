@@ -433,3 +433,101 @@ Let's tear down the layer:::
     Tear down plone.testing.wsgi.Startup in ... seconds.
     Tear down plone.testing.zca.LayerCleanup in ... seconds.
 
+HTTP server
+~~~~~~~~~~~
+
+The ``WSGI_SERVER_FIXTURE`` layer extends ``STARTUP`` to start a single-threaded Zope server in a separate thread.
+This makes it possible to connect to the test instance using a web browser or a testing tool like Selenium or Windmill.
+
+The ``WSGI_SERVER`` layer provides a ``FunctionalTesting`` layer that has ``WSGI_SERVER_FIXTURE`` as its base.::
+
+    >>> "%s.%s" % (wsgi.WSGI_SERVER_FIXTURE.__module__, wsgi.WSGI_SERVER_FIXTURE.__name__,)
+    'plone.testing.wsgi.WSGIServer'
+
+    >>> wsgi.WSGI_SERVER_FIXTURE.__bases__
+    (<Layer 'plone.testing.wsgi.Startup'>,)
+
+
+    >>> "%s.%s" % (wsgi.WSGI_SERVER.__module__, wsgi.WSGI_SERVER.__name__,)
+    'plone.testing.wsgi.WSGIServer:Functional'
+
+    >>> wsgi.WSGI_SERVER.__bases__
+    (<Layer 'plone.testing.wsgi.WSGIServer'>,)
+
+    >>> options = runner.get_options([], [])
+    >>> setupLayers = {}
+    >>> runner.setup_layer(options, wsgi.WSGI_SERVER, setupLayers)
+    Set up plone.testing.zca.LayerCleanup in ... seconds.
+    Set up plone.testing.wsgi.Startup in ... seconds.
+    Set up plone.testing.wsgi.WSGIServer in ... seconds.
+    Set up plone.testing.wsgi.WSGIServer:Functional in ... seconds.
+
+After layer setup, the resources ``host`` and ``port`` are available, and indicate where Zope is running.::
+
+    >>> host = wsgi.WSGI_SERVER['host']
+    >>> host
+    'localhost'
+
+    >>> port = wsgi.WSGI_SERVER['port']
+    >>> import os
+    >>> port == int(os.environ.get('WSGI_SERVER_PORT', 55001))
+    True
+
+Let's now simulate a test.
+Test setup does nothing beyond what the base layers do.::
+
+    >>> wsgi.STARTUP.testSetUp()
+    >>> wsgi.FUNCTIONAL_TESTING.testSetUp()
+    >>> wsgi.WSGI_SERVER.testSetUp()
+
+It is common in a test to use the Python API to change the state of the server (e.g.
+create some content or change a setting) and then use the HTTP protocol to look at the results.
+Bear in mind that the server is running in a separate thread, with a separate security manager, so calls to ``wsgi.login()`` and ``wsgi.logout()``, for instance, do not affect the server thread.::
+
+    >>> app = wsgi.WSGI_SERVER['app'] # would normally be self.layer['app']
+    >>> app.manage_addFolder('folder1')
+
+Note that we need to commit the transaction before it will show up in the other thread.::
+
+    >>> import transaction; transaction.commit()
+
+We can now look for this new object through the server.::
+
+    >>> app_url = app.absolute_url()
+    >>> app_url.split(':')[:-1]
+    ['http', '//localhost']
+
+    >>> import urllib2
+    >>> conn = urllib2.urlopen(app_url + '/folder1', timeout=5)
+    >>> print conn.read()
+    <Folder at folder1>
+    >>> conn.close()
+
+Test tear-down does nothing beyond what the base layers do.::
+
+    >>> wsgi.WSGI_SERVER.testTearDown()
+    >>> wsgi.FUNCTIONAL_TESTING.testTearDown()
+    >>> wsgi.STARTUP.testTearDown()
+
+    >>> 'app' in wsgi.WSGI_SERVER
+    False
+
+    >>> 'request' in wsgi.WSGI_SERVER
+    False
+
+    >>> with wsgi.zopeApp() as app:
+    ...     'acl_users' in app.objectIds() and 'folder1' not in app.objectIds()
+    True
+
+When the server is torn down, the WSGIServer thread is stopped.::
+
+    >>> runner.tear_down_unneeded(options, [], setupLayers)
+    Tear down plone.testing.wsgi.WSGIServer:Functional in ... seconds.
+    Tear down plone.testing.wsgi.WSGIServer in ... seconds.
+    Tear down plone.testing.wsgi.Startup in ... seconds.
+    Tear down plone.testing.zca.LayerCleanup in ... seconds.
+
+    >>> conn = urllib2.urlopen(app_url + '/folder1', timeout=5)
+    Traceback (most recent call last):
+    ...
+    URLError: <urlopen error [Errno ...] Connection refused>

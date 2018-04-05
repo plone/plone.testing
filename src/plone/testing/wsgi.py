@@ -2,17 +2,25 @@
 """Zope-specific helpers and layers using WSGI
 """
 from OFS.metaconfigure import get_packages_to_initialize
+from Testing.ZopeTestCase.ZopeLite import _patched as ZOPETESTCASEALERT
+from Zope2.App.schema import Zope2VocabularyRegistry
 from plone.testing import Layer
 from plone.testing import zca
 from plone.testing import zodb
 from plone.testing._z2_testbrowser import Browser  # noqa
-from Testing.ZopeTestCase.ZopeLite import _patched as ZOPETESTCASEALERT
-from Zope2.App.schema import Zope2VocabularyRegistry
 from zope.schema.vocabulary import getVocabularyRegistry
 from zope.schema.vocabulary import setVocabularyRegistry
+import ZPublisher.WSGIPublisher
+import Zope2.Startup.run
 
 import contextlib
+import os
+import pkg_resources
+import shutil
+import tempfile
+import threading
 import transaction
+import wsgiref.simple_server
 
 
 _INSTALLED_PRODUCTS = {}
@@ -925,3 +933,109 @@ class FunctionalTesting(Layer):
         # Close and discard the database
         self['zodbDB'].close()
         del self['zodbDB']
+
+
+FUNCTIONAL_TESTING = FunctionalTesting()
+
+WSGI_LOG_REQUEST = 'WSGI_REQUEST_LOGGING' in os.environ
+
+
+class NoLogWSGIRequestHandler(wsgiref.simple_server.WSGIRequestHandler):
+    """Less chatty WSGIRequestHandler."""
+
+    def log_request(self, *args):
+        """Print the request only on the console if requested."""
+        if WSGI_LOG_REQUEST:
+            wsgiref.simple_server.WSGIRequestHandler.log_request(
+                self, *args)  # old-style class :-/
+
+
+class WSGIServer(Layer):
+    """Start a WSGI server that accesses the fixture managed by the
+    ``STARTUP`` layer.
+
+    The host and port are available as the resources ``host`` and ``port``,
+    respectively.
+
+    The ``WSGI_SERVER_FIXTURE`` layer must be used as the base for a layer that
+    uses the ``FunctionalTesting`` layer class. The ``WSGI_SERVER`` layer is
+    an example of such a layer.
+    """
+
+    defaultBases = (STARTUP,)
+
+    timeout = 5
+    host = os.environ.get('WSGI_SERVER_HOST',
+                          os.environ.get('ZSERVER_HOST', 'localhost'))
+    port = int(os.environ.get('WSGI_SERVER_PORT',
+                              os.environ.get('ZSERVER_PORT', 55001)))
+    pipeline = [
+        ('Zope', 'paste.filter_app_factory', 'httpexceptions', {}),
+    ]
+
+    def setUp(self):
+        self['host'] = self.host
+        self.setUpServer()
+        self['port'] = self.port
+
+    def tearDown(self):
+        self.tearDownServer()
+        del self['host']
+        del self['port']
+
+    def setUpServer(self):
+        """Create a WSGI server instance and save it in self.server.
+        """
+        app = self.make_wsgi_app()
+        self.server = wsgiref.simple_server.make_server(
+            self.host, self.port, app, handler_class=NoLogWSGIRequestHandler)
+        # allow to choose a random port using 0 as port number:
+        self.port = self.server.server_port
+
+        self.thread = threading.Thread(target=self.serve)
+        self.thread.daemon = True
+        self.thread.start()
+
+    def tearDownServer(self):
+        """Close the server socket and clean up.
+        """
+        self.server.shutdown()
+        self.server.server_close()
+        self.thread.join(self.timeout)
+        if self.thread.isAlive():
+            raise RuntimeError('WSGI server could not be shut down')
+
+        shutil.rmtree(self._wsgi_conf_dir)
+
+    def make_wsgi_app(self):
+        self._wsgi_conf_dir = tempfile.mkdtemp()
+        global_config = {'here': self._wsgi_conf_dir}
+        zope_conf = self._get_zope_conf(self._wsgi_conf_dir)
+        Zope2.Startup.run.make_wsgi_app(global_config, zope_conf)
+        app = ZPublisher.WSGIPublisher.publish_module
+
+        for spec, protocol, name, extra in reversed(self.pipeline):
+            entrypoint = pkg_resources.get_entry_info(spec, protocol, name)
+            app = entrypoint.load()(app, global_config, **extra)
+        return app
+
+    def serve(self):
+        self.server.serve_forever()
+
+    def _get_zope_conf(self, dir):
+        fd, path = tempfile.mkstemp(dir=dir)
+        with os.fdopen(fd, 'w') as zope_conf:
+            zope_conf.write('instancehome {0}\n'.format(os.path.dirname(dir)))
+        return path
+
+
+# Fixture layer - use as a base layer, but don't use directly, as it has no
+# test lifecycle
+WSGI_SERVER_FIXTURE = WSGIServer()
+
+# Functional testing layer that uses the WSGI_SERVER_FIXTURE
+WSGI_SERVER = FunctionalTesting(
+    bases=(
+        WSGI_SERVER_FIXTURE,
+    ),
+    name='WSGIServer:Functional')
