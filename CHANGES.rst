@@ -15,7 +15,7 @@ Breaking changes:
 
 New features:
 
-- Make it possible to run the tests without having ``ZServer`` installed.
+- Make ``ZServer`` an optional dependency.
 
 Bug fixes:
 
