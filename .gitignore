@@ -1,6 +1,7 @@
 *.egg-info
 *.pyc
 *.tox
+.Python
 .coverage
 .installed.cfg
 bin
@@ -8,3 +9,7 @@ coverage.xml
 develop-eggs
 eggs
 htmlcov/
+include/
+lib/
+parts/
+pip-selfcheck.json

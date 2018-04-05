@@ -203,8 +203,10 @@ def stackConfigurationContext(context=None, name='not named'):
     clone._seen_files = deepcopy(context._seen_files)
     clone._features = deepcopy(context._features)
 
-    if hasattr(context, 'permission_mapping'):
+    try:
         clone.permission_mapping = deepcopy(context.permission_mapping)
+    except AttributeError:
+        pass
 
     # Note: We don't copy ``stack`` or ``actions`` since these are used during
     # ZCML file processing only
@@ -302,7 +304,7 @@ class ZCMLDirectives(Layer):
 
         self['configurationContext'] = context = stackConfigurationContext(
             self.get('configurationContext'))
-        xmlconfig.file('meta.zcml', zope.component, context=context)
+        xmlconfig.file('meta.zcml', zope.component, context=context)  # noqa: D001,E501
 
     def tearDown(self):
         del self['configurationContext']
@@ -341,7 +343,7 @@ class ZCMLSandbox(Layer):
 
     def loadZCMLFile(self, filename, package):
         from zope.configuration import xmlconfig
-        xmlconfig.file(filename, package, context=self['configurationContext'])
+        xmlconfig.file(filename, package, context=self['configurationContext'])  # noqa: D001,E501
 
     def tearDown(self):
         popGlobalRegistry()

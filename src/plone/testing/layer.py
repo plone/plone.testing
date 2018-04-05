@@ -125,8 +125,7 @@ class ResourceManager(object):
         return self._mergeResourceManagers(
             [[instance]] +
             list(map(self._resourceResolutionOrder, instance.__bases__)) +
-            [list(instance.__bases__)]
-        )
+            [list(instance.__bases__)])
 
 
 class Layer(ResourceManager):
@@ -218,8 +217,11 @@ def layered(suite, layer, addLayerToDoctestGlobs=True):
 
     if addLayerToDoctestGlobs:
         for test in suite:
-            if hasattr(test, '_dt_test'):
+            try:
                 globs = test._dt_test.globs
+            except AttributeError:
+                pass
+            else:
                 if 'layer' not in globs:
                     globs['layer'] = layer
 

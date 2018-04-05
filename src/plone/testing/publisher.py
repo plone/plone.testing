@@ -26,16 +26,16 @@ class PublisherDirectives(Layer):
             self.get('configurationContext'))
 
         import zope.security
-        xmlconfig.file('meta.zcml', zope.security, context=context)
+        xmlconfig.file('meta.zcml', zope.security, context=context)  # noqa: D001,E501
 
         import zope.browsermenu
-        xmlconfig.file('meta.zcml', zope.browsermenu, context=context)
+        xmlconfig.file('meta.zcml', zope.browsermenu, context=context)  # noqa: D001,E501
         import zope.browserpage
-        xmlconfig.file('meta.zcml', zope.browserpage, context=context)
+        xmlconfig.file('meta.zcml', zope.browserpage, context=context)  # noqa: D001,E501
         import zope.browserresource
-        xmlconfig.file('meta.zcml', zope.browserresource, context=context)
+        xmlconfig.file('meta.zcml', zope.browserresource, context=context)  # noqa: D001,E501
         import zope.publisher
-        xmlconfig.file('meta.zcml', zope.publisher, context=context)
+        xmlconfig.file('meta.zcml', zope.publisher, context=context)  # noqa: D001,E501
 
     def tearDown(self):
         # Zap the stacked configuration context
