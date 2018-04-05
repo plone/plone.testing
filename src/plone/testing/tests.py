@@ -76,13 +76,23 @@ checker = renormalizing.RENormalizing([
         r"'Unknown directive', u'http://namespaces.zope.org/zope', u'"),
      r"'Unknown directive', 'http://namespaces.zope.org/zope', '"),
 
-    # normalize py3 output to py3
+    # normalize py3 output to py2
     (re.compile(
         r"zope\.configuration\.xmlconfig\.ZopeXMLConfigurationError"),
      r"ZopeXMLConfigurationError"),
     (re.compile(r"builtins\.PopulatedZODB"), r"PopulatedZODB"),
     (re.compile(r"builtins\.ExpandedZODB"), r"ExpandedZODB"),
+    (re.compile(r"urllib\.error\.URLError"), r"URLError"),
 ])
+
+
+class TestZ2(unittest.TestCase):
+    """Testing plone.testing.z2."""
+
+    def test_z2(self):
+        """It can be imported. (It contains only BBB imports.)"""
+        import plone.testing.z2
+        self.assertIsNotNone(plone.testing.z2.ZSERVER)
 
 
 def test_suite():
@@ -115,5 +125,7 @@ def test_suite():
                 setUp=setUp,
                 tearDown=tearDown,
                 optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE,
-            )])
+            ),
+            unittest.TestLoader().loadTestsFromTestCase(TestZ2),
+        ])
     return suite
