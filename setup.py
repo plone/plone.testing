@@ -4,7 +4,7 @@ import os.path
 import sys
 from setuptools import setup, find_packages
 
-version = '6.0.1.dev0'
+version = '6.1.dev0'
 
 install_requires = [
     'setuptools',
@@ -46,14 +46,20 @@ setup(
         open(os.path.join("src", "plone", "testing", "zserver.rst")).read(),
     ])),
     classifiers=[
+        "Development Status :: 5 - Production/Stable",
         "Environment :: Web Environment",
-        "Framework :: Plone",
         "Framework :: Plone :: 5.2",
-        "Operating System :: OS Independent",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 2.7",
-        "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+        "Framework :: Plone",
+        "Framework :: Zope :: 4",
+        "Intended Audience :: Developers",
         "License :: OSI Approved :: BSD License",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: Implementation :: CPython",
+        "Programming Language :: Python",
+        "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+        "Topic :: Software Development :: Testing",
     ],
     keywords='plone zope testing',
     author='Plone Foundation',

@@ -373,24 +373,23 @@ It is usually best to let Zope errors be shown with full tracebacks:::
 We can add to the test fixture in the test.
 For those changes to be visible to the test browser, however, we need to commit the transaction.::
 
-    >>> app.manage_addFolder('folder1')
+    >>> _ = app.manage_addDTMLDocument('dtml-doc-1')
     >>> import transaction; transaction.commit()
 
 We can now view this via the test browser:::
 
-    >>> browser.open(app.absolute_url() + '/folder1')
-
-    >>> 'folder1' in browser.contents
+    >>> browser.open(app.absolute_url() + '/dtml-doc-1')
+    >>> 'This is the dtml-doc-1 Document.' in browser.contents
     True
 
 The test browser integration converts the URL into a request and passes control to Zope's publisher.
 Let's check that query strings are available for input processing:::
 
-    >>> import urllib
-    >>> qs = urllib.urlencode({'foo': 'boo, bar & baz'})  # sic: the ampersand.
-    >>> _ = app['folder1'].addDTMLMethod('index_html', file='<dtml-var foo>')
+    >>> from six.moves.urllib.parse import urlencode
+    >>> _ = app.manage_addDTMLDocument('dtml-doc-2', file='<dtml-var foo>')
     >>> import transaction; transaction.commit()
-    >>> browser.open(app.absolute_url() + '/folder1?' + qs)
+    >>> qs = urlencode({'foo': 'boo, bar & baz'})  # sic: the ampersand.
+    >>> browser.open(app.absolute_url() + '/dtml-doc-2?' + qs)
     >>> browser.contents
     'boo, bar & baz'
 
@@ -485,7 +484,7 @@ create some content or change a setting) and then use the HTTP protocol to look 
 Bear in mind that the server is running in a separate thread, with a separate security manager, so calls to ``wsgi.login()`` and ``wsgi.logout()``, for instance, do not affect the server thread.::
 
     >>> app = wsgi.WSGI_SERVER['app'] # would normally be self.layer['app']
-    >>> app.manage_addFolder('folder1')
+    >>> _ = app.manage_addDTMLDocument('dtml-doc-3')
 
 Note that we need to commit the transaction before it will show up in the other thread.::
 
@@ -497,10 +496,10 @@ We can now look for this new object through the server.::
     >>> app_url.split(':')[:-1]
     ['http', '//localhost']
 
-    >>> import urllib2
-    >>> conn = urllib2.urlopen(app_url + '/folder1', timeout=5)
-    >>> print conn.read()
-    <Folder at folder1>
+    >>> from six.moves.urllib.request import urlopen
+    >>> conn = urlopen(app_url + '/dtml-doc-3', timeout=5)
+    >>> b'This is the dtml-doc-3 Document.' in conn.read()
+    True
     >>> conn.close()
 
 Test tear-down does nothing beyond what the base layers do.::
@@ -527,7 +526,7 @@ When the server is torn down, the WSGIServer thread is stopped.::
     Tear down plone.testing.wsgi.Startup in ... seconds.
     Tear down plone.testing.zca.LayerCleanup in ... seconds.
 
-    >>> conn = urllib2.urlopen(app_url + '/folder1', timeout=5)
+    >>> conn = urlopen(app_url + '/folder1', timeout=5)
     Traceback (most recent call last):
     ...
     URLError: <urlopen error [Errno ...] Connection refused>

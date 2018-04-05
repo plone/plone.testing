@@ -1,8 +1,8 @@
 Changelog
 =========
 
-6.0.1 (unreleased)
-------------------
+6.1 (unreleased)
+----------------
 
 Breaking changes:
 
@@ -17,6 +17,8 @@ Breaking changes:
 New features:
 
 - Make ``ZServer`` an optional dependency.
+
+- Add support for Python 3.6.
 
 Bug fixes:
 
