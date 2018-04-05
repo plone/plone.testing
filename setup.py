@@ -13,7 +13,7 @@ install_requires = [
 ]
 
 tests_require = [
-    'ZODB3',
+    'ZODB',
     'zope.browsermenu',
     'zope.browserpage',
     'zope.browserresource',
@@ -83,7 +83,7 @@ setup(
     tests_require=tests_require,
     extras_require={
         'test': tests_require,
-        'zodb': ['ZODB3'],
+        'zodb': ['ZODB'],
         'zca': [
             'zope.component',
             'zope.event',
