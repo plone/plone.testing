@@ -1,7 +1,5 @@
 # -*- coding: utf-8 -*-
 from zope.testbrowser import browser
-# Add `nohost` to testbrowser's set of allowed hosts
-from zope.testbrowser.browser import _allowed
 from ZPublisher.httpexceptions import HTTPExceptionHandler
 from ZPublisher.WSGIPublisher import publish_module
 
@@ -83,4 +81,5 @@ class Browser(browser.Browser):
         super(Browser, self).__init__(url=url, wsgi_app=wsgi_app)
 
 
-_allowed.add('nohost')
+# Add `nohost` to testbrowser's set of allowed hosts
+browser._allowed.add('nohost')
