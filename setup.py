@@ -1,19 +1,19 @@
 # -*- coding: utf-8 -*-
 import os
 import os.path
-import sys
 from setuptools import setup, find_packages
 
-version = '6.1.dev0'
+version = '7.0.dev0'
 
 install_requires = [
     'setuptools',
     'six',
-    'zope.testing',
+    'zope.testing >= 3.8',
 ]
 
 tests_require = [
     'ZODB',
+    'Zope',
     'zope.browsermenu',
     'zope.browserpage',
     'zope.browserresource',
@@ -25,14 +25,13 @@ tests_require = [
     'zope.security',
     'zope.testbrowser',
     'zope.testrunner',
-    'Zope',
 ]
 
 zope_requires = [
     'Zope',
     'zope.component',
-    'zope.testbrowser',
     'zope.publisher',
+    'zope.testbrowser',
 ],
 
 
@@ -86,19 +85,19 @@ setup(
         'zodb': ['ZODB'],
         'zca': [
             'zope.component',
-            'zope.event',
             'zope.configuration',
+            'zope.event',
         ],
         'security': [
             'zope.security',
         ],
         'publisher': [
-            'zope.configuration',
-            'zope.security',
             'zope.browsermenu',
             'zope.browserpage',
             'zope.browserresource',
+            'zope.configuration',
             'zope.publisher',
+            'zope.security',
         ],
         'z2': zope_requires,  # BBB
         'zope': zope_requires,
