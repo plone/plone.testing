@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Zope-specific helpers and layers using WSGI
 """
+from __future__ import absolute_import
 from OFS.metaconfigure import get_packages_to_initialize
 from plone.testing import Layer
 from plone.testing import zca

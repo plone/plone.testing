@@ -1,13 +1,14 @@
 # -*- coding: utf-8 -*-
 """Zope2-specific helpers and layers using ZServer
 """
+from __future__ import absolute_import
 from plone.testing import Layer
-from plone.testing import wsgi
+from plone.testing.zope import addRequestContainer
+from plone.testing.zope import login  # noqa
+from plone.testing.zope import logout  # noqa
+from plone.testing.zope import setRoles  # noqa
 from plone.testing._z2_testbrowser import Browser  # noqa
-from plone.testing.wsgi import addRequestContainer
-from plone.testing.wsgi import login  # noqa
-from plone.testing.wsgi import logout  # noqa
-from plone.testing.wsgi import setRoles  # noqa
+from plone.testing import zope
 
 import contextlib
 import os
@@ -78,7 +79,7 @@ def zopeApp(db=None, connection=None, environ=None):
 
 # Startup layer - you probably don't want to use this one directly
 
-class Startup(wsgi.Startup):
+class Startup(zope.Startup):
     """This layer does what ZopeLite and ZopeTestCase's base.TestCase did:
     start up a minimal Zope instance and manages the application and
     request state.
@@ -190,7 +191,7 @@ STARTUP = Startup()
 # Basic integration and functional test and layers. These are the simplest
 # Zope 2 layers that are generally useful
 
-class IntegrationTesting(wsgi.IntegrationTesting):
+class IntegrationTesting(zope.IntegrationTesting):
     """This layer extends ``STARTUP`` to add rollback of the transaction
     after each test. It does not manage a fixture and has no layer lifecyle,
     only a test lifecycle.
@@ -220,7 +221,7 @@ class IntegrationTesting(wsgi.IntegrationTesting):
 INTEGRATION_TESTING = IntegrationTesting()
 
 
-class FunctionalTesting(wsgi.FunctionalTesting):
+class FunctionalTesting(zope.FunctionalTesting):
     """An alternative to ``INTEGRATION_TESTING`` suitable for functional testing.
     This one pushes and pops a ``DemoStorage`` layer for each test. The
     net result is that a test may commit safely.

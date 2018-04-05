@@ -42,7 +42,7 @@ setup(
         open(os.path.join("src", "plone", "testing", "security.rst")).read(),
         open(os.path.join("src", "plone", "testing", "publisher.rst")).read(),
         open(os.path.join("src", "plone", "testing", "zodb.rst")).read(),
-        open(os.path.join("src", "plone", "testing", "wsgi.rst")).read(),
+        open(os.path.join("src", "plone", "testing", "zope.rst")).read(),
         open(os.path.join("src", "plone", "testing", "zserver.rst")).read(),
     ])),
     classifiers=[

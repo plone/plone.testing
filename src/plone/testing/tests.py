@@ -1,4 +1,5 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
 from OFS.SimpleItem import SimpleItem
 from pkg_resources import get_distribution
 from ZPublisher.Iterators import filestream_iterator
@@ -52,7 +53,7 @@ class DummyFile(SimpleItem):
 
     def __call__(self):
         path = get_distribution('plone.testing').location
-        path = os.path.join(path, 'plone', 'testing', 'wsgi.rst')
+        path = os.path.join(path, 'plone', 'testing', 'zope.rst')
 
         request = self.REQUEST
         response = request.response
@@ -104,7 +105,7 @@ def test_suite():
             'security.rst',
             'publisher.rst',
             'zodb.rst',
-            'wsgi.rst',
+            'zope.rst',
             checker=checker,
             setUp=setUp,
             tearDown=tearDown,
