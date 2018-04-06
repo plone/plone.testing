@@ -1,6 +1,8 @@
+# -*- coding: utf-8 -*-
 from zope.testbrowser import browser
 from ZPublisher.httpexceptions import HTTPExceptionHandler
 from ZPublisher.WSGIPublisher import publish_module
+
 import base64
 import re
 
@@ -16,8 +18,8 @@ def authHeader(header):
             u = ''
         if p is None:
             p = ''
-        auth = base64.encodestring('%s:%s' % (u, p))
-        return 'Basic %s' % auth[:-1]
+        auth = base64.encodestring('{0}:{1}'.format(u, p))
+        return 'Basic {0}'.format(auth[:-1])
     return header
 
 
@@ -80,5 +82,4 @@ class Browser(browser.Browser):
 
 
 # Add `nohost` to testbrowser's set of allowed hosts
-from zope.testbrowser.browser import _allowed
-_allowed.add('nohost')
+browser._allowed.add('nohost')

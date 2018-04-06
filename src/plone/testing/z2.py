@@ -91,8 +91,7 @@ def installProduct(app, productName, quiet=False, multiinit=False):
 
     if not found and not quiet:
         sys.stderr.write(
-            'Could not install product {0}\n'.format(productName)
-        )
+            'Could not install product {0}\n'.format(productName))
         sys.stderr.flush()
 
 
@@ -171,8 +170,7 @@ def uninstallProduct(app, productName, quiet=False):
 
     if not found and not quiet:
         sys.stderr.write(
-            'Could not install product {0}\n'.format(productName)
-        )
+            'Could not install product {0}\n'.format(productName))
         sys.stderr.flush()
 
 
@@ -185,7 +183,7 @@ def login(userFolder, userName):
     user = userFolder.getUser(userName)
     if user is None:
         raise ValueError('User could not be found')
-    if not hasattr(user, 'aq_base'):
+    if getattr(user, 'aq_base', None) is None:
         user = user.__of__(userFolder)
     newSecurityManager(None, user)
 
@@ -461,11 +459,14 @@ class Startup(Layer):
                 pass
             App.ProductContext.ProductContext.registerHelp = null_register_help
 
-        # in Zope 2.13, prevent ZCML from loading during App startup
-        if hasattr(Zope2.App.startup, 'load_zcml'):
+        try:
+            self._Zope2_App_startup_load_zcml = Zope2.App.startup.load_zcml
+        except AttributeError:
+            pass
+        else:
+            # in Zope 2.13, prevent ZCML from loading during App startup
             def null_load_zcml():
                 pass
-            self._Zope2_App_startup_load_zcml = Zope2.App.startup.load_zcml
             Zope2.App.startup.load_zcml = null_load_zcml
 
     def tearDownPatches(self):
@@ -615,8 +616,11 @@ class Startup(Layer):
 
         import App.config
         config = App.config.getConfiguration()
-        if hasattr(config, 'testinghome'):
+        try:
             self._testingHome = config.testinghome
+        except AttributeError:
+            pass
+        else:
             del config.testinghome
             App.config.setConfiguration(config)
 
@@ -646,7 +650,11 @@ class Startup(Layer):
         Zope2.__bobo_before__ = None
 
         import App.config
-        if hasattr(self, '_testingHome'):
+        try:
+            self._testingHome
+        except AttributeError:
+            pass
+        else:
             config = App.config.getConfiguration()
             config.testinghome = self._testingHome
             App.config.setConfiguration(config)
