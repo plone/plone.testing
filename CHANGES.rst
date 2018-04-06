@@ -20,7 +20,7 @@ New features:
 
 Bug fixes:
 
-- *add item here*
+- Fix most of the code smells Jenkins complains about.
 
 
 6.0.0 (2018-02-05)
