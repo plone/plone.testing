@@ -1,7 +1,10 @@
+# -*- coding: utf-8 -*-
 from zope.deferredimport import deprecated
+
 import plone.testing
 import plone.testing.wsgi
 import warnings
+
 
 deprecated(
     'Please import from plone.testing.wsgi.',
@@ -41,6 +44,7 @@ class FTPServer(plone.testing.Layer):
             'The FTPServer layer is now only a no-op as FTP is not supported'
             ' by WSGI. If you really need the fixture import it from'
             ' plone.testing.zserver.')
+
 
 FTP_SERVER_FIXTURE = FTPServer()
 

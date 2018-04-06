@@ -2,12 +2,12 @@
 """Zope2-specific helpers and layers using ZServer
 """
 from plone.testing import Layer
+from plone.testing import wsgi
+from plone.testing._z2_testbrowser import Browser  # noqa
 from plone.testing.wsgi import addRequestContainer
 from plone.testing.wsgi import login  # noqa
 from plone.testing.wsgi import logout  # noqa
 from plone.testing.wsgi import setRoles  # noqa
-from plone.testing._z2_testbrowser import Browser  # noqa
-from plone.testing import wsgi
 
 import contextlib
 import os
@@ -128,8 +128,11 @@ class Startup(wsgi.Startup):
 
         import App.config
         config = App.config.getConfiguration()
-        if hasattr(config, 'testinghome'):
+        try:
             self._testingHome = config.testinghome
+        except AttributeError:
+            pass
+        else:
             del config.testinghome
             App.config.setConfiguration(config)
 
@@ -160,7 +163,11 @@ class Startup(wsgi.Startup):
         Zope2.__bobo_before__ = None
 
         import App.config
-        if hasattr(self, '_testingHome'):
+        try:
+            self._testingHome
+        except AttributeError:
+            pass
+        else:
             config = App.config.getConfiguration()
             config.testinghome = self._testingHome
             App.config.setConfiguration(config)
@@ -208,6 +215,7 @@ class IntegrationTesting(wsgi.IntegrationTesting):
     """
 
     defaultBases = (STARTUP,)
+
 
 INTEGRATION_TESTING = IntegrationTesting()
 
