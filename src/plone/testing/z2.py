@@ -27,6 +27,12 @@ deprecated(
 )
 
 
+deprecated(
+    'Please import from plone.testing.',
+    Layer='plone.testing:Layer',
+)
+
+
 class FTPServer(plone.testing.Layer):
     """No-op so imports do not break."""
 
