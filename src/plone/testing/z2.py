@@ -1,4 +1,7 @@
 from zope.deferredimport import deprecated
+import plone.testing
+import plone.testing.wsgi
+import warnings
 
 deprecated(
     'Please import from plone.testing.wsgi.',
@@ -22,3 +25,21 @@ deprecated(
     ZSERVER_FIXTURE='plone.testing.wsgi:WSGI_SERVER_FIXTURE',
     ZSERVER='plone.testing.wsgi:WSGI_SERVER',
 )
+
+
+class FTPServer(plone.testing.Layer):
+    """No-op so imports do not break."""
+
+    def setUp(self):
+        warnings.warn(
+            'The FTPServer layer is now only a no-op as FTP is not supported'
+            ' by WSGI. If you really need the fixture import it from'
+            ' plone.testing.zserver.')
+
+FTP_SERVER_FIXTURE = FTPServer()
+
+FTP_SERVER = plone.testing.wsgi.FunctionalTesting(
+    bases=(
+        FTP_SERVER_FIXTURE,
+    ),
+    name='No-OpFTPServer:Functional')

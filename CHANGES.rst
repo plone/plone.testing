@@ -6,12 +6,13 @@ Changelog
 
 Breaking changes:
 
-- ``plone.testing.z2`` is now a BBB shim for ``plone.testing.wsgi``, thus
+- ``plone.testing.z2`` is now a BBB shim for ``plone.testing.wsgi``, thus it
   switches the tests to use WSGI. If you absolutely want to keep using ZServer
   please import from ``plone.testing.zserver``.
 
-- ``plone.testing.z2`` no longer contains the FTP server fixture, import it
-  from ``plone.testing.zserver``.
+- ``plone.testing.z2`` now only contains a no-op FTPServer layer because FTP is
+  nit supported by WSGI. If you really need it, import it from
+  ``plone.testing.zserver`` but this will not work on Python 3.
 
 New features:
 
