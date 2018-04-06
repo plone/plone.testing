@@ -122,20 +122,6 @@ def uninstallProduct(app, productName, quiet=False):
                 if name in Application.misc_.__dict__:
                     delattr(Application.misc_, name)
 
-                try:
-                    cp = app['Control_Panel']['Products']
-                except KeyError:
-                    # Zope 4
-                    pass
-                else:
-                    if name in cp:
-                        product = cp[name]
-
-                        app._manage_remove_product_meta_type(product)
-                        app._manage_remove_product_permission(product)
-
-                        del cp[name]
-
                 # TODO: Also remove permissions from get_folder_permissions?
                 # Difficult to know if this would stomp on any other
                 # permissions
@@ -147,20 +133,6 @@ def uninstallProduct(app, productName, quiet=False):
 
         module, init_func = _INSTALLED_PRODUCTS[productName]
         name = module.__name__
-
-        try:
-            cp = app['Control_Panel']['Products']
-        except KeyError:
-            # Zope 4
-            pass
-        else:
-            if name in cp:
-                product = cp[name]
-
-                app._manage_remove_product_meta_type(product)
-                app._manage_remove_product_permission(product)
-
-                del cp[name]
 
         packages = get_packages_to_initialize()
         packages.append((module, init_func))
@@ -418,7 +390,6 @@ class Startup(Layer):
         """
 
         import OFS.Application
-        import App.ProductContext
         import Zope2.App.startup
 
         # Avoid expensive product import
@@ -433,49 +404,18 @@ class Startup(Layer):
         self._OFS_Application_initialize = OFS.Application.initialize
         OFS.Application.initialize = null_initialize
 
-        # Avoid expensive help registration
-        try:
-            self._App_ProductContext_ProductContext_registerHelpTopic = App.ProductContext.ProductContext.registerHelpTopic  # noqa
-        except AttributeError:
-            # Zope 4
+        # Prevent ZCML from loading during App startup:
+        self._Zope2_App_startup_load_zcml = Zope2.App.startup.load_zcml
+
+        def null_load_zcml():
             pass
-        else:
-            def null_register_topic(self, id, topic):
-                pass
-            App.ProductContext.ProductContext.registerHelpTopic = null_register_topic  # noqa
-
-            self._App_ProductContext_ProductContext_registerHelpTitle = App.ProductContext.ProductContext.registerHelpTitle  # noqa
-
-            def null_register_title(self, title):
-                pass
-            App.ProductContext.ProductContext.registerHelpTitle = null_register_title  # noqa
-
-            self._App_ProductContext_ProductContext_registerHelp = App.ProductContext.ProductContext.registerHelp  # noqa
-
-            def null_register_help(
-                    self,
-                    directory='',
-                    clear=1,
-                    title_re=None):
-                pass
-            App.ProductContext.ProductContext.registerHelp = null_register_help
-
-        # in Zope 2.13, prevent ZCML from loading during App startup
-        try:
-            self._Zope2_App_startup_load_zcml = Zope2.App.startup.load_zcml
-        except AttributeError:
-            pass
-        else:
-            def null_load_zcml():
-                pass
-            Zope2.App.startup.load_zcml = null_load_zcml
+        Zope2.App.startup.load_zcml = null_load_zcml
 
     def tearDownPatches(self):
         """Revert the monkey patches from setUpPatches()
         """
 
         import OFS.Application
-        import App.ProductContext
 
         OFS.Application.import_products = self._OFS_Application_import_products
         del self._OFS_Application_import_products
@@ -483,19 +423,7 @@ class Startup(Layer):
         OFS.Application.initialize = self._OFS_Application_initialize
         del self._OFS_Application_initialize
 
-        try:
-            App.ProductContext.ProductContext.registerHelpTopic = self._App_ProductContext_ProductContext_registerHelpTopic  # noqa
-        except AttributeError:
-            # Zope 4
-            pass
-        else:
-            del self._App_ProductContext_ProductContext_registerHelpTopic
-
-            App.ProductContext.ProductContext.registerHelpTitle = self._App_ProductContext_ProductContext_registerHelpTitle  # noqa
-            del self._App_ProductContext_ProductContext_registerHelpTitle
-
-            App.ProductContext.ProductContext.registerHelp = self._App_ProductContext_ProductContext_registerHelp  # noqa
-            del self._App_ProductContext_ProductContext_registerHelp
+        Zope2.App.startup.load_zcml = self._Zope2_App_startup_load_zcml
 
     def setUpThreads(self):
         """Set the thread count. Only needed in ZServer.
