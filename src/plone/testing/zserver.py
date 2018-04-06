@@ -3,12 +3,12 @@
 """
 from __future__ import absolute_import
 from plone.testing import Layer
+from plone.testing import zope
+from plone.testing._z2_testbrowser import Browser  # noqa
 from plone.testing.zope import addRequestContainer
 from plone.testing.zope import login  # noqa
 from plone.testing.zope import logout  # noqa
 from plone.testing.zope import setRoles  # noqa
-from plone.testing._z2_testbrowser import Browser  # noqa
-from plone.testing import zope
 
 import contextlib
 import os
