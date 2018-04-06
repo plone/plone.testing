@@ -304,7 +304,10 @@ class ZCMLDirectives(Layer):
 
         self['configurationContext'] = context = stackConfigurationContext(
             self.get('configurationContext'))
-        xmlconfig.file('meta.zcml', zope.component, context=context)  # noqa: D001,E501
+        # D001 requests to use self.loadZCML instead of xmlconfig.file but
+        # loadZCML is defined in `plone.app.testing` and cannot be used here.
+        xmlconfig.file(
+            'meta.zcml', zope.component, context=context)  # noqa: D001
 
     def tearDown(self):
         del self['configurationContext']
