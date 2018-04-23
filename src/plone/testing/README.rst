@@ -1554,24 +1554,24 @@ One helper function is available in the ``plone.testing.zodb`` module.
 
 ``stackDemoStorage(db=None, name=None)``
 
-    Create a new ``DemoStorage`` using the storage from the passed-in database as a base.
-    If ``db`` is None, a brand new storage is created.
+Create a new ``DemoStorage`` using the storage from the passed-in database as a base.
+If ``db`` is None, a brand new storage is created.
 
-    A ``name`` can be given to uniquely identify the storage.
-    It is optional, but it is often useful for debugging purposes to pass the name of the layer.
+A ``name`` can be given to uniquely identify the storage.
+It is optional, but it is often useful for debugging purposes to pass the name of the layer.
 
-    The usual pattern is::
+The usual pattern is::
 
-        def setUp(self):
-            self['zodbDB'] = zodb.stackDemoStorage(self.get('zodbDB'), name='MyLayer')
+    def setUp(self):
+        self['zodbDB'] = zodb.stackDemoStorage(self.get('zodbDB'), name='MyLayer')
 
-        def tearDown(self):
-            self['zodbDB'].close()
-            del self['zodbDB']
+    def tearDown(self):
+        self['zodbDB'].close()
+        del self['zodbDB']
 
-    This will shadow the ``zodbDB`` resource with an isolated ``DemoStorage``, creating a new one if that resource does not already exist.
-    All existing data continues to be available, but new changes are written to the stacked storage.
-    On tear-down, the stacked database is closed and the resource removed, leaving the original data.
+This will shadow the ``zodbDB`` resource with an isolated ``DemoStorage``, creating a new one if that resource does not already exist.
+All existing data continues to be available, but new changes are written to the stacked storage.
+On tear-down, the stacked database is closed and the resource removed, leaving the original data.
 
 Zope 2
 ------
