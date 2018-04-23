@@ -1,8 +1,10 @@
 # -*- coding: utf-8 -*-
+from setuptools import find_packages
+from setuptools import setup
+
 import os
 import os.path
-import sys
-from setuptools import setup, find_packages
+
 
 version = '7.0.dev0'
 
