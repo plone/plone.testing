@@ -125,7 +125,8 @@ class ResourceManager(object):
         return self._mergeResourceManagers(
             [[instance]] +
             list(map(self._resourceResolutionOrder, instance.__bases__)) +
-            [list(instance.__bases__)])
+            [list(instance.__bases__)]
+        )
 
 
 class Layer(ResourceManager):
@@ -155,10 +156,10 @@ class Layer(ResourceManager):
         """
 
         if self.__class__ is Layer and name is None:
-            raise ValueError('The `name` argument is required when instantiating `Layer` directly')  # noqa
+            raise ValueError('The `name` argument is required when instantiating `Layer` directly')  # NOQA: E501
 
         if name is None and bases is not None:
-            raise ValueError('The `name`` argument is required when overriding bases with the `bases` argument')  # noqa
+            raise ValueError('The `name`` argument is required when overriding bases with the `bases` argument')  # NOQA: E501
 
         super(Layer, self).__init__()
 
