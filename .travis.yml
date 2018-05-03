@@ -2,13 +2,13 @@ language: python
 sudo: false
 python:
     - 2.7
+env:
+    - EXTRA=
+    - EXTRA=-zserver
 install:
-    - pip install setuptools zc.buildout
-    - pip install coveralls coverage
-    - buildout bootstrap
-    - buildout
+    - pip install tox
 script:
-    - coverage run bin/test -v1
+    - tox -e py${TRAVIS_PYTHON_VERSION//.}$EXTRA
 after_success:
     - coverage combine
     - coveralls

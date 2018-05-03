@@ -25,7 +25,6 @@ tests_require = [
     'zope.testbrowser',
     'zope.testrunner',
     'Zope',
-    'ZServer',
 ]
 
 setup(
@@ -42,7 +41,8 @@ setup(
         open(os.path.join("src", "plone", "testing", "security.rst")).read(),
         open(os.path.join("src", "plone", "testing", "publisher.rst")).read(),
         open(os.path.join("src", "plone", "testing", "zodb.rst")).read(),
-        open(os.path.join("src", "plone", "testing", "z2.rst")).read()
+        open(os.path.join("src", "plone", "testing", "wsgi.rst")).read(),
+        open(os.path.join("src", "plone", "testing", "zserver.rst")).read(),
     ])),
     classifiers=[
         "Environment :: Web Environment",
@@ -87,6 +87,7 @@ setup(
         ],
         'z2': [
             'Zope',
+            'ZServer',
             'zope.component',
             'zope.testbrowser',
             'zope.publisher',

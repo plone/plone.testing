@@ -9,6 +9,13 @@ import unittest
 import zope.component.testing
 
 
+try:
+    import ZServer  # noqa
+except ImportError:
+    HAS_ZSERVER = False
+else:
+    HAS_ZSERVER = True
+
 # This is somewhat retarted. We execute README.rst as a doctest, mainly just
 # to test that the code samples import cleanly and are valid Python. However,
 # in there we also have a code sample of a doctest, which gets executed by the
@@ -42,7 +49,7 @@ class DummyFile(SimpleItem):
 
     def __call__(self):
         path = get_distribution('plone.testing').location
-        path = os.path.join(path, 'plone', 'testing', 'z2.rst')
+        path = os.path.join(path, 'plone', 'testing', 'wsgi.rst')
 
         request = self.REQUEST
         response = request.response
@@ -68,7 +75,7 @@ def test_suite():
             'security.rst',
             'publisher.rst',
             'zodb.rst',
-            'z2.rst',
+            'wsgi.rst',
             setUp=setUp,
             tearDown=tearDown,
             optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE,
@@ -81,4 +88,12 @@ def test_suite():
             optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE,
         ),
     ])
+    if HAS_ZSERVER:
+        suite.addTests([
+            doctest.DocFileSuite(
+                'zserver.rst',
+                setUp=setUp,
+                tearDown=tearDown,
+                optionflags=doctest.ELLIPSIS | doctest.NORMALIZE_WHITESPACE,
+            )])
     return suite
