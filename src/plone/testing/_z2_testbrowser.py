@@ -4,7 +4,9 @@ from zope.testbrowser import browser
 from ZPublisher.httpexceptions import HTTPExceptionHandler
 from ZPublisher.utils import basic_auth_encode
 from ZPublisher.WSGIPublisher import publish_module
+
 import re
+
 
 BASIC_RE = re.compile('Basic (.+)?:(.+)?$')
 
