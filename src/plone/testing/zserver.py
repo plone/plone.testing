@@ -3,12 +3,16 @@
 """
 from __future__ import absolute_import
 from plone.testing import Layer
+from plone.testing import zodb
 from plone.testing import zope
 from plone.testing._z2_testbrowser import Browser  # noqa
 from plone.testing.zope import addRequestContainer
+from plone.testing.zope import installProduct
 from plone.testing.zope import login  # noqa
 from plone.testing.zope import logout  # noqa
 from plone.testing.zope import setRoles  # noqa
+from plone.testing.zope import TestIsolationBroken
+from plone.testing.zope import uninstallProduct
 
 import contextlib
 import os
@@ -140,7 +144,7 @@ class Startup(zope.Startup):
         # This uses the DB from the dbtab, as configured in setUpDatabase().
         # That DB then gets stored as Zope2.DB and becomes the default.
 
-        import Zope2
+        from ZServer import Zope2
         Zope2.startup()
 
         # At this point, Zope2.DB is set to the test database facade. This is
@@ -152,7 +156,7 @@ class Startup(zope.Startup):
 
         import Zope2
         import ZServer.Zope2
-        Zope2.app()._p_jar.close()
+        ZServer.Zope2.app()._p_jar.close()
 
         ZServer.Zope2._began_startup = 0
 
@@ -183,6 +187,37 @@ class Startup(zope.Startup):
             d = list(defaults)
             d[0] = {}
             ZPublisher.Publish.get_module_info.func_defaults = tuple(d)
+
+    def setUpBasicProducts(self):
+        """Install a minimal set of products required for Zope 2.
+        """
+
+        with zopeApp() as app:
+            installProduct(app, 'Products.PluginIndexes')
+            installProduct(app, 'Products.OFSP')
+
+    def tearDownBasicProducts(self):
+        """Tear down the minimal set of products
+        """
+
+        with zopeApp() as app:
+            uninstallProduct(app, 'Products.PluginIndexes')
+            uninstallProduct(app, 'Products.OFSP')
+
+        # It's possible for Five's _register_monkies and _meta_type_regs
+        # global variables to contain duplicates. This causes an unecessary
+        # error in the LayerCleanup layer's tear-down. Guard against that
+        # here
+
+        try:
+            from OFS import metaconfigure
+        except ImportError:
+            # Zope <= 2.12
+            from Products.Five import fiveconfigure as metaconfigure
+        metaconfigure._register_monkies = list(
+            set(metaconfigure._register_monkies))
+        metaconfigure._meta_type_regs = list(
+            set(metaconfigure._meta_type_regs))
 
 
 STARTUP = Startup()
@@ -217,6 +252,48 @@ class IntegrationTesting(zope.IntegrationTesting):
 
     defaultBases = (STARTUP,)
 
+    def testSetUp(self):
+        from ZServer import Zope2
+
+        # Open a new app and save it as the resource ``app``.
+
+        environ = {
+            'SERVER_NAME': self['host'],
+            'SERVER_PORT': str(self['port']),
+        }
+
+        app = addRequestContainer(Zope2.app(), environ=environ)
+        request = app.REQUEST
+        request['PARENTS'] = [app]
+
+        # Make sure we have a zope.globalrequest request
+        try:
+            from zope.globalrequest import setRequest
+            setRequest(request)
+        except ImportError:
+            pass
+
+        # Start a transaction
+        transaction.begin()
+
+        self._original_commit = transaction.commit
+
+        def you_broke_it():
+            raise TestIsolationBroken("""You are in a Test Layer
+(IntegrationTesting) that is fast by just aborting transactions between each
+test.  You just committed something. That breaks the test isolation.  So I stop
+here and let you fix it.""")
+
+        # XXX TODO Restore this.
+        # Temporarily allow commits in integration tests.
+        # Plone 5.1 still uses plone.testing 4.1.1, and for Zope 4 integration
+        # we want master, but without the commit-breaking for now.
+        # transaction.commit = you_broke_it
+
+        # Save resources for tests to access
+        self['app'] = app
+        self['request'] = request
+
 
 INTEGRATION_TESTING = IntegrationTesting()
 
@@ -246,6 +323,42 @@ class FunctionalTesting(zope.FunctionalTesting):
     """
 
     defaultBases = (STARTUP,)
+
+    def testSetUp(self):
+        from ZServer import Zope2
+
+        # Override zodbDB from the layer setup. Since it was set up by
+        # this layer, we can't just assign a new shadow. We therefore keep
+        # track of the original so that we can restore it on tear-down.
+
+        self['zodbDB'] = zodb.stackDemoStorage(
+            self.get('zodbDB'),
+            name='FunctionalTest')
+
+        # Save the app
+
+        environ = {
+            'SERVER_NAME': self['host'],
+            'SERVER_PORT': str(self['port']),
+        }
+
+        app = addRequestContainer(Zope2.app(), environ=environ)
+        request = app.REQUEST
+        request['PARENTS'] = [app]
+
+        # Make sure we have a zope.globalrequest request
+        try:
+            from zope.globalrequest import setRequest
+            setRequest(request)
+        except ImportError:
+            pass
+
+        # Start a transaction
+        transaction.begin()
+
+        # Save resources for the test
+        self['app'] = app
+        self['request'] = request
 
 
 FUNCTIONAL_TESTING = FunctionalTesting()

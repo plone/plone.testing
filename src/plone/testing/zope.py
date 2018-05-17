@@ -239,6 +239,8 @@ def zopeApp(db=None, connection=None, environ=None):
     if connection is None and db is not None:
         connection = db.open()
 
+    assert Zope2._began_startup, \
+        "Zope2 WSGI is not started, maybe mixing Zope and ZServer layers."
     app = addRequestContainer(Zope2.app(connection), environ=environ)
 
     if connection is None:
