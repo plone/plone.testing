@@ -231,7 +231,7 @@ Before the test, we cannot use e.g. a ``<utility />`` directive without loading 
     Traceback (most recent call last):
     ...
     ZopeXMLConfigurationError: File "<string>", line 2.4
-        ConfigurationError: ('Unknown directive', u'http://namespaces.zope.org/zope', u'utility')
+        ConfigurationError: ('Unknown directive', 'http://namespaces.zope.org/zope', 'utility')
 
 Layer setup creates a configuration context we can use to load further configuration.::
 
@@ -285,12 +285,12 @@ The second registry is set up and torn down for each test, allowing tests to reg
 
 First, we'll create a simple dummy utility to illustrate registrations.::
 
-    >>> from zope.interface import Interface, implements
+    >>> from zope.interface import Interface, implementer
 
     >>> class IDummyUtility(Interface):
     ...     pass
-    >>> class DummyUtility(object):
-    ...     implements(IDummyUtility)
+    >>> @implementer(IDummyUtility)
+    ... class DummyUtility(object):
     ...     def __init__(self, name):
     ...         self.name = name
     ...     def __repr__(self):

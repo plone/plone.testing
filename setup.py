@@ -1,18 +1,21 @@
 # -*- coding: utf-8 -*-
+from setuptools import find_packages
+from setuptools import setup
+
 import os
 import os.path
-import sys
-from setuptools import setup, find_packages
 
-version = '6.0.1.dev0'
+
+version = '7.0.dev0'
 
 install_requires = [
     'setuptools',
-    'zope.testing',
+    'six',
+    'zope.testing >= 3.8',
 ]
 
 tests_require = [
-    'ZODB3',
+    'ZODB',
     'zope.browsermenu',
     'zope.browserpage',
     'zope.browserresource',
@@ -25,8 +28,15 @@ tests_require = [
     'zope.testbrowser',
     'zope.testrunner',
     'Zope',
-    'ZServer',
 ]
+
+zope_requires = [
+    'Zope',
+    'zope.component',
+    'zope.testbrowser',
+    'zope.publisher',
+],
+
 
 setup(
     name='plone.testing',
@@ -42,17 +52,24 @@ setup(
         open(os.path.join("src", "plone", "testing", "security.rst")).read(),
         open(os.path.join("src", "plone", "testing", "publisher.rst")).read(),
         open(os.path.join("src", "plone", "testing", "zodb.rst")).read(),
-        open(os.path.join("src", "plone", "testing", "z2.rst")).read()
+        open(os.path.join("src", "plone", "testing", "zope.rst")).read(),
+        open(os.path.join("src", "plone", "testing", "zserver.rst")).read(),
     ])),
     classifiers=[
+        "Development Status :: 5 - Production/Stable",
         "Environment :: Web Environment",
-        "Framework :: Plone",
         "Framework :: Plone :: 5.2",
-        "Operating System :: OS Independent",
-        "Programming Language :: Python",
-        "Programming Language :: Python :: 2.7",
-        "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+        "Framework :: Plone",
+        "Framework :: Zope :: 4",
+        "Intended Audience :: Developers",
         "License :: OSI Approved :: BSD License",
+        "Operating System :: OS Independent",
+        "Programming Language :: Python :: 2.7",
+        "Programming Language :: Python :: 3.6",
+        "Programming Language :: Python :: Implementation :: CPython",
+        "Programming Language :: Python",
+        "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+        "Topic :: Software Development :: Testing",
     ],
     keywords='plone zope testing',
     author='Plone Foundation',
@@ -68,7 +85,7 @@ setup(
     tests_require=tests_require,
     extras_require={
         'test': tests_require,
-        'zodb': ['ZODB3'],
+        'zodb': ['ZODB'],
         'zca': [
             'zope.component',
             'zope.event',
@@ -85,11 +102,10 @@ setup(
             'zope.browserresource',
             'zope.publisher',
         ],
-        'z2': [
-            'Zope',
-            'zope.component',
-            'zope.testbrowser',
-            'zope.publisher',
+        'z2': zope_requires,  # BBB
+        'zope': zope_requires,
+        'zserver': [
+            'ZServer',
         ],
     },
 )

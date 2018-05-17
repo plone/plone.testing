@@ -1,9 +1,10 @@
 # -*- coding: utf-8 -*-
+from __future__ import absolute_import
 from zope.testbrowser import browser
 from ZPublisher.httpexceptions import HTTPExceptionHandler
+from ZPublisher.utils import basic_auth_encode
 from ZPublisher.WSGIPublisher import publish_module
 
-import base64
 import re
 
 
@@ -18,8 +19,7 @@ def authHeader(header):
             u = ''
         if p is None:
             p = ''
-        auth = base64.encodestring('{0}:{1}'.format(u, p))
-        return 'Basic {0}'.format(auth[:-1])
+        return basic_auth_encode(u, p)
     return header
 
 

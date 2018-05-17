@@ -4,7 +4,7 @@ Introduction
 .. contents:: Table of contents
 
 ``plone.testing`` provides tools for writing unit and integration tests in a Zope and Plone environment.
-It is not tied to Plone, and it does not depend on Zope 2 (although it has some optional Zope 2-only features).
+It is not tied to Plone, and it does not depend on Zope (although it has some optional Zope-only features).
 
 ``plone.testing`` builds on `zope.testing`_, in particular its layers concept.
 This package also aims to promote some "good practice" for writing tests of various types.
@@ -26,7 +26,7 @@ The core concepts should be consistent, however.
 Compatibility
 -------------
 
-``plone.testing`` 6.x has only been tested with Python 2.7.
+``plone.testing`` 7.x has been tested with Python 2.7 and 3.6.
 If you're using the optional Zope layers, you must use Zope version 4 or later.
 Look at older ``plone.testing`` versions for supporting older Zope versions.
 
@@ -146,7 +146,7 @@ In this example, have listed a single package to test, called ``my.package``, an
 This will install any regular dependencies (listed in the ``install_requires`` option in ``setup.py``), as well as those in the list associated with the ``test`` key in the ``extras_require`` option.
 
 Note that it becomes important to properly list your dependencies here, because the test runner will only be aware of the packages explicitly listed, and their dependencies.
-For example, if your package depends on Zope 2, you need to list ``Zope2`` in the ``install_requires`` list in ``setup.py``;
+For example, if your package depends on Zope, you need to list ``Zope`` in the ``install_requires`` list in ``setup.py``;
 ditto for ``Plone``, or indeed any other package you import from.
 
 Once you have re-run buildout, the test runner will be installed as ``bin/test`` (the executable name is taken from the name of the buildout part).
@@ -208,7 +208,7 @@ The coverage script would otherwise generate coverage information for all execut
 Running the ``bin/report`` script will generate a human readable HTML representation of the run in the `htmlcov` directory.
 Open the contained `index.html` in a browser to see the result.
 
-If you want to generate an XML representation suitable for the `Cobertura`_ plugin of `Hudson`_, you can add another part::
+If you want to generate an XML representation suitable for the `Cobertura`_ plugin of `Jenkins`_, you can add another part::
 
     [buildout]
     parts =
@@ -247,7 +247,7 @@ The available extras are:
 
 ``zodb``
     ZODB testing.
-    Depends on ``ZODB3``.
+    Depends on ``ZODB``.
     The relevant layers and helpers are in the module ``plone.testing.zodb``.
 
 ``zca``
@@ -265,10 +265,16 @@ The available extras are:
     Depends on ``zope.publisher``, ``zope.browsermenu``, ``zope.browserpage``, ``zope.browserresource`` and ``zope.security`` and sets up ZCML directives.
     The relevant layers and helpers are in the module ``plone.testing.publisher``.
 
-``z2``
-    Zope 2 testing.
-    Depends on the ``Zope2`` egg, which includes all the dependencies of the Zope 2 application server.
-    The relevant layers and helpers are in the module ``plone.testing.z2``
+``zope`` (For backwards compatibility there is also ``z2``.)
+
+    Zope testing.
+    Depends on the ``Zope`` egg, which includes all the dependencies of the Zope application server.
+    The relevant layers and helpers are in the module ``plone.testing.zope``.
+
+``zserver``
+
+    Tests against the ``ZServer``. (Python 2 only!) Requires additionally to use the ``zope`` extra.
+    The relevant layers and helpers are in the module ``plone.testing.zserver``
 
 Adding a test buildout to your package
 --------------------------------------
@@ -465,16 +471,16 @@ A simple layer may look like this::
     >>> class SpaceShip(Layer):
     ...
     ...     def setUp(self):
-    ...         print "Assembling space ship"
+    ...         print("Assembling space ship")
     ...
     ...     def tearDown(self):
-    ...         print "Disasembling space ship"
+    ...         print("Disasembling space ship")
     ...
     ...     def testSetUp(self):
-    ...         print "Fuelling space ship in preparation for test"
+    ...         print("Fuelling space ship in preparation for test")
     ...
     ...     def testTearDown(self):
-    ...         print "Emptying the fuel tank"
+    ...         print("Emptying the fuel tank")
 
 Before this layer can be used, it must be instantiated.
 Layers are normally instantiated exactly once, since by nature they are shared between tests.
@@ -499,7 +505,7 @@ Here is an example of another layer that depends on it:::
     ...     defaultBases = (SPACE_SHIP,)
     ...
     ...     def setUp(self):
-    ...         print "Installing main canon"
+    ...         print("Installing main canon")
 
     >>> ZIG = ZIGSpaceShip()
 
@@ -544,10 +550,10 @@ Normally, of course, you would just re-use the layer instance, either directly i
     >>> class CATSMessage(Layer):
     ...
     ...     def setUp(self):
-    ...         print "All your base are belong to us"
+    ...         print("All your base are belong to us")
     ...
     ...     def tearDown(self):
-    ...         print "For great justice"
+    ...         print("For great justice")
 
     >>> CATS_MESSAGE = CATSMessage()
 
@@ -596,9 +602,9 @@ The resource storage uses dictionary notation:::
     ...
     ...     def start(self, speed):
     ...         if speed > self.maxSpeed:
-    ...             print "We need more power!"
+    ...             print("We need more power!")
     ...         else:
-    ...             print "Going to warp at speed", speed
+    ...             print("Going to warp at speed", speed)
     ...             self.running = True
     ...
     ...     def stop(self):
@@ -772,35 +778,10 @@ A few things to note:
 Test suites
 ~~~~~~~~~~~
 
-If you are using version 3.8.0 or later of `zope.testing`_, a class like the one above is all you need: any class deriving from ``TestCase`` in a module with a name starting with ``test`` will be examined for test methods.
+A class like the one above is all you need: any class deriving from ``TestCase`` in a module with a name starting with ``test`` will be examined for test methods.
 Those tests are then collected into a test suite and executed.
 
-With older versions of `zope.testing`_, you need to add a ``test_suite()`` function in each module that returns the tests in the test suite.
-The `unittest`_ module contains several tools to construct suites, but one of the simplest is to use the default test loader to load all tests in the current module:::
-
-    >>> def test_suite():
-    ...     return unittest.defaultTestLoader.loadTestsFromName(__name__)
-
-If you need to load tests explicitly, you can use the ``TestSuite`` API from the `unittest`_ module.
-For example:::
-
-    >>> def test_suite():
-    ...     suite = unittest.TestSuite()
-    ...     suite.addTests([
-    ...         unittest.makeSuite(TestFasterThanLightTravel)
-    ...     ])
-    ...     return suite
-
-The ``makeSuite()`` function creates a test suite from the test methods in the given class (which must derive from ``TestCase``).
-This suite is then appended to an overall suite, which is returned from the ``test_suite()`` method.
-Note that ``addTests()`` takes a list of suites (which are coalesced into a single suite).
-We'll add additional suites later.
-
 See the `unittest`_ documentation for other options.
-
-.. note::
-
-   Adding a ``test_suite()`` method to a module disables automatic test discovery, even when using a recent version of ``zope.testing``.
 
 Doctests
 --------
@@ -1161,31 +1142,31 @@ Here, we have loaded two files: ``meta.zcml`` and ``configure.zcml``.
 The first call to ``xmlconfig.file()`` creates and returns a configuration context.
 We re-use that for the subsequent invocation, so that the directives configured are available.
 
-Installing a Zope 2 product
----------------------------
+Installing a Zope product
+-------------------------
 
-Some packages (including all those in the ``Products.*`` namespace) have the special status of being Zope 2 "products".
+Some packages (including all those in the ``Products.*`` namespace) have the special status of being Zope "products".
 These are recorded in a special registry, and may have an ``initialize()`` hook in their top-level ``__init__.py`` that needs to be called for the package to be fully configured.
 
 Zope 2 will find and execute any products during startup.
 For testing, we need to explicitly list the products to install.
-Provided you are using ``plone.testing`` with Zope 2, you can use the following:::
+Provided you are using ``plone.testing`` with Zope, you can use the following:::
 
-    from plone.testing import z2
+    from plone.testing import zope
 
-    with z2.zopeApp() as app:
-        z2.installProduct(app, 'Products.ZCatalog')
+    with zope.zopeApp() as app:
+        zope.installProduct(app, 'Products.ZCatalog')
 
 This would normally be used during layer ``setUp()``.
-Note that the basic Zope 2 application context must have been set up before doing this.
-The usual way to ensure this, is to use a layer that is based on ``z2.STARTUP`` - see below.
+Note that the basic Zope application context must have been set up before doing this.
+The usual way to ensure this, is to use a layer that is based on ``zope.STARTUP`` - see below.
 
 To tear down such a layer, you should do:::
 
-    from plone.testing import z2
+    from plone.testing import zope
 
-    with z2.zopeApp() as app:
-        z2.uninstallProduct(app, 'Products.ZCatalog')
+    with zope.zopeApp() as app:
+        zope.uninstallProduct(app, 'Products.ZCatalog')
 
 Note:
 
@@ -1204,20 +1185,20 @@ For functional tests that aim to simulate the browser, you can use `zope.testbro
     >>> from zope.testbrowser.browser import Browser
     >>> browser = Browser()
 
-This provides a simple API to simulate browser input, without actually running a web server thread or scripting a live browser (as tools such as Windmill and Selenium do).
+This provides a simple API to simulate browser input, without actually running a web server thread or scripting a live browser (as tools such as Selenium_ do).
 The downside is that it is not possible to test JavaScript- dependent behaviour.
 
-If you are testing a Zope 2 application, you need to change the import location slightly, and pass the application root to the method:::
+If you are testing a Zope application, you need to change the import location slightly, and pass the application root to the method:::
 
-    from plone.testing.z2 import Browser
+    from plone.testing.zope import Browser
     browser = Browser(app)
 
-You can get the application root from the ``app`` resource in any of the Zope 2 layers in this package.
+You can get the application root from the ``app`` resource in any of the Zope layers in this package.
 
 Beyond that, the `zope.testbrowser`_ documentation should cover how to use the test browser.
 
     **Hint:** The test browser will usually commit at the end of a request.
-    To avoid test fixture contamination, you should use a layer that fully isolates each test, such as the ``z2.INTEGRATION_TESTING`` layer described below.
+    To avoid test fixture contamination, you should use a layer that fully isolates each test, such as the ``zope.INTEGRATION_TESTING`` layer described below.
 
 Layer reference
 ===============
@@ -1550,22 +1531,22 @@ This will shadow the ``zodbDB`` resource with an isolated ``DemoStorage``, creat
 All existing data continues to be available, but new changes are written to the stacked storage.
 On tear-down, the stacked database is closed and the resource removed, leaving the original data.
 
-Zope 2
-------
+Zope
+----
 
-The Zope 2 layers provide test fixtures suitable for testing Zope 2 applications.
-They set up a Zope 2 application root, install core Zope 2 products, and manage security.
+The Zope layers provide test fixtures suitable for testing Zope applications.
+They set up a Zope application root, install core Zope products, and manage security.
 
-Zope 2 layers can be found in the module ``plone.testing.z2``.
-If you depend on this, you can use the ``[z2]`` extra when depending on ``plone.testing``.
+Zope layers can be found in the module ``plone.testing.zope``.
+If you depend on this, you can use the ``[zope]`` extra when depending on ``plone.testing``.
 
 Startup
 ~~~~~~~
 
 +------------+--------------------------------------------------+
-| Layer:     | ``plone.testing.z2.STARTUP``                     |
+| Layer:     | ``plone.testing.zope.STARTUP``                   |
 +------------+--------------------------------------------------+
-| Class:     | ``plone.testing.z2.Startup``                     |
+| Class:     | ``plone.testing.zope.Startup``                   |
 +------------+--------------------------------------------------+
 | Bases:     | ``plone.testing.zca.LAYER_CLEANUP``              |
 +------------+--------------------------------------------------+
@@ -1578,8 +1559,8 @@ Startup
 |            | ``port``                                         |
 +------------+--------------------------------------------------+
 
-This layer sets up a Zope 2 environment, and is a required base for all other Zope 2 layers.
-You cannot run two instances of this layer in parallel, since Zope 2 depends on some module-global state to run, which is managed by this layer.
+This layer sets up a Zope environment, and is a required base for all other Zope layers.
+You cannot run two instances of this layer in parallel, since Zope depends on some module-global state to run, which is managed by this layer.
 
 On set-up, the layer will configure a Zope environment with:
 
@@ -1592,9 +1573,9 @@ On set-up, the layer will configure a Zope environment with:
 
 * ZEO client cache disabled.
 
-* Some patches installed, which speed up Zope startup by disabling the help system and some other superfluous aspects of Zope.
+* Some patches installed, which speed up Zope startup by disabling some superfluous aspects of Zope.
 
-* One thread (this only really affects the ``ZSERVER`` and ``FTP_SERVER`` layers).
+* One thread (this only really affects the ``WSGI_SERVER``, ``ZSERVER`` and ``FTP_SERVER`` layers).
 
 * A pristine database using ``DemoStorage``, exposed as the resource ``zodbDB``.
   Zope is configured to use this database in a way that will also work if the ``zodbDB`` resource is shadowed using the pattern shown above in the description of the ``zodb.EMPTY_ZODB`` layer.
@@ -1614,11 +1595,11 @@ Integration test
 ~~~~~~~~~~~~~~~~
 
 +------------+--------------------------------------------------+
-| Layer:     | ``plone.testing.z2.INTEGRATION_TESTING``         |
+| Layer:     | ``plone.testing.zope.INTEGRATION_TESTING``       |
 +------------+--------------------------------------------------+
-| Class:     | ``plone.testing.z2.IntegrationTesting``          |
+| Class:     | ``plone.testing.zope.IntegrationTesting``        |
 +------------+--------------------------------------------------+
-| Bases:     | ``plone.testing.z2.STARTUP``                     |
+| Bases:     | ``plone.testing.zope.STARTUP``                   |
 +------------+--------------------------------------------------+
 | Resources: | ``app``                                          |
 |            +--------------------------------------------------+
@@ -1633,12 +1614,12 @@ This is wrapped in the request container, so you can do ``app.REQUEST`` to acqui
 
 A new transaction is begun for each test and rolled back on test tear-down, meaning that so long as the code under test does not explicitly commit any changes, the test may modify the ZODB.
 
-    *Hint:* If you want to set up a persistent test fixture in a layer based on this one (or ``z2.FUNCTIONAL_TESTING``), you can stack a new ``DemoStorage`` in a shadowing ``zodbDB`` resource, using the pattern described above for the ``zodb.EMPTY_ZODB`` layer.
+    *Hint:* If you want to set up a persistent test fixture in a layer based on this one (or ``zope.FUNCTIONAL_TESTING``), you can stack a new ``DemoStorage`` in a shadowing ``zodbDB`` resource, using the pattern described above for the ``zodb.EMPTY_ZODB`` layer.
 
     Once you've shadowed the ``zodbDB`` resource, you can do (e.g. in your layer's ``setUp()`` method)::
 
         ...
-        with z2.zopeApp() as app:
+        with zope.zopeApp() as app:
             # modify the Zope application root
 
     The ``zopeApp()`` context manager will open a new connection to the Zope application root, accessible here as ``app``.
@@ -1648,11 +1629,11 @@ Functional testing
 ~~~~~~~~~~~~~~~~~~
 
 +------------+--------------------------------------------------+
-| Layer:     | ``plone.testing.z2.FUNCTIONAL_TESTING``          |
+| Layer:     | ``plone.testing.zope.FUNCTIONAL_TESTING``        |
 +------------+--------------------------------------------------+
-| Class:     | ``plone.testing.z2.FunctionalTesting``           |
+| Class:     | ``plone.testing.zope.FunctionalTesting``         |
 +------------+--------------------------------------------------+
-| Bases:     | ``plone.testing.z2.STARTUP``                     |
+| Bases:     | ``plone.testing.zope.STARTUP``                   |
 +------------+--------------------------------------------------+
 | Resources: | ``app``                                          |
 |            +--------------------------------------------------+
@@ -1675,9 +1656,9 @@ Integration and functional testing with custom fixtures
 
 If you want to extend the ``STARTUP`` fixture for use with integration or functional testing, you should use the following pattern:
 
-* Create a layer class and a "fixture" base layer instance that has ``z2.STARTUP`` (or some intermediary layer, such as ``z2.ZSERVER_FIXTURE`` or ``z2.FTP_SERVER_FIXTURE``, shown below) as a base.
+* Create a layer class and a "fixture" base layer instance that has ``zope.STARTUP`` (or some intermediary layer, such as ``zope.WSGI_SERVER_FIXTURE``, shown below) as a base.
 
-* Create "end user" layers by instantiating the ``z2.IntegrationTesting`` and/or ``FunctionalTesting`` classes with this new "fixture" layer as a base.
+* Create "end user" layers by instantiating the ``zope.IntegrationTesting`` and/or ``FunctionalTesting`` classes with this new "fixture" layer as a base.
 
 This allows the same fixture to be used regardless of the "style" of testing, minimising the amount of set-up and tear-down.
 The "fixture" layers manage the fixture as part of the *layer* lifecycle.
@@ -1685,10 +1666,10 @@ The layer class (``IntegrationTesting`` or ``FunctionalTesting``), manages the *
 
 For example::
 
-    from plone.testing import Layer, z2, zodb
+    from plone.testing import Layer, zope, zodb
 
     class MyLayer(Layer):
-        defaultBases = (z2.STARTUP,)
+        defaultBases = (zope.STARTUP,)
 
         def setUp(self):
             # Set up the fixture here
@@ -1700,8 +1681,8 @@ For example::
 
     MY_FIXTURE = MyLayer()
 
-    MY_INTEGRATION_TESTING = z2.IntegrationTesting(bases=(MY_FIXTURE,), name="MyFixture:Integration")
-    MY_FUNCTIONAL_TESTING = z2.FunctionalTesting(bases=(MY_FIXTURE,), name="MyFixture:Functional")
+    MY_INTEGRATION_TESTING = zope.IntegrationTesting(bases=(MY_FIXTURE,), name="MyFixture:Integration")
+    MY_FUNCTIONAL_TESTING = zope.FunctionalTesting(bases=(MY_FIXTURE,), name="MyFixture:Functional")
 
 (Note that we need to give an explicit, unique name to the two layers that re-use the ``IntegrationTesting`` and ``FunctionalTesting`` classes.)
 
@@ -1717,109 +1698,57 @@ However, even if both these two layers were used, the fixture in ``MY_FIXTURE`` 
 It may be preferable, therefore, to have your own "test lifecycle" layer classes that subclass ``IntegrationTesting`` and/or ``FunctionalTesting`` and call base class methods as appropriate.
 ``plone.app.testing`` takes this approach, for example.
 
-HTTP ZServer thread (fixture only)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+HTTP WSGI server thread (fixture only)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 +------------+--------------------------------------------------+
-| Layer:     | ``plone.testing.z2.ZSERVER_FIXTURE``             |
+| Layer:     | ``plone.testing.zope.WSGI_SERVER_FIXTURE``       |
 +------------+--------------------------------------------------+
-| Class:     | ``plone.testing.z2.ZServer``                     |
+| Class:     | ``plone.testing.zope.WSGIServer``                |
 +------------+--------------------------------------------------+
-| Bases:     | ``plone.testing.z2.STARTUP``                     |
+| Bases:     | ``plone.testing.zope.STARTUP``                   |
 +------------+--------------------------------------------------+
 | Resources: | ``host``                                         |
 |            +--------------------------------------------------+
 |            | ``port``                                         |
 +------------+--------------------------------------------------+
 
-This layer extends the ``z2.STARTUP`` layer to start the Zope HTTP server in a separate thread.
-This means the test site can be accessed through a web browser, and can thus be used with tools like `Windmill`_ or `Selenium`_.
+This layer extends the ``zope.STARTUP`` layer to start the Zope HTTP WSGI server in a separate thread.
+This means the test site can be accessed through a web browser, and can thus be used with tools like `Selenium`_.
 
 .. note::
 
     This layer is useful as a fixture base layer only, because it does not manage the test lifecycle.
-    Use the ``ZSERVER`` layer if you want to execute functional tests against this fixture.
+    Use the ``WSGI_SERVER`` layer if you want to execute functional tests against this fixture.
 
-The ZServer's hostname (normally ``localhost``) is available through the resource ``host``, whilst the port it is running on is available through the resource ``port``.
+The WSGI server's hostname (normally ``localhost``) is available through the resource ``host``, whilst the port it is running on is available through the resource ``port``.
 
   *Hint:* Whilst the layer is set up, you can actually access the test Zope site through a web browser.
   The default URL will be ``http://localhost:55001``.
 
-HTTP ZServer functional testing
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+HTTP WSGI server functional testing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 +------------+--------------------------------------------------+
-| Layer:     | ``plone.testing.z2.ZSERVER``                     |
+| Layer:     | ``plone.testing.zope.WSGI_SERVER``               |
 +------------+--------------------------------------------------+
-| Class:     | ``plone.testing.z2.FunctionalTesting``           |
+| Class:     | ``plone.testing.zope.FunctionalTesting``         |
 +------------+--------------------------------------------------+
-| Bases:     | ``plone.testing.z2.ZSERVER_FIXTURE``             |
-+------------+--------------------------------------------------+
-| Resources: |                                                  |
-+------------+--------------------------------------------------+
-
-This layer provides the functional testing lifecycle against the fixture set up by the ``z2.ZSERVER_FIXTURE`` layer.
-
-You can use this to run "live" functional tests against a basic Zope site.
-You should **not** use it as a base.
-Instead, create your own "fixture" layer that extends ``z2.ZSERVER_FIXTURE``, and then instantiate the ``FunctionalTesting`` class with this extended fixture layer as a base, as outlined above.
-
-FTP server thread (fixture only)
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-+------------+--------------------------------------------------+
-| Layer:     | ``plone.testing.z2.FTP_SERVER_FIXTURE``          |
-+------------+--------------------------------------------------+
-| Class:     | ``plone.testing.z2.FTPServer``                   |
-+------------+--------------------------------------------------+
-| Bases:     | ``plone.testing.z2.STARTUP``                     |
-+------------+--------------------------------------------------+
-| Resources: | ``host``                                         |
-|            +--------------------------------------------------+
-|            | ``port``                                         |
-+------------+--------------------------------------------------+
-
-This layer is the FTP server equivalent of the ``ZSERVER_FIXTURE`` layer.
-It can be used to functionally test Zope servers.
-
-.. note::
-
-    This layer is useful as a fixture base layer only, because it does not manage the test lifecycle.
-    Use the ``FTP_SERVER`` layer if you want to execute functional tests against this fixture.
-
-    *Hint:* Whilst the layer is set up, you can actually access the test Zope site through an FTP client.
-    The default URL will be ``ftp://localhost:55002``.
-
-.. warning::
-
-    Do not run the ``FTP_SERVER`` and ``ZSERVER`` layers concurrently in the same process.
-
-If you need both ZServer and FTPServer running together, you can subclass the ``ZServer`` layer class (like the ``FTPServer`` layer class does) and implement the ``setUpServer()`` and ``tearDownServer()`` methods to set up and close down two servers on different ports.
-They will then share a main loop.
-
-FTP server functional testing
-~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
-
-+------------+--------------------------------------------------+
-| Layer:     | ``plone.testing.z2.FTP_SERVER``                  |
-+------------+--------------------------------------------------+
-| Class:     | ``plone.testing.z2.FunctionalTesting``           |
-+------------+--------------------------------------------------+
-| Bases:     | ``plone.testing.z2.FTP_SERVER_FIXTURE``          |
+| Bases:     | ``plone.testing.zope.WSGI_SERVER_FIXTURE``       |
 +------------+--------------------------------------------------+
 | Resources: |                                                  |
 +------------+--------------------------------------------------+
 
-This layer provides the functional testing lifecycle against the fixture set up by the ``z2.FTP_SERVER_FIXTURE`` layer.
+This layer provides the functional testing lifecycle against the fixture set up by the ``zope.WSGI_SERVER_FIXTURE`` layer.
 
 You can use this to run "live" functional tests against a basic Zope site.
 You should **not** use it as a base.
-Instead, create your own "fixture" layer that extends ``z2.FTP_SERVER_FIXTURE``, and then instantiate the ``FunctionalTesting`` class with this extended fixture layer as a base, as outlined above.
+Instead, create your own "fixture" layer that extends ``zope.WSGI_SERVER_FIXTURE``, and then instantiate the ``FunctionalTesting`` class with this extended fixture layer as a base, as outlined above.
 
 Helper functions
 ~~~~~~~~~~~~~~~~
 
-Several helper functions are available in the ``plone.testing.z2`` module.
+Several helper functions are available in the ``plone.testing.zope`` module.
 
 ``zopeApp(db=None, conn=Non, environ=None)``
 
@@ -1827,7 +1756,7 @@ Several helper functions are available in the ``plone.testing.z2`` module.
     By using it in a ``with`` block, the database will be opened, and the application root will be obtained and request-wrapped.
     When exiting the ``with`` block, the transaction will be committed and the database properly closed, unless an exception was raised::
 
-        with z2.zopeApp() as app:
+        with zope.zopeApp() as app:
             # do something with app
 
     If you want to use a specific database or database connection, pass either the ``db`` or ``conn`` arguments.
@@ -1878,17 +1807,17 @@ Several helper functions are available in the ``plone.testing.z2`` module.
 
        This method is rarely used, because both the ``zopeApp()``
        context manager and the layer set-up/tear-down for
-       ``z2.INTEGRATION_TESTING`` and ``z2.FUNCTIONAL_TESTING`` will wrap the
+       ``zope.INTEGRATION_TESTING`` and ``zope.FUNCTIONAL_TESTING`` will wrap the
        ``app`` object before exposing it.
 
 ``Browser(app)``
 
     Obtain a test browser client, for use with `zope.testbrowser`_.
-    You should use this in conjunction with the ``z2.FUNCTIONAL_TESTING`` layer or a derivative.
+    You should use this in conjunction with the ``zope.FUNCTIONAL_TESTING`` layer or a derivative.
     You must pass the app root, usually obtained from the ``app`` resource of the layer, e.g.::
 
         app = self.layer['app']
-        browser = z2.Browser(app)
+        browser = zope.Browser(app)
 
     You can then use ``browser`` as described in the `zope.testbrowser`_ documentation.
 
@@ -1899,16 +1828,273 @@ Several helper functions are available in the ``plone.testing.z2`` module.
         import transaction
         transaction.commit()
 
-.. _zope.testing: http://pypi.python.org/pypi/zope.testing
-.. _zope.testbrowser: http://pypi.python.org/pypi/zope.testbrowser
-.. _zope.component: http://pypi.python.org/pypi/zope.component
-.. _zope.publisher: http://pypi.python.org/pypi/zope.publisher
-.. _plone.app.testing: http://pypi.python.org/pypi/plone.app.testing
-.. _zc.recipe.testrunner: http://pypi.python.org/pypi/zc.recipe.testrunner
-.. _coverage: http://pypi.python.org/pypi/coverage
-.. _Cobertura: http://wiki.hudson-ci.org/display/HUDSON/Cobertura+Plugin
-.. _Hudson: http://www.hudson-labs.org/
+
+ZServer
+-------
+
+The ZServer layers provide test fixtures suitable for testing Zope applications while using ZServer instead of a WSGI server.
+They set up a Zope application root, install core Zope products, and manage security.
+
+ZServer layers can be found in the module ``plone.testing.zserver``.
+If you depend on this, you can use the ``[zope,zserver]`` extra when depending on ``plone.testing``.
+
+Startup
+~~~~~~~
+
++------------+--------------------------------------------------+
+| Layer:     | ``plone.testing.zserver.STARTUP``                |
++------------+--------------------------------------------------+
+| Class:     | ``plone.testing.zserver.Startup``                |
++------------+--------------------------------------------------+
+| Bases:     | ``plone.testing.zca.LAYER_CLEANUP``              |
++------------+--------------------------------------------------+
+| Resources: | ``zodbDB``                                       |
+|            +--------------------------------------------------+
+|            | ``configurationContext``                         |
+|            +--------------------------------------------------+
+|            | ``host``                                         |
+|            +--------------------------------------------------+
+|            | ``port``                                         |
++------------+--------------------------------------------------+
+
+This layer sets up a Zope environment for ZServer, and is a required base for all other ZServer layers.
+You cannot run two instances of this layer in parallel, since Zope depends on some module-global state to run, which is managed by this layer.
+
+On set-up, the layer will configure a Zope environment with the same options as ``zope.Startup``, see there.
+
+Integration test
+~~~~~~~~~~~~~~~~
+
++------------+--------------------------------------------------+
+| Layer:     | ``plone.testing.zserver.INTEGRATION_TESTING``    |
++------------+--------------------------------------------------+
+| Class:     | ``plone.testing.zserver.IntegrationTesting``     |
++------------+--------------------------------------------------+
+| Bases:     | ``plone.testing.zserver.STARTUP``                |
++------------+--------------------------------------------------+
+| Resources: | ``app``                                          |
+|            +--------------------------------------------------+
+|            | ``request``                                      |
++------------+--------------------------------------------------+
+
+This layer is intended for integration testing against the simple ``STARTUP`` fixture.
+If you want to create your own layer with a more advanced, shared fixture, see "Integration and functional testing with custom fixtures" below.
+
+For each test, it exposes the Zope application root as the resource ``app``.
+This is wrapped in the request container, so you can do ``app.REQUEST`` to acquire a fake request, but the request is also available as the resource ``request``.
+
+A new transaction is begun for each test and rolled back on test tear-down, meaning that so long as the code under test does not explicitly commit any changes, the test may modify the ZODB.
+
+    *Hint:* If you want to set up a persistent test fixture in a layer based on this one (or ``zserver.FUNCTIONAL_TESTING``), you can stack a new ``DemoStorage`` in a shadowing ``zodbDB`` resource, using the pattern described above for the ``zodb.EMPTY_ZODB`` layer.
+
+    Once you've shadowed the ``zodbDB`` resource, you can do (e.g. in your layer's ``setUp()`` method)::
+
+        ...
+        with zserver.zopeApp() as app:
+            # modify the Zope application root
+
+    The ``zserver.zopeApp()`` context manager will open a new connection to the Zope application root, accessible here as ``app``.
+    Provided the code within the ``with`` block does not raise an exception, the transaction will be committed and the database closed properly upon exiting the block.
+
+Functional testing
+~~~~~~~~~~~~~~~~~~
+
++------------+--------------------------------------------------+
+| Layer:     | ``plone.testing.zserver.FUNCTIONAL_TESTING``     |
++------------+--------------------------------------------------+
+| Class:     | ``plone.testing.zserver.FunctionalTesting``      |
++------------+--------------------------------------------------+
+| Bases:     | ``plone.testing.zserver.STARTUP``                |
++------------+--------------------------------------------------+
+| Resources: | ``app``                                          |
+|            +--------------------------------------------------+
+|            | ``request``                                      |
++------------+--------------------------------------------------+
+
+It behaves the same as ``zope.FunctionalTesting``, see there.
+
+
+Integration and functional testing with custom fixtures
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
+If you want to extend the ``STARTUP`` fixture for use with integration or functional testing, you should use the following pattern:
+
+* Create a layer class and a "fixture" base layer instance that has ``zserver.STARTUP`` (or some intermediary layer, such as ``zserver.ZSERVER_FIXTURE`` or ``zserver.FTP_SERVER_FIXTURE``, shown below) as a base.
+
+* Create "end user" layers by instantiating the ``zserver.IntegrationTesting`` and/or ``FunctionalTesting`` classes with this new "fixture" layer as a base.
+
+This allows the same fixture to be used regardless of the "style" of testing, minimising the amount of set-up and tear-down.
+The "fixture" layers manage the fixture as part of the *layer* lifecycle.
+The layer class (``IntegrationTesting`` or ``FunctionalTesting``), manages the *test* lifecycle, and the test lifecycle only.
+
+For example::
+
+    from plone.testing import Layer, zserver, zodb
+
+    class MyLayer(Layer):
+        defaultBases = (zserver.STARTUP,)
+
+        def setUp(self):
+            # Set up the fixture here
+            ...
+
+        def tearDown(self):
+            # Tear down the fixture here
+            ...
+
+    MY_FIXTURE = MyLayer()
+
+    MY_INTEGRATION_TESTING = zserver.IntegrationTesting(bases=(MY_FIXTURE,), name="MyFixture:Integration")
+    MY_FUNCTIONAL_TESTING = zserver.FunctionalTesting(bases=(MY_FIXTURE,), name="MyFixture:Functional")
+
+(Note that we need to give an explicit, unique name to the two layers that re-use the ``IntegrationTesting`` and ``FunctionalTesting`` classes.)
+
+In this example, other layers could extend the "MyLayer" fixture by using ``MY_FIXTURE`` as a base.
+Tests would use either ``MY_INTEGRATION_TESTING`` or ``MY_FUNCTIONAL_TESTING`` as appropriate.
+However, even if both these two layers were used, the fixture in ``MY_FIXTURE`` would only be set up once.
+
+.. note::
+
+    If you implement the ``testSetUp()`` and ``testTearDown()`` test lifecycle methods in your "fixture" layer (e.g. in the the ``MyLayer`` class above), they will execute before the corresponding methods from ``IntegrationTesting`` and ``FunctionalTesting``.
+    Hence, they cannot use those layers' resources (``app`` and ``request``).
+
+It may be preferable, therefore, to have your own "test lifecycle" layer classes that subclass ``IntegrationTesting`` and/or ``FunctionalTesting`` and call base class methods as appropriate.
+``plone.app.testing`` takes this approach, for example.
+
+
+HTTP ZServer thread (fixture only)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++------------+--------------------------------------------------+
+| Layer:     | ``plone.testing.zserver.ZSERVER_FIXTURE``        |
++------------+--------------------------------------------------+
+| Class:     | ``plone.testing.zserver.ZServer``                |
++------------+--------------------------------------------------+
+| Bases:     | ``plone.testing.zserver.STARTUP``                |
++------------+--------------------------------------------------+
+| Resources: | ``host``                                         |
+|            +--------------------------------------------------+
+|            | ``port``                                         |
++------------+--------------------------------------------------+
+
+This layer extends the ``zserver.STARTUP`` layer to start the Zope HTTP server (ZServer) in a separate thread.
+This means the test site can be accessed through a web browser, and can thus be used with tools like `Selenium`_.
+
+.. note::
+
+    This layer is useful as a fixture base layer only, because it does not manage the test lifecycle.
+    Use the ``ZSERVER`` layer if you want to execute functional tests against this fixture.
+
+The ZServer's hostname (normally ``localhost``) is available through the resource ``host``, whilst the port it is running on is available through the resource ``port``.
+
+  *Hint:* Whilst the layer is set up, you can actually access the test Zope site through a web browser.
+  The default URL will be ``http://localhost:55001``.
+
+HTTP ZServer functional testing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++------------+--------------------------------------------------+
+| Layer:     | ``plone.testing.zserver.ZSERVER``                |
++------------+--------------------------------------------------+
+| Class:     | ``plone.testing.zserver.FunctionalTesting``      |
++------------+--------------------------------------------------+
+| Bases:     | ``plone.testing.zserver.ZSERVER_FIXTURE``        |
++------------+--------------------------------------------------+
+| Resources: |                                                  |
++------------+--------------------------------------------------+
+
+This layer provides the functional testing lifecycle against the fixture set up by the ``zserver.ZSERVER_FIXTURE`` layer.
+
+You can use this to run "live" functional tests against a basic Zope site.
+You should **not** use it as a base.
+Instead, create your own "fixture" layer that extends ``zserver.ZSERVER_FIXTURE``, and then instantiate the ``FunctionalTesting`` class with this extended fixture layer as a base, as outlined above.
+
+
+FTP server thread (fixture only)
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++------------+--------------------------------------------------+
+| Layer:     | ``plone.testing.zserver.FTP_SERVER_FIXTURE``     |
++------------+--------------------------------------------------+
+| Class:     | ``plone.testing.zserver.FTPServer``              |
++------------+--------------------------------------------------+
+| Bases:     | ``plone.testing.zserver.STARTUP``                |
++------------+--------------------------------------------------+
+| Resources: | ``host``                                         |
+|            +--------------------------------------------------+
+|            | ``port``                                         |
++------------+--------------------------------------------------+
+
+This layer is the FTP server equivalent of the ``zserver.ZSERVER_FIXTURE`` layer.
+It can be used to functionally test Zope FTP servers.
+
+.. note::
+
+    This layer is useful as a fixture base layer only, because it does not manage the test lifecycle.
+    Use the ``FTP_SERVER`` layer if you want to execute functional tests against this fixture.
+
+    *Hint:* Whilst the layer is set up, you can actually access the test Zope site through an FTP client.
+    The default URL will be ``ftp://localhost:55002``.
+
+.. warning::
+
+    Do not run the ``FTP_SERVER`` and ``ZSERVER`` layers concurrently in the same process.
+
+If you need both ZServer and FTPServer running together, you can subclass the ``ZServer`` layer class (like the ``FTPServer`` layer class does) and implement the ``setUpServer()`` and ``tearDownServer()`` methods to set up and close down two servers on different ports.
+They will then share a main loop.
+
+FTP server functional testing
+~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
+
++------------+--------------------------------------------------+
+| Layer:     | ``plone.testing.zserver.FTP_SERVER``                |
++------------+--------------------------------------------------+
+| Class:     | ``plone.testing.zserver.FunctionalTesting``         |
++------------+--------------------------------------------------+
+| Bases:     | ``plone.testing.zserver.FTP_SERVER_FIXTURE``        |
++------------+--------------------------------------------------+
+| Resources: |                                                  |
++------------+--------------------------------------------------+
+
+This layer provides the functional testing lifecycle against the fixture set up by the ``zserver.FTP_SERVER_FIXTURE`` layer.
+
+You can use this to run "live" functional tests against a basic Zope site.
+You should **not** use it as a base.
+Instead, create your own "fixture" layer that extends ``zserver.FTP_SERVER_FIXTURE``, and then instantiate the ``FunctionalTesting`` class with this extended fixture layer as a base, as outlined above.
+
+Helper functions
+~~~~~~~~~~~~~~~~
+
+Several helper functions are available in the ``plone.testing.zserver`` module.
+
+``zopeApp(db=None, conn=Non, environ=None)``
+
+    This function can be used as a context manager for any code that requires access to the Zope application root.
+    By using it in a ``with`` block, the database will be opened, and the application root will be obtained and request-wrapped.
+    When exiting the ``with`` block, the transaction will be committed and the database properly closed, unless an exception was raised::
+
+        with zserver.zopeApp() as app:
+            # do something with app
+
+    If you want to use a specific database or database connection, pass either the ``db`` or ``conn`` arguments.
+    If the context manager opened a new connection, it will close it, but it will not close a connection passed with ``conn``.
+
+    To set keys in the (fake) request environment, pass a dictionary of environment values as ``environ``.
+
+    Note that ``zopeApp()`` should *not* normally be used in tests or test set-up/tear-down, because the ``INTEGRATOIN_TEST`` and ``FUNCTIONAL_TESTING`` layers both manage the application root (as the ``app`` resource) and close it for you.
+    It is very useful in layer setup, however.
+
+The other helper functions defined in ``plone.testing.zope`` can also be used in a ZServer context but together with the ZServer layers.
+
+.. _zope.testing: https://pypi.org/project/zope.testing/
+.. _zope.testbrowser: https://pypi.org/project/zope.testbrowser
+.. _zope.component: https://pypi.org/project/zope.component
+.. _zope.publisher: https://pypi.org/project/zope.publisher
+.. _plone.app.testing: https://pypi.org/project/plone.app.testing
+.. _zc.recipe.testrunner: https://pypi.org/project/zc.recipe.testrunner
+.. _coverage: https://pypi.org/project/coverage
+.. _Cobertura: https://wiki.jenkins.io/display/JENKINS/Cobertura+Plugin
+.. _Jenkins: https://jenkins.io
 .. _unittest: http://doc.python.org/library/unittest.html
 .. _doctest: http://docs.python.org/dev/library/doctest.html
-.. _Windmill: http://getwindmill.com/
 .. _Selenium: http://seleniumhq.org/
