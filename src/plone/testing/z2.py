@@ -988,6 +988,7 @@ class ZServer(Layer):
 
         self._shutdown = False
 
+        self.setUpExceptionHook()
         self.setUpServer()
 
         self.thread = Thread(
@@ -1006,9 +1007,19 @@ class ZServer(Layer):
         time.sleep(0.5)
 
         self.tearDownServer()
+        self.tearDownExceptionHook()
 
         del self['host']
         del self['port']
+
+    def setUpExceptionHook(self):
+        from ZServer.ZPublisher.exceptionhook import EXCEPTION_HOOK
+        import Zope2
+        Zope2.zpublisher_exception_hook = EXCEPTION_HOOK
+
+    def tearDownExceptionHook(self):
+        import Zope2
+        Zope2.zpublisher_exception_hook = None
 
     def setUpServer(self):
         """Create a ZServer server instance and save it in self.zserver
