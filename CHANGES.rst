@@ -16,6 +16,8 @@ Bug fixes:
 
 - Fix most of the code smells Jenkins complains about.
 
+- Fix the Zope exception hook when using the ZServer layer.
+
 
 6.0.0 (2018-02-05)
 ------------------
