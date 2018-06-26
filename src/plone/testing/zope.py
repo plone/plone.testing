@@ -43,7 +43,7 @@ def installProduct(app, productName, quiet=False, multiinit=False):
     Note that products' ZCML is *not* loaded automatically, even if the
     product is in the Products namespace.
     """
-    from App.class_init import InitializeClass
+    from AccessControl.class_init import InitializeClass
     from OFS.Application import get_folder_permissions
     from OFS.Application import get_products
     from OFS.Application import install_package
@@ -105,7 +105,7 @@ def uninstallProduct(app, productName, quiet=False):
 
     # from OFS.Folder import Folder
     # from OFS.Application import get_folder_permissions
-    # from App.class_init import InitializeClass
+    # from AccessControl.class_init import InitializeClass
 
     from OFS.Application import Application, get_products
 
