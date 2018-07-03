@@ -662,7 +662,7 @@ class Startup(Layer):
 
         # Clear out the app reference cached in get_module_info's
         # 'modules' parameter default dict. (waaaaa)
-        import ZPublisher.Publish
+        from ZServer import ZPublisher
         defaults = ZPublisher.Publish.get_module_info.func_defaults
 
         if defaults:
