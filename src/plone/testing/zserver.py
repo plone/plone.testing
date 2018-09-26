@@ -284,11 +284,8 @@ class IntegrationTesting(zope.IntegrationTesting):
 test.  You just committed something. That breaks the test isolation.  So I stop
 here and let you fix it.""")
 
-        # XXX TODO Restore this.
-        # Temporarily allow commits in integration tests.
-        # Plone 5.1 still uses plone.testing 4.1.1, and for Zope 4 integration
-        # we want master, but without the commit-breaking for now.
-        # transaction.commit = you_broke_it
+        # Prevent commits in integration tests which breaks test isolation.
+        transaction.commit = you_broke_it
 
         # Save resources for tests to access
         self['app'] = app
