@@ -27,23 +27,24 @@ Before the test, we cannot use e.g.
 the ``<permission />`` or ``<browser:view />`` directives without loading the necessary ``meta.zcml`` files.::
 
     >>> from zope.configuration import xmlconfig
-    >>> xmlconfig.string("""\
-    ... <configure package="plone.testing"
-    ...     xmlns="http://namespaces.zope.org/zope"
-    ...     xmlns:browser="http://namespaces.zope.org/browser"
-    ...     i18n_domain="plone.testing.tests">
-    ...     <permission id="plone.testing.Test" title="plone.testing: Test" />
-    ...     <browser:view
-    ...         for="*"
-    ...         name="plone.testing-test"
-    ...         class="plone.testing.tests.DummyView"
-    ...         permission="zope.Public"
-    ...         />
-    ... </configure>""")
-    Traceback (most recent call last):
-    ...
-    ZopeXMLConfigurationError: File "<string>", line 5.4
-        ConfigurationError: ('Unknown directive', u'http://namespaces.zope.org/zope', u'permission')
+    >>> from zope.configuration.exceptions import ConfigurationError
+    >>> try:
+    ...     xmlconfig.string("""\
+    ...     <configure package="plone.testing"
+    ...         xmlns="http://namespaces.zope.org/zope"
+    ...         xmlns:browser="http://namespaces.zope.org/browser"
+    ...         i18n_domain="plone.testing.tests">
+    ...         <permission id="plone.testing.Test" title="plone.testing: Test" />
+    ...         <browser:view
+    ...             for="*"
+    ...             name="plone.testing-test"
+    ...             class="plone.testing.tests.DummyView"
+    ...             permission="zope.Public"
+    ...             />
+    ...     </configure>""")
+    ... except ConfigurationError as e:
+    ...     True
+    True
 
 Layer setup creates a configuration context we can use to load further configuration.::
 

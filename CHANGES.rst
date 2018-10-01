@@ -14,6 +14,9 @@ New features:
 
 Bug fixes:
 
+- Loosened doctest assertions to keep up with Zope-side changes.
+  [Rotonen]
+
 - Fix most of the code smells Jenkins complains about.
 
 - Fix the Zope exception hook when using the ZServer layer.
