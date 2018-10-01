@@ -43,8 +43,8 @@ the ``<permission />`` or ``<browser:view />`` directives without loading the ne
     ...             />
     ...     </configure>""")
     ... except ConfigurationError as e:
-    ...     e
-    ZopeXMLConfigurationError()
+    ...     True
+    True
 
 Layer setup creates a configuration context we can use to load further configuration.::
 

@@ -231,8 +231,8 @@ Before the test, we cannot use e.g. a ``<utility />`` directive without loading 
     ...         <utility factory=".tests.DummyUtility" provides="zope.interface.Interface" name="test-dummy" />
     ...     </configure>""")
     ... except ConfigurationError as e:
-    ...     e
-    ZopeXMLConfigurationError()
+    ...     True
+    True
 
 Layer setup creates a configuration context we can use to load further configuration.::
 
