@@ -380,8 +380,10 @@ We can now view this via the test browser:::
 
     >>> browser.open(app.absolute_url() + '/folder1')
 
-    >>> 'folder1' in browser.contents
-    True
+    >>> browser.contents.replace('"', '').replace("'", "")
+    '<Folder ...'
+
+The __repr__ of Zope objects is not stable anymore.
 
 The test browser integration converts the URL into a request and passes control to Zope's publisher.
 Let's check that query strings are available for input processing:::
@@ -499,9 +501,11 @@ We can now look for this new object through the server.::
 
     >>> import urllib2
     >>> conn = urllib2.urlopen(app_url + '/folder1', timeout=5)
-    >>> print conn.read()
-    <Folder at folder1>
+    >>> conn.read().replace('"', '').replace("'", "")
+    '<Folder ...'
     >>> conn.close()
+
+The __repr__ of Zope objects is not stable anymore.
 
 Test tear-down does nothing beyond what the base layers do.::
 
