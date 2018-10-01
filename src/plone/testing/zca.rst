@@ -224,14 +224,15 @@ It extends the ``LAYER_CLEANUP`` layer.::
 Before the test, we cannot use e.g. a ``<utility />`` directive without loading the necessary ``meta.zcml`` files.::
 
     >>> from zope.configuration import xmlconfig
-    >>> xmlconfig.string("""\
-    ... <configure package="plone.testing" xmlns="http://namespaces.zope.org/zope">
-    ...     <utility factory=".tests.DummyUtility" provides="zope.interface.Interface" name="test-dummy" />
-    ... </configure>""")
-    Traceback (most recent call last):
-    ...
-    ConfigurationError: ('Unknown directive', u'http://namespaces.zope.org/zope', u'utility')
-    ...
+    >>> from zope.configuration.exceptions import ConfigurationError
+    >>> try:
+    ...     xmlconfig.string("""\
+    ...     <configure package="plone.testing" xmlns="http://namespaces.zope.org/zope">
+    ...         <utility factory=".tests.DummyUtility" provides="zope.interface.Interface" name="test-dummy" />
+    ...     </configure>""")
+    ... except ConfigurationError as e:
+    ...     e
+    ZopeXMLConfigurationError()
 
 Layer setup creates a configuration context we can use to load further configuration.::
 
