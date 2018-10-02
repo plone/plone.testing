@@ -14,6 +14,9 @@ New features:
 
 Bug fixes:
 
+- Pinned ZODB to < 5.4.0 for testing to avoid flaky doctest layer teardowns.
+  [Rotonen]
+
 - Loosened doctest assertions to keep up with Zope-side changes.
   [Rotonen]
 
