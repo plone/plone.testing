@@ -27,6 +27,9 @@ Bug fixes:
 
 - Fix the Zope exception hook when using the ZServer layer.
 
+- Fix teardown of the ``plone.testing.security.Checkers`` layer.
+  It was not properly restoring zope.security's ``_checkers`` dict.
+
 
 6.0.0 (2018-02-05)
 ------------------

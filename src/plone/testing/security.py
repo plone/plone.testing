@@ -31,7 +31,8 @@ def popCheckers():
 
     from zope.security import checker
 
-    checker._checkers = _checkersStack.pop()
+    checker._checkers.clear()
+    checker._checkers.update(_checkersStack.pop())
 
 
 class Checkers(Layer):
