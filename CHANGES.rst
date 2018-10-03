@@ -13,6 +13,9 @@ Breaking changes:
 
 - ``plone.testing.z2`` now only contains a no-op FTPServer layer because FTP is not supported by WSGI.
   If you really need it, import it from ``plone.testing.zserver`` but this will not work on Python 3.
+- Default to picking a dynamical port for ZServer layers instead of a static
+  default port.
+  [Rotonen]
 
 New features:
 
@@ -22,6 +25,12 @@ New features:
   [rudaporto, icemac]
 
 Bug fixes:
+
+- Pinned ZODB to < 5.4.0 for testing to avoid flaky doctest layer teardowns.
+  [Rotonen]
+
+- Loosened doctest assertions to keep up with Zope-side changes.
+  [Rotonen]
 
 - Fix most of the code smells Jenkins complains about.
 

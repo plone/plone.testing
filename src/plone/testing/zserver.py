@@ -380,8 +380,8 @@ class ZServer(Layer):
 
     defaultBases = (STARTUP,)
 
-    host = os.environ.get('ZSERVER_HOST', 'localhost')
-    port = int(os.environ.get('ZSERVER_PORT', 55001))
+    host = os.environ.get('ZSERVER_HOST', '')
+    port = int(os.environ.get('ZSERVER_PORT', 0))
     timeout = 5.0
     log = None
 
@@ -420,7 +420,6 @@ class ZServer(Layer):
     def setUpServer(self):
         """Create a ZServer server instance and save it in self.zserver
         """
-
         from ZServer import zhttp_server, zhttp_handler, logger
         from StringIO import StringIO
 
@@ -434,7 +433,17 @@ class ZServer(Layer):
             ip=self.host,
             port=self.port,
             resolver=None,
-            logger_object=zopeLog)
+            logger_object=zopeLog,
+        )
+
+        # If we dynamically set the host/port, we want to reset it to localhost
+        # Otherwise this will depend on, for example, the local network setup
+        if self.host in ('', '0.0.0.0', '127.0.0.1', ):
+            server.server_name = 'localhost'
+        # Refresh the hostname and port in case we dynamically picked them
+        self['host'] = self.host = server.server_name
+        self['port'] = self.port = server.server_port
+
         zhttpHandler = zhttp_handler(module='Zope2', uri_base='')
         server.install_handler(zhttpHandler)
 
@@ -488,8 +497,8 @@ class FTPServer(ZServer):
 
     defaultBases = (STARTUP,)
 
-    host = os.environ.get('FTPSERVER_HOST', 'localhost')
-    port = int(os.environ.get('FTPSERVER_PORT', 55002))
+    host = os.environ.get('FTPSERVER_HOST', '')
+    port = int(os.environ.get('FTPSERVER_PORT', 0))
     threads = 1
     timeout = 5.0
     log = None
@@ -512,7 +521,18 @@ class FTPServer(ZServer):
             'Zope2',
             ip=self.host,
             port=self.port,
-            logger_object=zopeLog)
+            logger_object=zopeLog,
+        )
+        # Refresh the hostname and port in case we dynamically picked them
+        self.host, self.port = self.ftpServer.socket.getsockname()
+        # If we dynamically set the host/port, we want to reset it to localhost
+        # Otherwise this will depend on, for example, the local network setup
+        if self.host in ('', '0.0.0.0', '127.0.0.1', ):
+            self.host = 'localhost'
+            self.ftpServer.hostname = 'localhost'
+            self.ftpServer.ip = '127.0.0.1'
+        self['host'] = self.host
+        self['port'] = self.port
 
     def tearDownServer(self):
         """Close the FTPServer socket

@@ -468,9 +468,6 @@ After layer setup, the resources ``host`` and ``port`` are available, and indica
     'localhost'
 
     >>> port = zope.WSGI_SERVER['port']
-    >>> import os
-    >>> port == int(os.environ.get('WSGI_SERVER_PORT', os.environ.get('ZSERVER_PORT', 55001)))
-    True
 
 Let's now simulate a test.
 Test setup does nothing beyond what the base layers do.::

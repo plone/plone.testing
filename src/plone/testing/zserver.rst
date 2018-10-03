@@ -381,8 +381,10 @@ We can now view this via the test browser:::
 
     >>> browser.open(app.absolute_url() + '/folder1')
 
-    >>> 'folder1' in browser.contents
-    True
+    >>> browser.contents.replace('"', '').replace("'", "")
+    '<Folder ...'
+
+The __repr__ of Zope objects is not stable anymore.
 
 The test browser integration converts the URL into a request and passes control to Zope's publisher.
 Let's check that query strings are available for input processing:::
@@ -466,13 +468,7 @@ The ``ZSERVER`` layer provides a ``FunctionalTesting`` layer that has ``ZSERVER_
 After layer setup, the resources ``host`` and ``port`` are available, and indicate where Zope is running.::
 
     >>> host = zserver.ZSERVER['host']
-    >>> host
-    'localhost'
-
     >>> port = zserver.ZSERVER['port']
-    >>> import os
-    >>> port == int(os.environ.get('ZSERVER_PORT', 55001))
-    True
 
 Let's now simulate a test.
 Test setup does nothing beyond what the base layers do.::
@@ -500,9 +496,11 @@ We can now look for this new object through the server.::
 
     >>> import urllib2
     >>> conn = urllib2.urlopen(app_url + '/folder1', timeout=5)
-    >>> print(conn.read())
-    <Folder at folder1>
+    >>> conn.read().replace('"', '').replace("'", "")
+    '<Folder ...'
     >>> conn.close()
+
+The __repr__ of Zope objects is not stable anymore.
 
 Test tear-down does nothing beyond what the base layers do.::
 
@@ -570,13 +568,7 @@ The ``FTP_SERVER`` layer is based on ``FTP_SERVER_FIXTURE``, using the ``Functio
 After layer setup, the resources ``host`` and ``port`` are available, and indicate where Zope is running.::
 
     >>> host = zserver.FTP_SERVER['host']
-    >>> host
-    'localhost'
-
     >>> port = zserver.FTP_SERVER['port']
-    >>> import os
-    >>> port == int(os.environ.get('FTPSERVER_PORT', 55002))
-    True
 
 Let's now simulate a test.
 Test setup does nothing beyond what the base layers do.::

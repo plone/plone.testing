@@ -895,9 +895,9 @@ class WSGIServer(Layer):
 
     timeout = 5
     host = os.environ.get('WSGI_SERVER_HOST',
-                          os.environ.get('ZSERVER_HOST', 'localhost'))
+                          os.environ.get('ZSERVER_HOST', ''))
     port = int(os.environ.get('WSGI_SERVER_PORT',
-                              os.environ.get('ZSERVER_PORT', 55001)))
+                              os.environ.get('ZSERVER_PORT', 0)))
     pipeline = [
         ('Zope', 'paste.filter_app_factory', 'httpexceptions', {}),
     ]
@@ -918,8 +918,13 @@ class WSGIServer(Layer):
         app = self.make_wsgi_app()
         self.server = wsgiref.simple_server.make_server(
             self.host, self.port, app, handler_class=NoLogWSGIRequestHandler)
-        # allow to choose a random port using 0 as port number:
-        self.port = self.server.server_port
+        # If we dynamically set the host/port, we want to reset it to localhost
+        # Otherwise this will depend on, for example, the local network setup
+        if self.host in ('', '0.0.0.0', '127.0.0.1', ):
+            self.server.server_name = 'localhost'
+        # Refresh the hostname and port in case we dynamically picked them
+        self['host'] = self.host = self.server.server_name
+        self['port'] = self.port = self.server.server_port
 
         self.thread = threading.Thread(target=self.serve)
         self.thread.daemon = True
