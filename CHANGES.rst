@@ -6,7 +6,9 @@ Changelog
 
 Breaking changes:
 
-- *add item here*
+- Default to picking a dynamical port for ZServer layers instead of a static
+  default port.
+  [Rotonen]
 
 New features:
 
