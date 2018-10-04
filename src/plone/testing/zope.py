@@ -547,10 +547,23 @@ class Startup(Layer):
             del config.testinghome
             App.config.setConfiguration(config)
 
+        # Clean up after ZopeLite layer
+        import ZPublisher.WSGIPublisher
+        ZPublisher.WSGIPublisher._MODULES.clear()
+        self._publisher_globals = {
+            'load_app': ZPublisher.WSGIPublisher.load_app
+        }
+        if hasattr(ZPublisher.WSGIPublisher, '__old_load_app__'):
+            old_load_app = ZPublisher.WSGIPublisher.__old_load_app__
+            ZPublisher.WSGIPublisher.load_app = old_load_app
+            self._publisher_globals['__old_load_app__'] = old_load_app
+            del ZPublisher.WSGIPublisher.__old_load_app__
+
         # This uses the DB from the dbtab, as configured in setUpDatabase().
         # That DB then gets stored as Zope2.DB and becomes the default.
 
         import Zope2
+        Zope2._began_startup = 0
         Zope2.startup_wsgi()
 
         # At this point, Zope2.DB is set to the test database facade. This is
@@ -585,6 +598,8 @@ class Startup(Layer):
 
         import ZPublisher.WSGIPublisher
         ZPublisher.WSGIPublisher._MODULES.clear()
+        for k, v in self._publisher_globals.items():
+            setattr(ZPublisher.WSGIPublisher, k, v)
 
     def setUpBasicProducts(self):
         """Install a minimal set of products required for Zope 2.
