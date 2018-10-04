@@ -41,6 +41,16 @@ Bug fixes:
 - Update code to follow Plone styleguide.
   [gforcada]
 
+New Features:
+
+- add item here
+
+Bug Fixes:
+
+- Add the ``zpublisher_exception_hook`` to the Zope module on startup.
+  Now exceptions views are called on an exception during publishing, which was broken since Zope 4 doesn't startup the ZServer by default anymore.
+  [thet]
+
 
 5.1.1 (2017-04-19)
 ------------------
