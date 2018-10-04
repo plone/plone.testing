@@ -920,7 +920,7 @@ class WSGIServer(Layer):
             self.host, self.port, app, handler_class=NoLogWSGIRequestHandler)
         # If we dynamically set the host/port, we want to reset it to localhost
         # Otherwise this will depend on, for example, the local network setup
-        if self.host in ('', '0.0.0.0', '127.0.0.1', ):
+        if self.host in ('', '0.0.0.0', '127.0.0.1', '1.0.0.127.in-addr.arpa'):
             self.server.server_name = 'localhost'
         # Refresh the hostname and port in case we dynamically picked them
         self['host'] = self.host = self.server.server_name
