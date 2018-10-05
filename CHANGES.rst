@@ -10,14 +10,6 @@ Breaking changes:
   default port.
   [Rotonen]
 
-New features:
-
-- *add item here*
-
-Bug fixes:
-
-- *add item here*
-
 
 4.1.2 (2017-03-05)
 ------------------
