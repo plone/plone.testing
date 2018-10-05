@@ -10,10 +10,6 @@ Breaking changes:
   default port.
   [Rotonen]
 
-New features:
-
-- *add item here*
-
 Bug fixes:
 
 - Pinned ZODB to < 5.4.0 for testing to avoid flaky doctest layer teardowns.
