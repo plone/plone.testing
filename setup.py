@@ -87,6 +87,7 @@ setup(
         ],
         'z2': [
             'Zope',
+            'ZServer',
             'zope.component',
             'zope.testbrowser',
             'zope.publisher',

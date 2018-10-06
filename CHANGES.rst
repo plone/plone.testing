@@ -14,7 +14,8 @@ New features:
 
 Bug fixes:
 
-- *add item here*
+- Explicitly depend on ZServer on the z2 extra.
+  [Rotonen]
 
 
 6.1.0 (2018-10-05)
