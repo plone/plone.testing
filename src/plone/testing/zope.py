@@ -8,6 +8,7 @@ from plone.testing import zca
 from plone.testing import zodb
 from plone.testing._z2_testbrowser import Browser  # noqa
 from Testing.ZopeTestCase.ZopeLite import _patched as ZOPETESTCASEALERT
+from webtest.http import StopableWSGIServer
 from Zope2.App.schema import Zope2VocabularyRegistry
 from zope.schema.vocabulary import getVocabularyRegistry
 from zope.schema.vocabulary import setVocabularyRegistry
@@ -17,9 +18,7 @@ import os
 import pkg_resources
 import shutil
 import tempfile
-import threading
 import transaction
-import wsgiref.simple_server
 import Zope2.Startup.run
 import ZPublisher.WSGIPublisher
 
@@ -884,16 +883,6 @@ FUNCTIONAL_TESTING = FunctionalTesting()
 WSGI_LOG_REQUEST = 'WSGI_REQUEST_LOGGING' in os.environ
 
 
-class NoLogWSGIRequestHandler(wsgiref.simple_server.WSGIRequestHandler):
-    """Less chatty WSGIRequestHandler."""
-
-    def log_request(self, *args):
-        """Print the request only on the console if requested."""
-        if WSGI_LOG_REQUEST:
-            wsgiref.simple_server.WSGIRequestHandler.log_request(
-                self, *args)  # old-style class :-/
-
-
 class WSGIServer(Layer):
     """Start a WSGI server that accesses the fixture managed by the
     ``STARTUP`` layer.
@@ -910,9 +899,9 @@ class WSGIServer(Layer):
 
     timeout = 5
     host = os.environ.get('WSGI_SERVER_HOST',
-                          os.environ.get('ZSERVER_HOST', ''))
-    port = int(os.environ.get('WSGI_SERVER_PORT',
-                              os.environ.get('ZSERVER_PORT', 0)))
+                          os.environ.get('ZSERVER_HOST'))
+    port = os.environ.get('WSGI_SERVER_PORT',
+                          os.environ.get('ZSERVER_PORT'))
     pipeline = [
         ('Zope', 'paste.filter_app_factory', 'httpexceptions', {}),
     ]
@@ -931,29 +920,24 @@ class WSGIServer(Layer):
         """Create a WSGI server instance and save it in self.server.
         """
         app = self.make_wsgi_app()
-        self.server = wsgiref.simple_server.make_server(
-            self.host, self.port, app, handler_class=NoLogWSGIRequestHandler)
+        kwargs = {}
+        if self.host is not None:
+            kwargs['host'] = self.host
+        if self.port is not None:
+            kwargs['port'] = int(self.port)
+        self.server = StopableWSGIServer.create(app, **kwargs)
         # If we dynamically set the host/port, we want to reset it to localhost
         # Otherwise this will depend on, for example, the local network setup
-        if self.host in ('', '0.0.0.0', '127.0.0.1', 'localhost'):
-            self.server.server_name = 'localhost'
+        if self.host in (None, '0.0.0.0', '127.0.0.1', 'localhost'):
+            self.server.effective_host = 'localhost'
         # Refresh the hostname and port in case we dynamically picked them
-        self['host'] = self.host = self.server.server_name
-        self['port'] = self.port = self.server.server_port
-
-        self.thread = threading.Thread(target=self.serve)
-        self.thread.daemon = True
-        self.thread.start()
+        self['host'] = self.host = self.server.effective_host
+        self['port'] = self.port = int(self.server.effective_port)
 
     def tearDownServer(self):
         """Close the server socket and clean up.
         """
         self.server.shutdown()
-        self.server.server_close()
-        self.thread.join(self.timeout)
-        if self.thread.isAlive():
-            raise RuntimeError('WSGI server could not be shut down')
-
         shutil.rmtree(self._wsgi_conf_dir)
 
     def make_wsgi_app(self):
@@ -967,9 +951,6 @@ class WSGIServer(Layer):
             entrypoint = pkg_resources.get_entry_info(spec, protocol, name)
             app = entrypoint.load()(app, global_config, **extra)
         return app
-
-    def serve(self):
-        self.server.serve_forever()
 
     def _get_zope_conf(self, dir):
         fd, path = tempfile.mkstemp(dir=dir)

@@ -15,6 +15,7 @@ install_requires = [
 ]
 
 tests_require = [
+    'WebTest',
     'ZODB',
     'Zope',
     'zope.browsermenu',
@@ -31,6 +32,7 @@ tests_require = [
 ]
 
 zope_requires = [
+    'WebTest',
     'Zope',
     'zope.component',
     'zope.publisher',
