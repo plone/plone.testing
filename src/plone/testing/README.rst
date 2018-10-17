@@ -2048,11 +2048,11 @@ FTP server functional testing
 ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~
 
 +------------+--------------------------------------------------+
-| Layer:     | ``plone.testing.zserver.FTP_SERVER``                |
+| Layer:     | ``plone.testing.zserver.FTP_SERVER``             |
 +------------+--------------------------------------------------+
-| Class:     | ``plone.testing.zserver.FunctionalTesting``         |
+| Class:     | ``plone.testing.zserver.FunctionalTesting``      |
 +------------+--------------------------------------------------+
-| Bases:     | ``plone.testing.zserver.FTP_SERVER_FIXTURE``        |
+| Bases:     | ``plone.testing.zserver.FTP_SERVER_FIXTURE``     |
 +------------+--------------------------------------------------+
 | Resources: |                                                  |
 +------------+--------------------------------------------------+
