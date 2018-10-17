@@ -1,16 +1,28 @@
 Changelog
 =========
 
-6.1.1 (unreleased)
-------------------
+7.0 (unreleased)
+----------------
 
 Breaking changes:
 
-- *add item here*
+- ``plone.testing.z2`` is now a BBB shim for ``plone.testing.zope``,
+- ``plone.testing.z2`` is now a BBB shim for ``plone.testing.wsgi``,
+  thus it switches the tests to use WSGI.
+  If you absolutely want to keep using ZServer please import from ``plone.testing.zserver``.
+
+- ``plone.testing.z2`` now only contains a no-op FTPServer layer because FTP is not supported by WSGI.
+  If you really need it, import it from ``plone.testing.zserver`` but this will not work on Python 3.
+- Default to picking a dynamical port for ZServer layers instead of a static
+  default port.
+  [Rotonen]
 
 New features:
 
-- *add item here*
+- Make ``ZServer`` an optional dependency.
+
+- Add support for Python 3.6.
+  [rudaporto, icemac]
 
 Bug fixes:
 
@@ -39,6 +51,9 @@ Bug fixes:
 
 - Fix the Zope exception hook when using the ZServer layer.
 
+- Fix teardown of the ``plone.testing.security.Checkers`` layer.
+  It was not properly restoring zope.security's ``_checkers`` dict.
+
 
 6.0.0 (2018-02-05)
 ------------------
@@ -58,8 +73,7 @@ Bug fixes:
 5.1.1 (2017-04-19)
 ------------------
 
-- Do not break on import of ``plone.testing.z2`` when using
-  `zope.testbrowser` >= 5.0 which no longer depends on `mechanize`.
+- Do not break on import of ``plone.testing.z2`` when using `zope.testbrowser` >= 5.0 which no longer depends on `mechanize`.
 
 
 5.1 (2017-04-13)
@@ -115,8 +129,7 @@ Fixes:
 - PEP 8.
   [thet]
 
-- Depend on zope.testrunner, which was moved out from
-  zope.testing.testrunner.
+- Depend on zope.testrunner, which was moved out from zope.testing.testrunner.
   [thet]
 
 - Add support for Zope 4.
@@ -126,7 +139,7 @@ Fixes:
 4.0.15 (2015-08-14)
 -------------------
 
-- Prevent exception masking in finally clause of zopeApp context
+- Prevent exception masking in finally clause of zopeApp context.
   [do3cc]
 
 
@@ -136,8 +149,7 @@ Fixes:
 - Rerelease for clarity due to double release of 4.0.13.
   [maurits]
 
-- Added ``multiinit``-parameter to z2.installProduct
-  to allow multiple initialize methods for a package
+- Added ``multiinit``-parameter to z2.installProduct to allow multiple initialize methods for a package
   [tomgross]
 
 
@@ -154,11 +166,11 @@ Fixes:
 4.0.12 (2014-09-07)
 -------------------
 
-- Fixed AttributeError when importing ``plone.testing.z2`` if
-  ``zope.testbrowser`` 4.x is used but not ``zope.app.testing``. [icemac]
+- Fixed AttributeError when importing ``plone.testing.z2`` if ``zope.testbrowser`` 4.x is used but not ``zope.app.testing``.
+  [icemac]
 
-- Broke dependency on `unittest2` for Python 2.7+ as all features of
-  `unittest2` are integrated in `unittest` there. [icemac]
+- Broke dependency on `unittest2` for Python 2.7+ as all features of `unittest2` are integrated in `unittest` there.
+  [icemac]
 
 
 4.0.11 (2014-02-22)
@@ -171,8 +183,8 @@ Fixes:
 4.0.10 (2014-02-11)
 -------------------
 
-- Read 'FTPSERVER_HOST' and 'FTPSERVER_PORT' from the environment variables if
-  possible. This allows us to run tests in parallel on CI servers.
+- Read 'FTPSERVER_HOST' and 'FTPSERVER_PORT' from the environment variables if possible.
+  This allows us to run tests in parallel on CI servers.
   [timo]
 
 
@@ -207,18 +219,17 @@ Fixes:
 4.0.5 (2012-10-15)
 ------------------
 
-- Fixed an issue where a query string would be unquoted twice; once
-  while setting up the HTTP request and once in the handler (the
-  publisher).
+- Fixed an issue where a query string would be unquoted twice;
+  once while setting up the HTTP request and once in the handler (the publisher).
   [malthe]
 
 
 4.0.4 (2012-08-04)
 ------------------
 
-- Fixed the cache reset code. In some situations the function does not
-  have any defaults, so we shouldn't try to clear out the app
-  reference.
+- Fixed the cache reset code.
+  In some situations the function does not have any defaults,
+  so we shouldn't try to clear out the app reference.
   [malthe]
 
 

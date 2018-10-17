@@ -1,18 +1,40 @@
 language: python
 sudo: false
-python:
-    - 2.7
+
+matrix:
+    include:
+        - python: "2.7"
+          env: TOXENV=lint-py27
+        - python: "3.6"
+          env: TOXENV=lint-py36
+        - python: "2.7"
+          env: TOXENV=py27
+        - python: "2.7"
+          env: TOXENV=py27-zserver
+        - python: "3.4"
+          env: TOXENV=py34
+        - python: "3.5"
+          env: TOXENV=py35
+        - python: "3.6"
+          env: TOXENV=py36
+        - python: "3.7-dev"
+          env: TOXENV=py37
+    allow_failures:
+        - python: "3.7-dev"
+          env: TOXENV=py37
+
 install:
-    - pip install setuptools zc.buildout
-    - pip install coveralls coverage
-    - buildout bootstrap
-    - buildout
+    - travis_retry pip install -U pip setuptools
+    - travis_retry pip install -U tox coveralls coverage
+
 script:
-    - coverage run bin/test -v1
+    - travis_retry tox
+
 after_success:
     - coverage combine
     - coveralls
+
+notifications:
+    email: false
 cache:
-  pip: true
-  directories:
-    - eggs/
+    pip: true

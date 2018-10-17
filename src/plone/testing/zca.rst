@@ -286,12 +286,12 @@ The second registry is set up and torn down for each test, allowing tests to reg
 
 First, we'll create a simple dummy utility to illustrate registrations.::
 
-    >>> from zope.interface import Interface, implements
+    >>> from zope.interface import Interface, implementer
 
     >>> class IDummyUtility(Interface):
     ...     pass
-    >>> class DummyUtility(object):
-    ...     implements(IDummyUtility)
+    >>> @implementer(IDummyUtility)
+    ... class DummyUtility(object):
     ...     def __init__(self, name):
     ...         self.name = name
     ...     def __repr__(self):

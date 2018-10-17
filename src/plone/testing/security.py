@@ -1,6 +1,7 @@
 # -*- coding: utf-8 -*-
 """Security helpers and layers
 """
+from __future__ import absolute_import
 from plone.testing import Layer
 
 
@@ -30,7 +31,8 @@ def popCheckers():
 
     from zope.security import checker
 
-    checker._checkers = _checkersStack.pop()
+    checker._checkers.clear()
+    checker._checkers.update(_checkersStack.pop())
 
 
 class Checkers(Layer):
