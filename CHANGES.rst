@@ -26,6 +26,21 @@ New features:
 
 Bug fixes:
 
+- Explicitly depend on ZServer on the z2 extra.
+  [Rotonen]
+
+
+6.1.0 (2018-10-05)
+------------------
+
+Breaking changes:
+
+- Default to picking a dynamical port for ZServer layers instead of a static
+  default port.
+  [Rotonen]
+
+Bug fixes:
+
 - Pinned ZODB to < 5.4.0 for testing to avoid flaky doctest layer teardowns.
   [Rotonen]
 
