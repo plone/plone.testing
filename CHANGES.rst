@@ -23,12 +23,12 @@ Bug fixes:
 Breaking changes:
 
 - ``plone.testing.z2`` is now a BBB shim for ``plone.testing.zope``,
-- ``plone.testing.z2`` is now a BBB shim for ``plone.testing.wsgi``,
   thus it switches the tests to use WSGI.
   If you absolutely want to keep using ZServer please import from ``plone.testing.zserver``.
 
 - ``plone.testing.z2`` now only contains a no-op FTPServer layer because FTP is not supported by WSGI.
   If you really need it, import it from ``plone.testing.zserver`` but this will not work on Python 3.
+  
 - Default to picking a dynamical port for ZServer layers instead of a static
   default port.
   [Rotonen]
