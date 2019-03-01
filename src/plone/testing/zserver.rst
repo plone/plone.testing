@@ -526,10 +526,18 @@ When the server is torn down, the ZServer thread is stopped.::
     Tear down plone.testing.zserver.Startup in ... seconds.
     Tear down plone.testing.zca.LayerCleanup in ... seconds.
 
-    >>> conn = urllib2.urlopen(app_url + '/folder1', timeout=5)
-    Traceback (most recent call last):
-    ...
-    URLError: <urlopen error [Errno ...] Connection refused>
+We can expect one of these exceptions:
+- URLError: <urlopen error [Errno ...] Connection refused>
+- error: [Errno 104] Connection reset by peer
+
+    >>> try:
+    ...     conn = urllib2.urlopen(app_url + '/folder1', timeout=5)
+    ... except Exception as exc:
+    ...     if 'Connection refused' not in str(exc) and 'Connection reset' not in str(exc):
+    ...         raise exc
+    ... else:
+    ...     print('urllib2.urlopen should have raised exception')
+
 
 FTP server
 ~~~~~~~~~~

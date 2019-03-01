@@ -1,0 +1,1 @@
+Fixed test for 'Connection refused' which could be 'Connection reset'.  [maurits]
