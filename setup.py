@@ -5,6 +5,7 @@ from setuptools import setup
 import os
 import os.path
 
+
 version = '7.0.1.dev0'
 
 install_requires = [
@@ -46,8 +47,8 @@ setup(
     long_description=(u'\n\n'.join([
         open(os.path.join("src", "plone", "testing", "README.rst")).read(),
         open("CHANGES.rst").read(),
-        "Detailed documentation\n" +
-        "======================",
+        "Detailed documentation\n"
+        + "======================",
         open(os.path.join("src", "plone", "testing", "layer.rst")).read(),
         open(os.path.join("src", "plone", "testing", "zca.rst")).read(),
         open(os.path.join("src", "plone", "testing", "security.rst")).read(),
