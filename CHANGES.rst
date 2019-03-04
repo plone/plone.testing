@@ -8,6 +8,16 @@ Changelog
 
 .. towncrier release notes start
 
+7.0.1 (2019-03-03)
+------------------
+
+Bug fixes:
+
+
+- Fixed test for 'Connection refused' which could be 'Connection reset'.
+  [maurits] (#59)
+
+
 7.0.0 (2018-10-17)
 ------------------
 
