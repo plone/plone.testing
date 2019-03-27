@@ -4,14 +4,6 @@ Changelog
 4.3.3 (unreleased)
 ------------------
 
-Breaking changes:
-
-- *add item here*
-
-New features:
-
-- *add item here*
-
 Bug fixes:
 
 - Set default ZPublisher encoding to utf-8 to avoid encoding errors in testbrowser
