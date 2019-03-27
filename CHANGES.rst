@@ -14,7 +14,8 @@ New features:
 
 Bug fixes:
 
-- *add item here*
+- Set default ZPublisher encoding to utf-8 to avoid encoding errors in testbrowser
+  [petschki]
 
 
 4.3.2 (2018-10-05)
