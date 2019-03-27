@@ -622,6 +622,11 @@ class Startup(Layer):
             del config.testinghome
             App.config.setConfiguration(config)
 
+        # set the default ZPublisher encoding to utf-8
+        # so data without encoding header is handled correctly...
+        from Zope2.Startup.datatypes import default_zpublisher_encoding
+        default_zpublisher_encoding('utf-8')
+
         # This uses the DB from the dbtab, as configured in setUpDatabase().
         # That DB then gets stored as Zope2.DB and becomes the default.
 

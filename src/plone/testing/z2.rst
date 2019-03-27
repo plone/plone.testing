@@ -383,6 +383,11 @@ We can now view this via the test browser:::
     >>> 'folder1' in browser.contents
     True
 
+Check if the default ZPublisher encoding is set to utf-8
+
+    >>> browser.headers['content-type']
+    'text/plain; charset=utf-8'
+
 The test browser integration converts the URL into a request and passes control to Zope's publisher.
 Let's check that query strings are available for input processing:::
 
