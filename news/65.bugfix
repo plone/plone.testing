@@ -1,3 +1,0 @@
-Fix injection of ZopeLite test configuration into the global Zope configuration.
-Fixes #64
-[thet]
