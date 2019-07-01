@@ -7,7 +7,6 @@ from plone.testing import Layer
 from plone.testing import zca
 from plone.testing import zodb
 from plone.testing._z2_testbrowser import Browser  # noqa
-from Testing.ZopeTestCase.ZopeLite import _patched as ZOPETESTCASEALERT
 from webtest.http import StopableWSGIServer
 from Zope2.App.schema import Zope2VocabularyRegistry
 from zope.schema.vocabulary import getVocabularyRegistry
@@ -461,11 +460,6 @@ class Startup(Layer):
         that the database that is opened by Zope 2 is in fact the top of
         the resource stack.
         """
-        if ZOPETESTCASEALERT:
-            raise Exception('You try to run plone.testing tests together with '
-                            'ZopeTestCase tests. This will result in random '
-                            'failures. Convert the ZopeTestCase Tests or '
-                            'do not run them together')
 
         import Zope2.Startup.datatypes
         import App.config

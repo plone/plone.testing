@@ -1,0 +1,3 @@
+Remove the ``ZOPETESTCASEALERT`` as it imports from ZopeTestCase and has side effects.
+Fixes #64.
+[thet]
