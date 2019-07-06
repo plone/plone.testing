@@ -8,6 +8,17 @@ Changelog
 
 .. towncrier release notes start
 
+7.0.2 (2019-07-06)
+------------------
+
+Bug fixes:
+
+
+- Remove the ``ZOPETESTCASEALERT`` as it imports from ZopeTestCase and has side effects.
+  Fixes #64.
+  [thet] (#67)
+
+
 7.0.1 (2019-03-03)
 ------------------
 
