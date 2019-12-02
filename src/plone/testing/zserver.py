@@ -110,17 +110,16 @@ class Startup(zope.Startup):
 
         # We can't use setNumberOfThreads() because that function self-
         # destructs, literally, when called.
-
-        import ZServer.PubCore
-        self._zserverThreads = ZServer.PubCore._n
-        ZServer.PubCore._n = self.threads
+        from ZServer.Zope2.Startup import config
+        self._zserverThreads = config.ZSERVER_THREADS
+        config.ZSERVER_THREADS = self.threads
 
     def tearDownThreads(self):
         """Reset the ZServer thread count.
         """
 
-        import ZServer.PubCore
-        ZServer.PubCore._n = self._zserverThreads
+        from ZServer.Zope2.Startup import config
+        config.ZSERVER_THREADS = self._zserverThreads
         del self._zserverThreads
 
     def setUpApp(self):
