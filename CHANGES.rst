@@ -8,6 +8,16 @@ Changelog
 
 .. towncrier release notes start
 
+7.0.3 (2019-12-10)
+------------------
+
+Bug fixes:
+
+
+- Fix issue with test-setup when using ZServer 4.0.2.
+  [pbauer] (#69)
+
+
 7.0.2 (2019-07-06)
 ------------------
 
