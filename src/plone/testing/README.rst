@@ -16,8 +16,8 @@ This package also aims to promote some "good practice" for writing tests of vari
 If you are new to automated testing and test driven development, you should spend some time learning about those concepts.
 Some useful references include:
 
-* `The Wikipedia article on unit testing <http://en.wikipedia.org/wiki/Unit_testing>`_
-* `The Dive Into Python chapter on testing <http://diveintopython.net/unit_testing/index.html>`_
+* `The Wikipedia article on unit testing <https://en.wikipedia.org/wiki/Unit_testing>`_
+* `The Dive Into Python chapter on testing <https://diveintopython3.problemsolving.io/unit-testing.html>`_
 
 Bear in mind that different Python frameworks have slightly different takes on how to approach testing.
 Therefore, you may find examples that are different to those shown below.
