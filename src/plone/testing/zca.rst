@@ -75,7 +75,7 @@ On test tear-down, this disappears.::
 
 Layer tear-down does nothing.::
 
-    >>> runner.tear_down_unneeded(options, [], setupLayers)
+    >>> runner.tear_down_unneeded(options, [], setupLayers, [])
     Tear down plone.testing.zca.UnitTesting in ... seconds.
 
 Event testing
@@ -136,7 +136,7 @@ On test tear-down, the list is emptied again:::
 
 Layer tear-down does nothing.::
 
-    >>> runner.tear_down_unneeded(options, [], setupLayers)
+    >>> runner.tear_down_unneeded(options, [], setupLayers, [])
     Tear down plone.testing.zca.EventTesting in ... seconds.
     Tear down plone.testing.zca.UnitTesting in ... seconds.
 
@@ -201,7 +201,7 @@ Let's now simulate a test. Test setup and tear-down does nothing.::
 
 On tear-down, the registry is cleaned again.::
 
-    >>> runner.tear_down_unneeded(options, [], setupLayers)
+    >>> runner.tear_down_unneeded(options, [], setupLayers, [])
     Tear down plone.testing.zca.LayerCleanup in ... seconds.
 
     >>> queryUtility(Interface, name="test-dummy") is None
@@ -264,7 +264,7 @@ Note that normally, we'd combine this with the ``UNIT_TESTING`` layer to tear do
 
 Layer tear-down deletes the configuration context.::
 
-    >>> runner.tear_down_unneeded(options, [], setupLayers)
+    >>> runner.tear_down_unneeded(options, [], setupLayers, [])
     Tear down plone.testing.zca.ZCMLDirectives in ... seconds.
 
     >>> zca.ZCML_DIRECTIVES.get('configurationContext', None) is None

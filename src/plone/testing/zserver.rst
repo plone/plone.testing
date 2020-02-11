@@ -152,7 +152,7 @@ That is left up to the ``INTEGRATION_TESTING`` and ``FUNCTIONAL_TESTING`` layers
 
 Layer tear-down resets the environment.::
 
-    >>> runner.tear_down_unneeded(options, [], setupLayers)
+    >>> runner.tear_down_unneeded(options, [], setupLayers, [])
     Tear down plone.testing.zserver.Startup in ... seconds.
     Tear down plone.testing.zca.LayerCleanup in ... seconds.
 

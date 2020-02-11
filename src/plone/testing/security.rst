@@ -67,7 +67,7 @@ We still have the checker after test tear-down:::
 
 However, when we tear down the layer, the checker is gone:::
 
-    >>> runner.tear_down_unneeded(options, [], setupLayers)
+    >>> runner.tear_down_unneeded(options, [], setupLayers, [])
     Tear down plone.testing.security.Checkers in ... seconds.
 
     >>> getCheckerForInstancesOf(DummyObject) is None
