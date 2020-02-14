@@ -26,7 +26,7 @@ matrix:
           env: TOXENV=py39
     allow_failures:
         - python: "3.9-dev"
-          env: TOXENV=py37
+          env: TOXENV=py39
 
 install:
     - travis_retry pip install -U pip setuptools
