@@ -79,7 +79,7 @@ The transaction has been rolled back.::
 
 Layer tear-down closes and deletes the database.::
 
-    >>> runner.tear_down_unneeded(options, [], setupLayers)
+    >>> runner.tear_down_unneeded(options, [], setupLayers, [])
     Tear down plone.testing.zodb.EmptyZODB in ... seconds.
 
     >>> zodb.EMPTY_ZODB.get('zodbDB', None) is None
@@ -162,7 +162,7 @@ The transaction has been rolled back.::
 
 Layer tear-down closes and deletes the database.::
 
-    >>> runner.tear_down_unneeded(options, [], setupLayers)
+    >>> runner.tear_down_unneeded(options, [], setupLayers, [])
     Tear down PopulatedZODB in ... seconds.
 
     >>> POPULATED_ZODB.get('zodbDB', None) is None
@@ -258,7 +258,7 @@ The transaction has been rolled back.::
 
 We'll now tear down the expanded layer and inspect the database again.::
 
-    >>> runner.tear_down_unneeded(options, [POPULATED_ZODB], setupLayers)
+    >>> runner.tear_down_unneeded(options, [POPULATED_ZODB], setupLayers, [])
     Tear down ExpandedZODB in ... seconds.
 
     >>> conn = EXPANDED_ZODB['zodbDB'].open()
@@ -269,7 +269,7 @@ We'll now tear down the expanded layer and inspect the database again.::
 
 Finally, we'll tear down the rest of the layers.::
 
-    >>> runner.tear_down_unneeded(options, [], setupLayers)
+    >>> runner.tear_down_unneeded(options, [], setupLayers, [])
     Tear down PopulatedZODB in ... seconds.
 
     >>> EXPANDED_ZODB.get('zodbDB', None) is None

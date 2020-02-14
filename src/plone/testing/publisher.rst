@@ -111,7 +111,7 @@ Here, we need to do it manually.::
 
 Layer tear-down does nothing.::
 
-    >>> runner.tear_down_unneeded(options, [], setupLayers)
+    >>> runner.tear_down_unneeded(options, [], setupLayers, [])
     Tear down plone.testing.publisher.PublisherDirectives in ... seconds.
     Tear down plone.testing.zca.ZCMLDirectives in ... seconds.
     Tear down plone.testing.zca.LayerCleanup in ... seconds.

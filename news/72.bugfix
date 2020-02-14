@@ -1,0 +1,2 @@
+Fix tests when using zope.testrunner internals since its version 5.1.
+[jensens]

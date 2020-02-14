@@ -152,7 +152,7 @@ That is left up to the ``INTEGRATION_TESTING`` and ``FUNCTIONAL_TESTING`` layers
 
 Layer tear-down resets the environment.::
 
-    >>> runner.tear_down_unneeded(options, [], setupLayers)
+    >>> runner.tear_down_unneeded(options, [], setupLayers, [])
     Tear down plone.testing.zope.Startup in ... seconds.
     Tear down plone.testing.zca.LayerCleanup in ... seconds.
 
@@ -266,7 +266,7 @@ On tear-down, the transaction is rolled back:::
 
 Let's tear down the layers:::
 
-    >>> runner.tear_down_unneeded(options, [], setupLayers)
+    >>> runner.tear_down_unneeded(options, [], setupLayers, [])
     Tear down plone.testing.zope.IntegrationTesting in ... seconds.
     Tear down plone.testing.zope.Startup in ... seconds.
     Tear down plone.testing.zca.LayerCleanup in ... seconds.
@@ -336,7 +336,7 @@ On tear-down, the database is torn down.::
 
 Let's tear down the layer:::
 
-    >>> runner.tear_down_unneeded(options, [], setupLayers)
+    >>> runner.tear_down_unneeded(options, [], setupLayers, [])
     Tear down plone.testing.zope.FunctionalTesting in ... seconds.
     Tear down plone.testing.zope.Startup in ... seconds.
     Tear down plone.testing.zca.LayerCleanup in ... seconds.
@@ -427,7 +427,7 @@ On tear-down, the database is torn down.::
 
 Let's tear down the layer:::
 
-    >>> runner.tear_down_unneeded(options, [], setupLayers)
+    >>> runner.tear_down_unneeded(options, [], setupLayers, [])
     Tear down plone.testing.zope.FunctionalTesting in ... seconds.
     Tear down plone.testing.zope.Startup in ... seconds.
     Tear down plone.testing.zca.LayerCleanup in ... seconds.
@@ -517,7 +517,7 @@ Test tear-down does nothing beyond what the base layers do.::
 
 When the server is torn down, the WSGIServer thread is stopped.::
 
-    >>> runner.tear_down_unneeded(options, [], setupLayers)
+    >>> runner.tear_down_unneeded(options, [], setupLayers, [])
     Tear down plone.testing.zope.WSGIServer:Functional in ... seconds.
     Tear down plone.testing.zope.WSGIServer in ... seconds.
     Tear down plone.testing.zope.Startup in ... seconds.

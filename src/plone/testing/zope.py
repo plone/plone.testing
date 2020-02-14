@@ -647,7 +647,6 @@ class Startup(Layer):
     xmlns:meta="http://namespaces.zope.org/meta">
 
     <include package="Products.Five" />
-    <meta:redefinePermission from="zope2.Public" to="zope.Public" />
 
     <securityPolicy component="AccessControl.security.SecurityPolicy" />
 

@@ -6,7 +6,7 @@ import os
 import os.path
 
 
-version = '7.0.4.dev0'
+version = '8.0.0.dev0'
 
 install_requires = [
     'setuptools',
@@ -68,7 +68,8 @@ setup(
         "Operating System :: OS Independent",
         "Programming Language :: Python :: 2.7",
         "Programming Language :: Python :: 3.6",
-        "Programming Language :: Python :: 3.7",
+        "Programming Language :: Python :: 3.8",
+        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: Implementation :: CPython",
         "Programming Language :: Python",
         "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
@@ -105,7 +106,6 @@ setup(
             'zope.publisher',
             'zope.security',
         ],
-        'z2': zope_requires,  # BBB
         'zope': zope_requires,
         'zserver': [
             'ZServer',
