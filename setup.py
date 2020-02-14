@@ -106,6 +106,7 @@ setup(
             'zope.publisher',
             'zope.security',
         ],
+        'z2': [],  # BBB
         'zope': zope_requires,
         'zserver': [
             'ZServer',
