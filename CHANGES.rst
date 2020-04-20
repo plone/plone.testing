@@ -8,6 +8,31 @@ Changelog
 
 .. towncrier release notes start
 
+8.0.0 (2020-04-21)
+------------------
+
+Breaking changes:
+
+
+- Drop support for Python 3.4 and 3.5.
+  Remove "z2" extra.
+  [jensens] (#72)
+
+
+New features:
+
+
+- Update links for further information about `testing`.
+  [jugmac00] (#71)
+
+
+Bug fixes:
+
+
+- Fix tests when using zope.testrunner internals since its version 5.1.
+  [jensens] (#72)
+
+
 7.0.3 (2019-12-10)
 ------------------
 

@@ -6,7 +6,7 @@ import os
 import os.path
 
 
-version = '8.0.0.dev0'
+version = '8.0.0'
 
 install_requires = [
     'setuptools',
