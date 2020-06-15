@@ -8,6 +8,15 @@ Changelog
 
 .. towncrier release notes start
 
+8.0.1 (2020-06-16)
+------------------
+
+Bug fixes:
+
+
+- fix broken Flake8 job (#74)
+
+
 8.0.0 (2020-04-21)
 ------------------
 
