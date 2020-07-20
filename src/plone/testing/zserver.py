@@ -2,6 +2,7 @@
 """Zope2-specific helpers and layers using ZServer
 """
 from __future__ import absolute_import
+
 from plone.testing import Layer
 from plone.testing import zodb
 from plone.testing import zope
@@ -386,8 +387,9 @@ class ZServer(Layer):
 
     def setUp(self):
 
-        import time
         from threading import Thread
+
+        import time
 
         self['host'] = self.host
         self['port'] = self.port
@@ -419,8 +421,10 @@ class ZServer(Layer):
     def setUpServer(self):
         """Create a ZServer server instance and save it in self.zserver
         """
-        from ZServer import zhttp_server, zhttp_handler, logger
         from StringIO import StringIO
+        from ZServer import logger
+        from ZServer import zhttp_handler
+        from ZServer import zhttp_server
 
         log = self.log
         if log is None:
@@ -506,9 +510,9 @@ class FTPServer(ZServer):
         """Create an FTP server instance and save it in self.ftpServer
         """
 
+        from StringIO import StringIO
         from ZServer import logger
         from ZServer.FTPServer import FTPServer
-        from StringIO import StringIO
 
         log = self.log
         if log is None:

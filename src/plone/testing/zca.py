@@ -2,6 +2,7 @@
 """Core Zope Component Architecture helpers and layers
 """
 from __future__ import absolute_import
+
 from plone.testing import Layer
 from zope.configuration.config import ConfigurationMachine
 
@@ -100,7 +101,8 @@ def pushGlobalRegistry(new=None):
     getSiteManager.reset()
 
     try:
-        from zope.component.hooks import setSite, setHooks
+        from zope.component.hooks import setHooks
+        from zope.component.hooks import setSite
     except ImportError:
         pass
     else:
@@ -141,7 +143,8 @@ def popGlobalRegistry():
     getSiteManager.reset()
 
     try:
-        from zope.component.hooks import setSite, setHooks
+        from zope.component.hooks import setHooks
+        from zope.component.hooks import setSite
     except ImportError:
         pass
     else:
@@ -177,11 +180,9 @@ def stackConfigurationContext(context=None, name='not named'):
     """
 
     from copy import deepcopy
-
+    from zope.configuration.xmlconfig import registerCommonDirectives
     from zope.interface import Interface
     from zope.interface.adapter import AdapterRegistry
-
-    from zope.configuration.xmlconfig import registerCommonDirectives
 
     clone = NamedConfigurationMachine(name)
 
@@ -301,6 +302,7 @@ class ZCMLDirectives(Layer):
     def setUp(self):
 
         from zope.configuration import xmlconfig
+
         import zope.component
 
         self['configurationContext'] = context = stackConfigurationContext(
