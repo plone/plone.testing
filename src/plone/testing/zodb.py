@@ -19,8 +19,8 @@ def stackDemoStorage(db=None, name=None):
             del self['zodbDB']
     """
 
-    from ZODB.DemoStorage import DemoStorage
     from ZODB.DB import DB
+    from ZODB.DemoStorage import DemoStorage
 
     if db is not None:
         storage = DemoStorage(name=name, base=db.storage)

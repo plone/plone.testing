@@ -2,6 +2,7 @@
 """Zope-specific helpers and layers using WSGI
 """
 from __future__ import absolute_import
+
 from OFS.metaconfigure import get_packages_to_initialize
 from plone.testing import Layer
 from plone.testing import zca
@@ -47,6 +48,7 @@ def installProduct(app, productName, quiet=False, multiinit=False):
     from OFS.Application import install_package
     from OFS.Application import install_product
     from OFS.Folder import Folder
+
     import sys
 
     found = False
@@ -99,13 +101,14 @@ def uninstallProduct(app, productName, quiet=False):
     ``installProduct()`` above.
     """
 
+    from OFS.Application import Application
+    from OFS.Application import get_products
+
     import sys
 
     # from OFS.Folder import Folder
     # from OFS.Application import get_folder_permissions
     # from AccessControl.class_init import InitializeClass
-
-    from OFS.Application import Application, get_products
 
     global _INSTALLED_PRODUCTS
     found = False
@@ -181,7 +184,8 @@ def setRoles(userFolder, userId, roles):
 
 def makeTestRequest(environ=None):
     """Return an HTTPRequest object suitable for testing views."""
-    from sys import stdin, stdout
+    from sys import stdin
+    from sys import stdout
     from zope.publisher.browser import setDefaultSkin
     from ZPublisher.HTTPRequest import HTTPRequest
     from ZPublisher.HTTPResponse import HTTPResponse
@@ -461,8 +465,8 @@ class Startup(Layer):
         the resource stack.
         """
 
-        import Zope2.Startup.datatypes
         import App.config
+        import Zope2.Startup.datatypes
 
         # Layer a new storage for Zope 2 on top of the one from the base
         # layer, if there is one.

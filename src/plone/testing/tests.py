@@ -1,5 +1,6 @@
 # -*- coding: utf-8 -*-
 from __future__ import absolute_import
+
 from OFS.SimpleItem import SimpleItem
 from pkg_resources import get_distribution
 from zope.testing import renormalizing
