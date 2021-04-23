@@ -917,7 +917,7 @@ class WSGIServer(Layer):
         """Create a WSGI server instance and save it in self.server.
         """
         app = self.make_wsgi_app()
-        kwargs = {}
+        kwargs = {'clear_untrusted_proxy_headers': False}
         if self.host is not None:
             kwargs['host'] = self.host
         if self.port is not None:
