@@ -1,0 +1,3 @@
+Catch FileNotFound error in test teardown when removing a temporary directory.
+Fixes `issue 79 <https://github.com/plone/plone.testing/issues/79>`_.
+[maurits]
