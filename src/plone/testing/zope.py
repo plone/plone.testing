@@ -937,7 +937,7 @@ class WSGIServer(Layer):
         self.server.shutdown()
         try:
             shutil.rmtree(self._wsgi_conf_dir)
-        except FileNotFoundError:
+        except OSError:
             pass
 
     def make_wsgi_app(self):
