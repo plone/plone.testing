@@ -935,7 +935,10 @@ class WSGIServer(Layer):
         """Close the server socket and clean up.
         """
         self.server.shutdown()
-        shutil.rmtree(self._wsgi_conf_dir)
+        try:
+            shutil.rmtree(self._wsgi_conf_dir)
+        except OSError:
+            pass
 
     def make_wsgi_app(self):
         self._wsgi_conf_dir = tempfile.mkdtemp()
