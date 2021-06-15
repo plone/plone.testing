@@ -8,6 +8,18 @@ Changelog
 
 .. towncrier release notes start
 
+8.0.3 (2021-06-14)
+------------------
+
+Bug fixes:
+
+
+- fix waitress deprecation warning (#77)
+- Catch OSError in test teardown when removing a temporary directory.
+  Fixes `issue 79 <https://github.com/plone/plone.testing/issues/79>`_.
+  [maurits] (#79)
+
+
 8.0.2 (2020-10-12)
 ------------------
 
