@@ -1,10 +1,12 @@
 from OFS.SimpleItem import SimpleItem
-from pkg_resources import get_distribution
+from pathlib import Path
 from zope.testing import renormalizing
 from ZPublisher.Iterators import filestream_iterator
 
 import doctest
+import inspect
 import os.path
+import plone.testing
 import re
 import unittest
 import zope.component.testing
@@ -46,8 +48,8 @@ class DummyView:
 
 class DummyFile(SimpleItem):
     def __call__(self):
-        path = get_distribution("plone.testing").location
-        path = os.path.join(path, "plone", "testing", "zope.rst")
+        path = Path(inspect.getfile(plone.testing))
+        path = path.parent / "zope.rst"
 
         request = self.REQUEST
         response = request.response
