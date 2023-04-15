@@ -77,7 +77,7 @@ A new connection will be opened and closed.::
     ...     'acl_users' in app.objectIds()
     True
 
-If you want to re-use an existing connection, you can pass one to ``zopeApp()`` as the ``connection`` argument.
+If you want to reuse an existing connection, you can pass one to ``zopeApp()`` as the ``connection`` argument.
 In this case, you will need to close the connection yourself.::
 
     >>> conn = zope.STARTUP['zodbDB'].open()

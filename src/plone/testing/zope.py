@@ -242,7 +242,7 @@ def zopeApp(db=None, connection=None, environ=None):
         connection = app._p_jar
 
     # exceptions in finally clauses can mask exceptions
-    # in the preceeding code block. So we catch
+    # in the preceding code block. So we catch
     # every exception and throw it instead of the exception
     # in the finally clause
     inner_exception = None
@@ -607,7 +607,7 @@ class Startup(Layer):
             uninstallProduct(app, "Products.OFSP")
 
         # It's possible for Five's _register_monkies and _meta_type_regs
-        # global variables to contain duplicates. This causes an unecessary
+        # global variables to contain duplicates. This causes an unnecessary
         # error in the LayerCleanup layer's tear-down. Guard against that
         # here
 
@@ -693,7 +693,7 @@ STARTUP = Startup()
 
 class IntegrationTesting(Layer):
     """This layer extends ``STARTUP`` to add rollback of the transaction
-    after each test. It does not manage a fixture and has no layer lifecyle,
+    after each test. It does not manage a fixture and has no layer lifecycle,
     only a test lifecycle.
 
     The application root is available as the resource ``app`` and the request

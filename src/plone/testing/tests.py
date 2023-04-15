@@ -17,7 +17,7 @@ except ImportError:
 else:
     HAS_ZSERVER = True
 
-# This is somewhat retarted. We execute README.rst as a doctest, mainly just
+# This is somewhat restarted. We execute README.rst as a doctest, mainly just
 # to test that the code samples import cleanly and are valid Python. However,
 # in there we also have a code sample of a doctest, which gets executed by the
 # doctest runner. Since the method inside the example code block is not yet

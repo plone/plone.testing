@@ -23,7 +23,7 @@ def authHeader(header):
 
 def saveState(func):
     """Save threadlocal state (security manager, local component site) before
-    exectuting a decorated function, and restore it after.
+    executing a decorated function, and restore it after.
     """
     from AccessControl.SecurityManagement import getSecurityManager
     from AccessControl.SecurityManagement import setSecurityManager

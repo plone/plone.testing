@@ -202,7 +202,7 @@ class Layer(ResourceManager):
     def __repr__(self):
         return f"<Layer '{self.__module__}.{self.__name__}'>"
 
-    # Layer lifecycle methods - overriden by subclasses
+    # Layer lifecycle methods - overridden by subclasses
 
     def setUp(self):
         pass

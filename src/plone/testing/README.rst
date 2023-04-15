@@ -280,7 +280,7 @@ The available extras are:
 Adding a test buildout to your package
 --------------------------------------
 
-When creating re-usable, mostly stand-alone packages, it is often useful to be able to include a buildout with the package sources itself that can be used to create a test runner.
+When creating reusable, mostly stand-alone packages, it is often useful to be able to include a buildout with the package sources itself that can be used to create a test runner.
 This is a popular approach for many Zope packages, for example.
 In fact, ``plone.testing`` itself uses this kind of layout.
 
@@ -388,7 +388,7 @@ For example, if you are writing a set of integration tests, you may need to set 
 This type of test fixture setup can be resource-intensive and time-consuming.
 If it is possible to only perform the setup and tear-down once for a set of tests without losing isolation between those tests, test runs can often be sped up significantly.
 
-Layers also allow re-use of test fixtures and set-up/tear-down code.
+Layers also allow reuse of test fixtures and set-up/tear-down code.
 ``plone.testing`` provides a number of useful (but optional) layers that manage test fixtures for common Zope testing scenarios, letting you focus on the actual test authoring.
 
 At the most basic, a layer is an object with the following methods and attributes:
@@ -464,7 +464,7 @@ All four are optional.
 The default implementation of each does nothing.
 
 By convention, layers are created in a module called ``testing.py`` at the top level of your package.
-The idea is that other packages that extend your package can re-use your layers for their own testing.
+The idea is that other packages that extend your package can reuse your layers for their own testing.
 
 A simple layer may look like this::
 
@@ -530,7 +530,7 @@ Above, we are really saying that *instances* of ``ZIGSpaceShip`` will, by defaul
 
     * The instance is usually a shared, module-global object, although in some cases it is useful to create copies of layers by instantiating the class more than once.
 
-    * Subclassing an existing layer class is just straightforward OOP re-use: the test runner is not aware of the subclassing relationship.
+    * Subclassing an existing layer class is just straightforward OOP reuse: the test runner is not aware of the subclassing relationship.
 
     * A layer *instance* can be associated with any number of layer *bases*, via its ``__bases__`` property (which is usually via the ``defaultBases`` variable in the class body and/or overridden using the ``bases`` argument to the ``Layer`` constructor).
       These bases are layer *instances*, not classes.
@@ -544,9 +544,9 @@ Advanced - overriding bases
 ---------------------------
 
 In some cases, it may be useful to create a copy of a layer, but change its bases.
-One reason to do this may if you are re-using a layer from another module, and you need to change the order in which layers are set up and torn down.
+One reason to do this may if you are reusing a layer from another module, and you need to change the order in which layers are set up and torn down.
 
-Normally, of course, you would just re-use the layer instance, either directly in a test, or in the ``defaultBases`` tuple of another layer, but if you need to change the bases, you can pass a new list of bases to the layer instance constructor:::
+Normally, of course, you would just reuse the layer instance, either directly in a test, or in the ``defaultBases`` tuple of another layer, but if you need to change the bases, you can pass a new list of bases to the layer instance constructor:::
 
     >>> class CATSMessage(Layer):
     ...
@@ -591,7 +591,7 @@ Layer resources
 Many layers will manage one or more resources that are used either by other layers, or by tests themselves.
 Examples may include database connections, thread-local objects, or configuration data.
 
-``plone.testing`` contains a simple resource storage abstraction that makes it easy to access resources from dependant layers or tests.
+``plone.testing`` contains a simple resource storage abstraction that makes it easy to access resources from dependent layers or tests.
 The resource storage uses dictionary notation:::
 
     >>> class WarpDrive(object):
@@ -725,7 +725,7 @@ to share some test logic.
 
 Two special methods, ``setUp()`` and ``tearDown()``, can also be added.
 These will be called before or after each test, respectively, and provide a useful place to construct and clean up test fixtures without writing a custom layer.
-They are obviously not as re-usable as layers, though.
+They are obviously not as reusable as layers, though.
 
    *Hint:* Somewhat confusingly, the ``setUp()`` and ``tearDown()`` methods in a test case class are the equivalent of the ``testSetUp()`` and ``testTearDown()`` methods of a layer class.
 
@@ -1141,7 +1141,7 @@ To load the configuration for a particular package, use ``xmlconfig.file()``:::
 This takes two required arguments: the file name and the module relative to which it is to be found.
 Here, we have loaded two files: ``meta.zcml`` and ``configure.zcml``.
 The first call to ``xmlconfig.file()`` creates and returns a configuration context.
-We re-use that for the subsequent invocation, so that the directives configured are available.
+We reuse that for the subsequent invocation, so that the directives configured are available.
 
 Installing a Zope product
 -------------------------
@@ -1685,7 +1685,7 @@ For example::
     MY_INTEGRATION_TESTING = zope.IntegrationTesting(bases=(MY_FIXTURE,), name="MyFixture:Integration")
     MY_FUNCTIONAL_TESTING = zope.FunctionalTesting(bases=(MY_FIXTURE,), name="MyFixture:Functional")
 
-(Note that we need to give an explicit, unique name to the two layers that re-use the ``IntegrationTesting`` and ``FunctionalTesting`` classes.)
+(Note that we need to give an explicit, unique name to the two layers that reuse the ``IntegrationTesting`` and ``FunctionalTesting`` classes.)
 
 In this example, other layers could extend the "MyLayer" fixture by using ``MY_FIXTURE`` as a base.
 Tests would use either ``MY_INTEGRATION_TESTING`` or ``MY_FUNCTIONAL_TESTING`` as appropriate.
@@ -1948,7 +1948,7 @@ For example::
     MY_INTEGRATION_TESTING = zserver.IntegrationTesting(bases=(MY_FIXTURE,), name="MyFixture:Integration")
     MY_FUNCTIONAL_TESTING = zserver.FunctionalTesting(bases=(MY_FIXTURE,), name="MyFixture:Functional")
 
-(Note that we need to give an explicit, unique name to the two layers that re-use the ``IntegrationTesting`` and ``FunctionalTesting`` classes.)
+(Note that we need to give an explicit, unique name to the two layers that reuse the ``IntegrationTesting`` and ``FunctionalTesting`` classes.)
 
 In this example, other layers could extend the "MyLayer" fixture by using ``MY_FIXTURE`` as a base.
 Tests would use either ``MY_INTEGRATION_TESTING`` or ``MY_FUNCTIONAL_TESTING`` as appropriate.
