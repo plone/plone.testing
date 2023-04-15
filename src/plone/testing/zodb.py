@@ -48,27 +48,29 @@ class EmptyZODB(Layer):
     defaultBases = ()
 
     def setUp(self):
-        self['zodbDB'] = self.createDatabase(self.createStorage())
+        self["zodbDB"] = self.createDatabase(self.createStorage())
 
     def tearDown(self):
-        self['zodbDB'].close()
-        del self['zodbDB']
+        self["zodbDB"].close()
+        del self["zodbDB"]
 
     def testSetUp(self):
-        self['zodbConnection'] = connection = self['zodbDB'].open()
-        self['zodbRoot'] = connection.root()
+        self["zodbConnection"] = connection = self["zodbDB"].open()
+        self["zodbRoot"] = connection.root()
 
         import transaction
+
         transaction.begin()
 
     def testTearDown(self):
         import transaction
+
         transaction.abort()
 
-        self['zodbConnection'].close()
+        self["zodbConnection"].close()
 
-        del self['zodbConnection']
-        del self['zodbRoot']
+        del self["zodbConnection"]
+        del self["zodbRoot"]
 
     # Template methods for use in subclasses, if required
 
@@ -81,7 +83,8 @@ class EmptyZODB(Layer):
         """
 
         from ZODB.DemoStorage import DemoStorage
-        return DemoStorage(name='EmptyZODB')
+
+        return DemoStorage(name="EmptyZODB")
 
     def createDatabase(self, storage):
         """Create a new database from the given storage.
@@ -91,6 +94,7 @@ class EmptyZODB(Layer):
         """
 
         from ZODB.DB import DB
+
         return DB(storage)
 
 

@@ -7,15 +7,14 @@ from zope.configuration.config import ConfigurationMachine
 import logging
 
 
-logger = logging.getLogger('plone.testing.zca')
+logger = logging.getLogger("plone.testing.zca")
 
 # Contains a stack of installed global registries (but not the default one)
 _REGISTRIES = []
 
 
 def loadRegistry(name):
-    """Unpickling helper
-    """
+    """Unpickling helper"""
     for reg in reversed(_REGISTRIES):
         if reg.__name__ == name:
             return reg
@@ -26,7 +25,7 @@ def _hookRegistry(reg):
     from zope.component import _api
     from zope.component import globalregistry
 
-    logger.debug('Hook component registry: %s', reg.__name__)
+    logger.debug("Hook component registry: %s", reg.__name__)
 
     _api.base = reg
     globalregistry.base = reg
@@ -35,6 +34,7 @@ def _hookRegistry(reg):
     # Set the default global site manager for new threads when zope.component
     # hooks are in place
     from zope.component.hooks import SiteInfo
+
     SiteInfo.sm = reg
 
     # Set the five.localsitemanager hook, too, if applicable
@@ -47,6 +47,7 @@ def _hookRegistry(reg):
 
 
 # Helper functions
+
 
 def pushGlobalRegistry(new=None):
     """Set a new global component registry that uses the current registry as
@@ -73,19 +74,19 @@ def pushGlobalRegistry(new=None):
     if len(_REGISTRIES) == 0:
         _REGISTRIES.append(current)
         globalregistry.BaseGlobalComponents._old__reduce__ = (
-            globalregistry.BaseGlobalComponents.__reduce__)
-        globalregistry.BaseGlobalComponents.__reduce__ = (
-            lambda self: (loadRegistry, (self.__name__,)))
+            globalregistry.BaseGlobalComponents.__reduce__
+        )
+        globalregistry.BaseGlobalComponents.__reduce__ = lambda self: (
+            loadRegistry,
+            (self.__name__,),
+        )
 
     if new is None:
-        name = f'test-stack-{len(_REGISTRIES)}'
+        name = f"test-stack-{len(_REGISTRIES)}"
         new = globalregistry.BaseGlobalComponents(name=name, bases=(current,))
-        logger.debug(
-            'New component registry: %s based on %s',
-            name,
-            current.__name__)
+        logger.debug("New component registry: %s based on %s", name, current.__name__)
     else:
-        logger.debug('Push component registry: %s', new.__name__)
+        logger.debug("Push component registry: %s", new.__name__)
 
     _REGISTRIES.append(new)
 
@@ -96,6 +97,7 @@ def pushGlobalRegistry(new=None):
     # Reset the site manager hook so that getSiteManager() returns the base
     # again
     from zope.component import getSiteManager
+
     getSiteManager.reset()
 
     try:
@@ -118,8 +120,7 @@ def popGlobalRegistry():
     from zope.component import globalregistry
 
     if not _REGISTRIES or not _REGISTRIES[-1] is globalregistry.base:
-        msg = ('popGlobalRegistry() called out of sync with '
-               'pushGlobalRegistry()')
+        msg = "popGlobalRegistry() called out of sync with " "pushGlobalRegistry()"
         raise ValueError(msg)
 
     current = _REGISTRIES.pop()
@@ -131,13 +132,15 @@ def popGlobalRegistry():
         assert _REGISTRIES[0] is previous
         _REGISTRIES.pop()
         globalregistry.BaseGlobalComponents.__reduce__ = (
-            globalregistry.BaseGlobalComponents._old__reduce__)
+            globalregistry.BaseGlobalComponents._old__reduce__
+        )
 
     _hookRegistry(previous)
 
     # Reset the site manager hook so that getSiteManager() returns the base
     # again
     from zope.component import getSiteManager
+
     getSiteManager.reset()
 
     try:
@@ -153,25 +156,22 @@ def popGlobalRegistry():
 
 
 class NamedConfigurationMachine(ConfigurationMachine):
-
     def __init__(self, name):
         super().__init__()
         self.__name__ = name
 
     def __str__(self):
-        pkg = 'zope.configuration.config.ConfigurationMachine'
-        return (
-            '<{} object {}>'.format(
-                pkg,
-                self.__name__,
-            )
+        pkg = "zope.configuration.config.ConfigurationMachine"
+        return "<{} object {}>".format(
+            pkg,
+            self.__name__,
         )
 
     def __repr__(self):
         return self.__str__()
 
 
-def stackConfigurationContext(context=None, name='not named'):
+def stackConfigurationContext(context=None, name="not named"):
     """Return a new ``ConfigurationMachine`` configuration context that
     is a clone of the passed-in context. If no context is passed in, a fresh
     configuration context is returned.
@@ -190,7 +190,7 @@ def stackConfigurationContext(context=None, name='not named'):
 
     if context is None:
         registerCommonDirectives(clone)
-        logger.debug('New configuration context %s', clone)
+        logger.debug("New configuration context %s", clone)
         return clone
 
     # Copy over simple attributes
@@ -212,7 +212,7 @@ def stackConfigurationContext(context=None, name='not named'):
     # ZCML file processing only
 
     # Copy over documentation registry
-    clone._docRegistry = [tuple(list(entry))for entry in context._docRegistry]
+    clone._docRegistry = [tuple(list(entry)) for entry in context._docRegistry]
 
     # Copy over the directive registry
     for key, registry in context._registry.items():
@@ -221,15 +221,15 @@ def stackConfigurationContext(context=None, name='not named'):
             if adapterRegistration not in newRegistry._adapters:
                 for interface, info in adapterRegistration.items():
                     if Interface in info:
-                        factory = info[Interface]['']
-                        newRegistry.register([interface], Interface, '',
-                                             factory)
+                        factory = info[Interface][""]
+                        newRegistry.register([interface], Interface, "", factory)
 
-    logger.debug('Configuration context %s cloned from %s', clone, context)
+    logger.debug("Configuration context %s cloned from %s", clone, context)
     return clone
 
 
 # Layers
+
 
 class UnitTesting(Layer):
     """Zope Component Architecture unit testing sandbox: The ZCA is cleared
@@ -240,10 +240,12 @@ class UnitTesting(Layer):
 
     def testSetUp(self):
         import zope.component.testing
+
         zope.component.testing.setUp()
 
     def testTearDown(self):
         import zope.component.testing
+
         zope.component.testing.tearDown()
 
 
@@ -263,6 +265,7 @@ class EventTesting(Layer):
 
     def testSetUp(self):
         import zope.component.eventtesting
+
         zope.component.eventtesting.setUp()
 
 
@@ -278,10 +281,12 @@ class LayerCleanup(Layer):
 
     def setUp(self):
         import zope.testing.cleanup
+
         zope.testing.cleanup.cleanUp()
 
     def tearDown(self):
         import zope.testing.cleanup
+
         zope.testing.cleanup.cleanUp()
 
 
@@ -298,40 +303,37 @@ class ZCMLDirectives(Layer):
     defaultBases = (LAYER_CLEANUP,)
 
     def setUp(self):
-
         from zope.configuration import xmlconfig
 
         import zope.component
 
-        self['configurationContext'] = context = stackConfigurationContext(
-            self.get('configurationContext'))
+        self["configurationContext"] = context = stackConfigurationContext(
+            self.get("configurationContext")
+        )
         # D001 requests to use self.loadZCML instead of xmlconfig.file but
         # loadZCML is defined in `plone.app.testing` and cannot be used here.
-        xmlconfig.file(  # noqa: D001
-            'meta.zcml', zope.component, context=context)
+        xmlconfig.file("meta.zcml", zope.component, context=context)  # noqa: D001
 
     def tearDown(self):
-        del self['configurationContext']
+        del self["configurationContext"]
 
 
 ZCML_DIRECTIVES = ZCMLDirectives()
 
 
 class ZCMLSandbox(Layer):
-
     defaultBases = (LAYER_CLEANUP,)
 
-    def __init__(self, bases=None, name=None, module=None, filename=None,
-                 package=None):
+    def __init__(self, bases=None, name=None, module=None, filename=None, package=None):
         super().__init__(bases, name, module)
         self.filename = filename
         self.package = package
 
     def setUp(self):
-        name = self.__name__ if self.__name__ is not None else 'not-named'
-        contextName = f'ZCMLSandbox-{name}'
-        self['configurationContext'] = stackConfigurationContext(
-            self.get('configurationContext'),
+        name = self.__name__ if self.__name__ is not None else "not-named"
+        contextName = f"ZCMLSandbox-{name}"
+        self["configurationContext"] = stackConfigurationContext(
+            self.get("configurationContext"),
             name=contextName,
         )
         pushGlobalRegistry()
@@ -339,16 +341,20 @@ class ZCMLSandbox(Layer):
 
     def setUpZCMLFiles(self):
         if self.filename is None:
-            raise ValueError('ZCML file name has not been provided.')
+            raise ValueError("ZCML file name has not been provided.")
         if self.package is None:
-            raise ValueError('The package that contains the ZCML file '
-                             'has not been provided.')
+            raise ValueError(
+                "The package that contains the ZCML file " "has not been provided."
+            )
         self.loadZCMLFile(self.filename, self.package)
 
     def loadZCMLFile(self, filename, package):
         from zope.configuration import xmlconfig
-        xmlconfig.file(filename, package, context=self['configurationContext'])  # noqa: D001,E501
+
+        xmlconfig.file(
+            filename, package, context=self["configurationContext"]
+        )  # noqa: D001,E501
 
     def tearDown(self):
         popGlobalRegistry()
-        del self['configurationContext']
+        del self["configurationContext"]

@@ -82,6 +82,7 @@ def zopeApp(db=None, connection=None, environ=None):
 
 # Startup layer - you probably don't want to use this one directly
 
+
 class Startup(zope.Startup):
     """This layer does what ZopeLite and ZopeTestCase's base.TestCase did:
     start up a minimal Zope instance and manages the application and
@@ -104,32 +105,32 @@ class Startup(zope.Startup):
     # Layer lifecycle helper methods
 
     def setUpThreads(self):
-        """Set the thread count for ZServer. This defaults to 1.
-        """
+        """Set the thread count for ZServer. This defaults to 1."""
 
         # We can't use setNumberOfThreads() because that function self-
         # destructs, literally, when called.
         from ZServer.Zope2.Startup import config
+
         self._zserverThreads = config.ZSERVER_THREADS
         config.ZSERVER_THREADS = self.threads
 
     def tearDownThreads(self):
-        """Reset the ZServer thread count.
-        """
+        """Reset the ZServer thread count."""
 
         from ZServer.Zope2.Startup import config
+
         config.ZSERVER_THREADS = self._zserverThreads
         del self._zserverThreads
 
     def setUpApp(self):
-        """Trigger Zope startup and set up the application.
-        """
+        """Trigger Zope startup and set up the application."""
 
         # If the Testing module has been imported, the testinghome
         # variable is set and changes the way Zope2.startup() works.
         # We want the standard behavior so we remove it.
 
         import App.config
+
         config = App.config.getConfiguration()
         try:
             self._testingHome = config.testinghome
@@ -143,17 +144,18 @@ class Startup(zope.Startup):
         # That DB then gets stored as Zope2.DB and becomes the default.
 
         from ZServer import Zope2
+
         Zope2.startup()
 
         # At this point, Zope2.DB is set to the test database facade. This is
         # the database will be used by default when someone does Zope2.app().
 
     def tearDownApp(self):
-        """Undo Zope 2 startup by unsetting the global state it creates.
-        """
+        """Undo Zope 2 startup by unsetting the global state it creates."""
 
         import Zope2
         import ZServer.Zope2
+
         ZServer.Zope2.app()._p_jar.close()
 
         ZServer.Zope2._began_startup = 0
@@ -166,6 +168,7 @@ class Startup(zope.Startup):
         Zope2.__bobo_before__ = None
 
         import App.config
+
         try:
             self._testingHome
         except AttributeError:
@@ -179,6 +182,7 @@ class Startup(zope.Startup):
         # Clear out the app reference cached in get_module_info's
         # 'modules' parameter default dict. (waaaaa)
         import ZPublisher.Publish
+
         defaults = ZPublisher.Publish.get_module_info.func_defaults
 
         if defaults:
@@ -187,20 +191,18 @@ class Startup(zope.Startup):
             ZPublisher.Publish.get_module_info.func_defaults = tuple(d)
 
     def setUpBasicProducts(self):
-        """Install a minimal set of products required for Zope 2.
-        """
+        """Install a minimal set of products required for Zope 2."""
 
         with zopeApp() as app:
-            installProduct(app, 'Products.PluginIndexes')
-            installProduct(app, 'Products.OFSP')
+            installProduct(app, "Products.PluginIndexes")
+            installProduct(app, "Products.OFSP")
 
     def tearDownBasicProducts(self):
-        """Tear down the minimal set of products
-        """
+        """Tear down the minimal set of products"""
 
         with zopeApp() as app:
-            uninstallProduct(app, 'Products.PluginIndexes')
-            uninstallProduct(app, 'Products.OFSP')
+            uninstallProduct(app, "Products.PluginIndexes")
+            uninstallProduct(app, "Products.OFSP")
 
         # It's possible for Five's _register_monkies and _meta_type_regs
         # global variables to contain duplicates. This causes an unecessary
@@ -212,10 +214,8 @@ class Startup(zope.Startup):
         except ImportError:
             # Zope <= 2.12
             from Products.Five import fiveconfigure as metaconfigure
-        metaconfigure._register_monkies = list(
-            set(metaconfigure._register_monkies))
-        metaconfigure._meta_type_regs = list(
-            set(metaconfigure._meta_type_regs))
+        metaconfigure._register_monkies = list(set(metaconfigure._register_monkies))
+        metaconfigure._meta_type_regs = list(set(metaconfigure._meta_type_regs))
 
 
 STARTUP = Startup()
@@ -223,6 +223,7 @@ STARTUP = Startup()
 
 # Basic integration and functional test and layers. These are the simplest
 # Zope 2 layers that are generally useful
+
 
 class IntegrationTesting(zope.IntegrationTesting):
     """This layer extends ``STARTUP`` to add rollback of the transaction
@@ -256,17 +257,18 @@ class IntegrationTesting(zope.IntegrationTesting):
         # Open a new app and save it as the resource ``app``.
 
         environ = {
-            'SERVER_NAME': self['host'],
-            'SERVER_PORT': str(self['port']),
+            "SERVER_NAME": self["host"],
+            "SERVER_PORT": str(self["port"]),
         }
 
         app = addRequestContainer(Zope2.app(), environ=environ)
         request = app.REQUEST
-        request['PARENTS'] = [app]
+        request["PARENTS"] = [app]
 
         # Make sure we have a zope.globalrequest request
         try:
             from zope.globalrequest import setRequest
+
             setRequest(request)
         except ImportError:
             pass
@@ -277,17 +279,19 @@ class IntegrationTesting(zope.IntegrationTesting):
         self._original_commit = transaction.commit
 
         def you_broke_it():
-            raise TestIsolationBroken("""You are in a Test Layer
+            raise TestIsolationBroken(
+                """You are in a Test Layer
 (IntegrationTesting) that is fast by just aborting transactions between each
 test.  You just committed something. That breaks the test isolation.  So I stop
-here and let you fix it.""")
+here and let you fix it."""
+            )
 
         # Prevent commits in integration tests which breaks test isolation.
         transaction.commit = you_broke_it
 
         # Save resources for tests to access
-        self['app'] = app
-        self['request'] = request
+        self["app"] = app
+        self["request"] = request
 
 
 INTEGRATION_TESTING = IntegrationTesting()
@@ -326,24 +330,25 @@ class FunctionalTesting(zope.FunctionalTesting):
         # this layer, we can't just assign a new shadow. We therefore keep
         # track of the original so that we can restore it on tear-down.
 
-        self['zodbDB'] = zodb.stackDemoStorage(
-            self.get('zodbDB'),
-            name='FunctionalTest')
+        self["zodbDB"] = zodb.stackDemoStorage(
+            self.get("zodbDB"), name="FunctionalTest"
+        )
 
         # Save the app
 
         environ = {
-            'SERVER_NAME': self['host'],
-            'SERVER_PORT': str(self['port']),
+            "SERVER_NAME": self["host"],
+            "SERVER_PORT": str(self["port"]),
         }
 
         app = addRequestContainer(Zope2.app(), environ=environ)
         request = app.REQUEST
-        request['PARENTS'] = [app]
+        request["PARENTS"] = [app]
 
         # Make sure we have a zope.globalrequest request
         try:
             from zope.globalrequest import setRequest
+
             setRequest(request)
         except ImportError:
             pass
@@ -352,14 +357,15 @@ class FunctionalTesting(zope.FunctionalTesting):
         transaction.begin()
 
         # Save resources for the test
-        self['app'] = app
-        self['request'] = request
+        self["app"] = app
+        self["request"] = request
 
 
 FUNCTIONAL_TESTING = FunctionalTesting()
 
 
 # More advanced functional testing - running ZServer and FTP server
+
 
 class ZServer(Layer):
     """Start a ZServer that accesses the fixture managed by the
@@ -378,26 +384,25 @@ class ZServer(Layer):
 
     defaultBases = (STARTUP,)
 
-    host = os.environ.get('ZSERVER_HOST', '')
-    port = int(os.environ.get('ZSERVER_PORT', 0))
+    host = os.environ.get("ZSERVER_HOST", "")
+    port = int(os.environ.get("ZSERVER_PORT", 0))
     timeout = 5.0
     log = None
 
     def setUp(self):
-
         from threading import Thread
 
         import time
 
-        self['host'] = self.host
-        self['port'] = self.port
+        self["host"] = self.host
+        self["port"] = self.port
 
         self._shutdown = False
 
         self.setUpServer()
 
         self.thread = Thread(
-            name=f'{self.__name__} server',
+            name=f"{self.__name__} server",
             target=self.runner,
         )
 
@@ -413,12 +418,11 @@ class ZServer(Layer):
 
         self.tearDownServer()
 
-        del self['host']
-        del self['port']
+        del self["host"]
+        del self["port"]
 
     def setUpServer(self):
-        """Create a ZServer server instance and save it in self.zserver
-        """
+        """Create a ZServer server instance and save it in self.zserver"""
         from StringIO import StringIO
         from ZServer import logger
         from ZServer import zhttp_handler
@@ -439,20 +443,23 @@ class ZServer(Layer):
 
         # If we dynamically set the host/port, we want to reset it to localhost
         # Otherwise this will depend on, for example, the local network setup
-        if self.host in ('', '0.0.0.0', '127.0.0.1', ):
-            server.server_name = 'localhost'
+        if self.host in (
+            "",
+            "0.0.0.0",
+            "127.0.0.1",
+        ):
+            server.server_name = "localhost"
         # Refresh the hostname and port in case we dynamically picked them
-        self['host'] = self.host = server.server_name
-        self['port'] = self.port = server.server_port
+        self["host"] = self.host = server.server_name
+        self["port"] = self.port = server.server_port
 
-        zhttpHandler = zhttp_handler(module='Zope2', uri_base='')
+        zhttpHandler = zhttp_handler(module="Zope2", uri_base="")
         server.install_handler(zhttpHandler)
 
         self.zserver = server
 
     def tearDownServer(self):
-        """Close the ZServer socket
-        """
+        """Close the ZServer socket"""
         self.zserver.close()
 
     # Thread runner
@@ -475,11 +482,7 @@ class ZServer(Layer):
 ZSERVER_FIXTURE = ZServer()
 
 # Functional testing layer that uses the ZSERVER_FIXTURE
-ZSERVER = FunctionalTesting(
-    bases=(
-        ZSERVER_FIXTURE,
-    ),
-    name='ZServer:Functional')
+ZSERVER = FunctionalTesting(bases=(ZSERVER_FIXTURE,), name="ZServer:Functional")
 
 
 class FTPServer(ZServer):
@@ -498,15 +501,14 @@ class FTPServer(ZServer):
 
     defaultBases = (STARTUP,)
 
-    host = os.environ.get('FTPSERVER_HOST', '')
-    port = int(os.environ.get('FTPSERVER_PORT', 0))
+    host = os.environ.get("FTPSERVER_HOST", "")
+    port = int(os.environ.get("FTPSERVER_PORT", 0))
     threads = 1
     timeout = 5.0
     log = None
 
     def setUpServer(self):
-        """Create an FTP server instance and save it in self.ftpServer
-        """
+        """Create an FTP server instance and save it in self.ftpServer"""
 
         from StringIO import StringIO
         from ZServer import logger
@@ -519,7 +521,7 @@ class FTPServer(ZServer):
         zopeLog = logger.file_logger(log)
 
         self.ftpServer = FTPServer(
-            'Zope2',
+            "Zope2",
             ip=self.host,
             port=self.port,
             logger_object=zopeLog,
@@ -528,16 +530,19 @@ class FTPServer(ZServer):
         self.host, self.port = self.ftpServer.socket.getsockname()
         # If we dynamically set the host/port, we want to reset it to localhost
         # Otherwise this will depend on, for example, the local network setup
-        if self.host in ('', '0.0.0.0', '127.0.0.1', ):
-            self.host = 'localhost'
-            self.ftpServer.hostname = 'localhost'
-            self.ftpServer.ip = '127.0.0.1'
-        self['host'] = self.host
-        self['port'] = self.port
+        if self.host in (
+            "",
+            "0.0.0.0",
+            "127.0.0.1",
+        ):
+            self.host = "localhost"
+            self.ftpServer.hostname = "localhost"
+            self.ftpServer.ip = "127.0.0.1"
+        self["host"] = self.host
+        self["port"] = self.port
 
     def tearDownServer(self):
-        """Close the FTPServer socket
-        """
+        """Close the FTPServer socket"""
         self.ftpServer.close()
 
 
@@ -546,8 +551,4 @@ class FTPServer(ZServer):
 FTP_SERVER_FIXTURE = FTPServer()
 
 # Functional testing layer that uses the FTP_SERVER_FIXTURE
-FTP_SERVER = FunctionalTesting(
-    bases=(
-        FTP_SERVER_FIXTURE,
-    ),
-    name='FTPServer:Functional')
+FTP_SERVER = FunctionalTesting(bases=(FTP_SERVER_FIXTURE,), name="FTPServer:Functional")

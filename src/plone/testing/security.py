@@ -35,8 +35,7 @@ def popCheckers():
 
 
 class Checkers(Layer):
-    """Ensures correct isolation of security checkers in zope.security.
-    """
+    """Ensures correct isolation of security checkers in zope.security."""
 
     defaultBases = ()
 

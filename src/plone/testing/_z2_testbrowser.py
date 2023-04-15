@@ -6,7 +6,7 @@ from ZPublisher.WSGIPublisher import publish_module
 import re
 
 
-BASIC_RE = re.compile('Basic (.+)?:(.+)?$')
+BASIC_RE = re.compile("Basic (.+)?:(.+)?$")
 
 
 def authHeader(header):
@@ -14,9 +14,9 @@ def authHeader(header):
     if match:
         u, p = match.group(1, 2)
         if u is None:
-            u = ''
+            u = ""
         if p is None:
-            p = ''
+            p = ""
         return basic_auth_encode(u, p)
     return header
 
@@ -37,6 +37,7 @@ def saveState(func):
         finally:
             setSecurityManager(sm)
             setSite(site)
+
     return wrapped_func
 
 
@@ -51,9 +52,8 @@ class Zope2Caller:
 
     @saveState
     def __call__(self, environ, start_response):
-
         # Base64 encode auth header
-        http_auth = 'HTTP_AUTHORIZATION'
+        http_auth = "HTTP_AUTHORIZATION"
         if http_auth in environ:
             environ[http_auth] = authHeader(environ[http_auth])
 
@@ -80,4 +80,4 @@ class Browser(browser.Browser):
 
 
 # Add `nohost` to testbrowser's set of allowed hosts
-browser._allowed.add('nohost')
+browser._allowed.add("nohost")

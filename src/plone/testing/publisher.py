@@ -22,30 +22,31 @@ class PublisherDirectives(Layer):
         from zope.configuration import xmlconfig
 
         # Stack a new configuration context
-        self['configurationContext'] = context = zca.stackConfigurationContext(
-            self.get('configurationContext'))
+        self["configurationContext"] = context = zca.stackConfigurationContext(
+            self.get("configurationContext")
+        )
 
         # D001 requests to use self.loadZCML instead of xmlconfig.file but
         # loadZCML is defined in `plone.app.testing` and cannot be used here.
         import zope.security
-        xmlconfig.file(  # noqa: D001
-            'meta.zcml', zope.security, context=context)
+
+        xmlconfig.file("meta.zcml", zope.security, context=context)  # noqa: D001
         import zope.browsermenu
-        xmlconfig.file(  # noqa: D001
-            'meta.zcml', zope.browsermenu, context=context)
+
+        xmlconfig.file("meta.zcml", zope.browsermenu, context=context)  # noqa: D001
         import zope.browserpage
-        xmlconfig.file(  # noqa: D001
-            'meta.zcml', zope.browserpage, context=context)
+
+        xmlconfig.file("meta.zcml", zope.browserpage, context=context)  # noqa: D001
         import zope.browserresource
-        xmlconfig.file(  # noqa: D001
-            'meta.zcml', zope.browserresource, context=context)
+
+        xmlconfig.file("meta.zcml", zope.browserresource, context=context)  # noqa: D001
         import zope.publisher
-        xmlconfig.file(  # noqa: D001
-            'meta.zcml', zope.publisher, context=context)
+
+        xmlconfig.file("meta.zcml", zope.publisher, context=context)  # noqa: D001
 
     def tearDown(self):
         # Zap the stacked configuration context
-        del self['configurationContext']
+        del self["configurationContext"]
 
 
 PUBLISHER_DIRECTIVES = PublisherDirectives()

@@ -54,17 +54,12 @@ def installProduct(app, productName, quiet=False, multiinit=False):
     if productName in _INSTALLED_PRODUCTS:
         return
 
-    if productName.startswith('Products.'):
+    if productName.startswith("Products."):
         for priority, name, index, productDir in get_products():
-            if ('Products.' + name) == productName:
-
+            if ("Products." + name) == productName:
                 install_product(
-                    app,
-                    productDir,
-                    name,
-                    [],
-                    get_folder_permissions(),
-                    raise_exc=1)
+                    app, productDir, name, [], get_folder_permissions(), raise_exc=1
+                )
                 InitializeClass(Folder)
 
                 _INSTALLED_PRODUCTS[productName] = (
@@ -82,15 +77,17 @@ def installProduct(app, productName, quiet=False, multiinit=False):
         for module, init_func in packages:
             if module.__name__ == productName:
                 install_package(app, module, init_func, raise_exc=1)
-                _INSTALLED_PRODUCTS[productName] = (module, init_func,)
+                _INSTALLED_PRODUCTS[productName] = (
+                    module,
+                    init_func,
+                )
 
                 found = True
                 if not multiinit:
                     break
 
     if not found and not quiet:
-        sys.stderr.write(
-            f'Could not install product {productName}\n')
+        sys.stderr.write(f"Could not install product {productName}\n")
         sys.stderr.flush()
 
 
@@ -114,10 +111,9 @@ def uninstallProduct(app, productName, quiet=False):
     if productName not in _INSTALLED_PRODUCTS:
         return
 
-    if productName.startswith('Products.'):
+    if productName.startswith("Products."):
         for priority, name, index, productDir in get_products():
-            if ('Products.' + name) == productName:
-
+            if ("Products." + name) == productName:
                 if name in Application.misc_.__dict__:
                     delattr(Application.misc_, name)
 
@@ -129,7 +125,6 @@ def uninstallProduct(app, productName, quiet=False):
                 found = True
                 break
     elif productName in _INSTALLED_PRODUCTS:  # must be a package
-
         module, init_func = _INSTALLED_PRODUCTS[productName]
         name = module.__name__
 
@@ -141,40 +136,38 @@ def uninstallProduct(app, productName, quiet=False):
         del _INSTALLED_PRODUCTS[productName]
 
     if not found and not quiet:
-        sys.stderr.write(
-            f'Could not install product {productName}\n')
+        sys.stderr.write(f"Could not install product {productName}\n")
         sys.stderr.flush()
 
 
 def login(userFolder, userName):
-    """Log in as the given user in the given user folder.
-    """
+    """Log in as the given user in the given user folder."""
 
     from AccessControl.SecurityManagement import newSecurityManager
 
     user = userFolder.getUser(userName)
     if user is None:
-        raise ValueError('User could not be found')
-    if getattr(user, 'aq_base', None) is None:
+        raise ValueError("User could not be found")
+    if getattr(user, "aq_base", None) is None:
         user = user.__of__(userFolder)
     newSecurityManager(None, user)
 
 
 def logout():
-    """Log out, i.e. become anonymous
-    """
+    """Log out, i.e. become anonymous"""
 
     from AccessControl.SecurityManagement import noSecurityManager
+
     noSecurityManager()
 
 
 def setRoles(userFolder, userId, roles):
-    """Set the given user's roles to a tuple of roles.
-    """
+    """Set the given user's roles to a tuple of roles."""
 
     userFolder.userFolderEditUser(userId, None, list(roles), [])
 
     from AccessControl import getSecurityManager
+
     userName = userFolder.getUserById(userId).getUserName()
     if userName == getSecurityManager().getUser().getUserName():
         login(userFolder, userName)
@@ -190,14 +183,14 @@ def makeTestRequest(environ=None):
 
     if environ is None:
         environ = {}
-    environ.setdefault('SERVER_NAME', 'foo')
-    environ.setdefault('SERVER_PORT', '80')
-    environ.setdefault('REQUEST_METHOD', 'GET')
+    environ.setdefault("SERVER_NAME", "foo")
+    environ.setdefault("SERVER_PORT", "80")
+    environ.setdefault("REQUEST_METHOD", "GET")
 
     resp = HTTPResponse(stdout=stdout)
     req = HTTPRequest(stdin, environ, resp)
-    req._steps = ['noobject']  # Fake a published object.
-    req['ACTUAL_URL'] = req.get('URL')
+    req._steps = ["noobject"]  # Fake a published object.
+    req["ACTUAL_URL"] = req.get("URL")
     setDefaultSkin(req)
 
     return req
@@ -210,6 +203,7 @@ def addRequestContainer(app, environ=None):
     """
 
     from ZPublisher.BaseRequest import RequestContainer
+
     req = makeTestRequest(environ)
     requestcontainer = RequestContainer(REQUEST=req)
     return app.__of__(requestcontainer)
@@ -239,8 +233,9 @@ def zopeApp(db=None, connection=None, environ=None):
     if connection is None and db is not None:
         connection = db.open()
 
-    assert Zope2._began_startup, \
-        "Zope2 WSGI is not started, maybe mixing Zope and ZServer layers."
+    assert (
+        Zope2._began_startup
+    ), "Zope2 WSGI is not started, maybe mixing Zope and ZServer layers."
     app = addRequestContainer(Zope2.app(connection), environ=environ)
 
     if connection is None:
@@ -280,6 +275,7 @@ def zopeApp(db=None, connection=None, environ=None):
 
 
 # Startup layer - you probably don't want to use this one directly
+
 
 class Startup(Layer):
     """This layer does what ZopeLite and ZopeTestCase's base.TestCase did:
@@ -331,10 +327,10 @@ class Startup(Layer):
     # Layer lifecycle helper methods
 
     def setUpDebugMode(self):
-        """Switch off debug mode in the global configuration
-        """
+        """Switch off debug mode in the global configuration"""
 
         import App.config
+
         config = App.config.getConfiguration()
         self._debugMode = config.debug_mode
         config.debug_mode = False
@@ -342,22 +338,25 @@ class Startup(Layer):
 
         # Set Python security mode
         from AccessControl.Implementation import setImplementation
-        setImplementation('Python')
+
+        setImplementation("Python")
 
         # Set a flag so that other code can know that we are running tests.
         # Some of the speed-related patches in Plone use this, for instance.
         # The name is a BBB artefact from ZopeTestCase :
         import os
-        os.environ['ZOPETESTCASE'] = '1'
+
+        os.environ["ZOPETESTCASE"] = "1"
 
     def tearDownDebugMode(self):
-        """Return the debug mode flag to its previous state
-        """
+        """Return the debug mode flag to its previous state"""
 
         from AccessControl.Implementation import setImplementation
-        setImplementation('C')
+
+        setImplementation("C")
 
         import App.config
+
         config = App.config.getConfiguration()
         config.debug_mode = self._debugMode
         App.config.setConfiguration(config)
@@ -370,17 +369,18 @@ class Startup(Layer):
 
         # Make sure we use a temporary client cache
         import App.config
+
         config = App.config.getConfiguration()
-        self._zeoClientName = getattr(config, 'zeo_client_name', None)
+        self._zeoClientName = getattr(config, "zeo_client_name", None)
         config.zeo_client_name = None
         App.config.setConfiguration(config)
 
     def tearDownClientCache(self):
-        """Restore the cache configuration to its previous state
-        """
+        """Restore the cache configuration to its previous state"""
 
         # Make sure we use a temporary client cache
         import App.config
+
         config = App.config.getConfiguration()
         config.zeo_client_name = self._zeoClientName
         App.config.setConfiguration(config)
@@ -397,12 +397,14 @@ class Startup(Layer):
         # Avoid expensive product import
         def null_import_products():
             pass
+
         self._OFS_Application_import_products = OFS.Application.import_products
         OFS.Application.import_products = null_import_products
 
         # Avoid expensive product installation
         def null_initialize(app):
             pass
+
         self._OFS_Application_initialize = OFS.Application.initialize
         OFS.Application.initialize = null_initialize
 
@@ -415,8 +417,7 @@ class Startup(Layer):
         Zope2.App.startup.load_zcml = null_load_zcml
 
     def tearDownPatches(self):
-        """Revert the monkey patches from setUpPatches()
-        """
+        """Revert the monkey patches from setUpPatches()"""
 
         import OFS.Application
 
@@ -429,28 +430,24 @@ class Startup(Layer):
         Zope2.App.startup.load_zcml = self._Zope2_App_startup_load_zcml
 
     def setUpThreads(self):
-        """Set the thread count. Only needed in ZServer.
-        """
+        """Set the thread count. Only needed in ZServer."""
         pass
 
     def tearDownThreads(self):
-        """Reset the thread count. Only needed in ZServer.
-        """
+        """Reset the thread count. Only needed in ZServer."""
         pass
 
     def setUpHostPort(self):
-        """Set up the 'host' and 'port' resources
-        """
+        """Set up the 'host' and 'port' resources"""
 
-        self['host'] = 'nohost'
-        self['port'] = 80
+        self["host"] = "nohost"
+        self["port"] = 80
 
     def tearDownHostPort(self):
-        """Pop the 'host' and 'port' resources
-        """
+        """Pop the 'host' and 'port' resources"""
 
-        del self['host']
-        del self['port']
+        del self["host"]
+        del self["port"]
 
     def setUpDatabase(self):
         """Create a database and stash it in the resource ``zodbDB``. If
@@ -469,9 +466,7 @@ class Startup(Layer):
         # Layer a new storage for Zope 2 on top of the one from the base
         # layer, if there is one.
 
-        self['zodbDB'] = zodb.stackDemoStorage(
-            self.get('zodbDB'),
-            name='Startup')
+        self["zodbDB"] = zodb.stackDemoStorage(self.get("zodbDB"), name="Startup")
 
         # Create a facade for the database object that will delegate to the
         # correct underlying database. This allows resource shadowing to work
@@ -479,13 +474,12 @@ class Startup(Layer):
         # variable.
 
         class DBFacade:
-
             def __init__(self, layer):
                 self.__layer = layer
 
             @property
             def __db(self):
-                return self.__layer['zodbDB']
+                return self.__layer["zodbDB"]
 
             def __getattr__(self, name):
                 return getattr(self.__db, name)
@@ -494,17 +488,16 @@ class Startup(Layer):
         # use this one.
 
         class DBTab(Zope2.Startup.datatypes.DBTab):
-            """A fake DBTab that causes App.startup() to use our own database.
-            """
+            """A fake DBTab that causes App.startup() to use our own database."""
 
             def __init__(self, db):
                 # value is never used when we have an open db
-                self.db_factories = {'testing': None}
-                self.mount_paths = {'/': 'testing'}
-                self.databases = {'testing': db}
+                self.db_factories = {"testing": None}
+                self.mount_paths = {"/": "testing"}
+                self.databases = {"testing": db}
 
         config = App.config.getConfiguration()
-        self._dbtab = getattr(config, 'dbtab', None)
+        self._dbtab = getattr(config, "dbtab", None)
         config.dbtab = DBTab(DBFacade(self))
         App.config.setConfiguration(config)
 
@@ -514,6 +507,7 @@ class Startup(Layer):
         """
 
         import App.config
+
         config = App.config.getConfiguration()
         config.dbtab = self._dbtab
         App.config.setConfiguration(config)
@@ -521,18 +515,18 @@ class Startup(Layer):
 
         # Close and pop the zodbDB resource
         transaction.abort()
-        self['zodbDB'].close()
-        del self['zodbDB']
+        self["zodbDB"].close()
+        del self["zodbDB"]
 
     def setUpApp(self):
-        """Trigger Zope startup and set up the application.
-        """
+        """Trigger Zope startup and set up the application."""
 
         # If the Testing module has been imported, the testinghome
         # variable is set and changes the way Zope2.startup() works.
         # We want the standard behavior so we remove it.
 
         import App.config
+
         config = App.config.getConfiguration()
         try:
             self._testingHome = config.testinghome
@@ -544,20 +538,20 @@ class Startup(Layer):
 
         # Clean up after ZopeLite layer
         import ZPublisher.WSGIPublisher
+
         ZPublisher.WSGIPublisher._MODULES.clear()
-        self._publisher_globals = {
-            'load_app': ZPublisher.WSGIPublisher.load_app
-        }
-        if hasattr(ZPublisher.WSGIPublisher, '__old_load_app__'):
+        self._publisher_globals = {"load_app": ZPublisher.WSGIPublisher.load_app}
+        if hasattr(ZPublisher.WSGIPublisher, "__old_load_app__"):
             old_load_app = ZPublisher.WSGIPublisher.__old_load_app__
             ZPublisher.WSGIPublisher.load_app = old_load_app
-            self._publisher_globals['__old_load_app__'] = old_load_app
+            self._publisher_globals["__old_load_app__"] = old_load_app
             del ZPublisher.WSGIPublisher.__old_load_app__
 
         # This uses the DB from the dbtab, as configured in setUpDatabase().
         # That DB then gets stored as Zope2.DB and becomes the default.
 
         import Zope2
+
         Zope2._began_startup = 0
         Zope2.startup_wsgi()
 
@@ -565,10 +559,10 @@ class Startup(Layer):
         # the database will be used by default when someone does Zope2.app().
 
     def tearDownApp(self):
-        """Undo Zope 2 startup by unsetting the global state it creates.
-        """
+        """Undo Zope 2 startup by unsetting the global state it creates."""
 
         import Zope2
+
         Zope2.app()._p_jar.close()
 
         Zope2._began_startup = 0
@@ -581,6 +575,7 @@ class Startup(Layer):
         Zope2.__bobo_before__ = None
 
         import App.config
+
         try:
             self._testingHome
         except AttributeError:
@@ -592,25 +587,24 @@ class Startup(Layer):
             del self._testingHome
 
         import ZPublisher.WSGIPublisher
+
         ZPublisher.WSGIPublisher._MODULES.clear()
         for k, v in self._publisher_globals.items():
             setattr(ZPublisher.WSGIPublisher, k, v)
 
     def setUpBasicProducts(self):
-        """Install a minimal set of products required for Zope 2.
-        """
+        """Install a minimal set of products required for Zope 2."""
 
         with zopeApp() as app:
-            installProduct(app, 'Products.PluginIndexes')
-            installProduct(app, 'Products.OFSP')
+            installProduct(app, "Products.PluginIndexes")
+            installProduct(app, "Products.OFSP")
 
     def tearDownBasicProducts(self):
-        """Tear down the minimal set of products
-        """
+        """Tear down the minimal set of products"""
 
         with zopeApp() as app:
-            uninstallProduct(app, 'Products.PluginIndexes')
-            uninstallProduct(app, 'Products.OFSP')
+            uninstallProduct(app, "Products.PluginIndexes")
+            uninstallProduct(app, "Products.OFSP")
 
         # It's possible for Five's _register_monkies and _meta_type_regs
         # global variables to contain duplicates. This causes an unecessary
@@ -622,10 +616,8 @@ class Startup(Layer):
         except ImportError:
             # Zope <= 2.12
             from Products.Five import fiveconfigure as metaconfigure
-        metaconfigure._register_monkies = list(
-            set(metaconfigure._register_monkies))
-        metaconfigure._meta_type_regs = list(
-            set(metaconfigure._meta_type_regs))
+        metaconfigure._register_monkies = list(set(metaconfigure._register_monkies))
+        metaconfigure._meta_type_regs = list(set(metaconfigure._meta_type_regs))
 
     def setUpZCML(self):
         """Load the basic ZCML configuration from Five. Exposes a resource
@@ -634,16 +626,20 @@ class Startup(Layer):
 
         # Push a new global registry so that we can cleanly tear down all ZCML
         from plone.testing import zca
+
         zca.pushGlobalRegistry()
 
         # Load something akin to the default site.zcml without actually auto-
         # loading products
 
-        self['configurationContext'] = context = zca.stackConfigurationContext(
-            self.get('configurationContext'))
+        self["configurationContext"] = context = zca.stackConfigurationContext(
+            self.get("configurationContext")
+        )
 
         from zope.configuration import xmlconfig
-        xmlconfig.string("""\
+
+        xmlconfig.string(
+            """\
 <configure
     xmlns="http://namespaces.zope.org/zope"
     xmlns:meta="http://namespaces.zope.org/meta">
@@ -653,17 +649,20 @@ class Startup(Layer):
     <securityPolicy component="AccessControl.security.SecurityPolicy" />
 
 </configure>
-""", context=context)
+""",
+            context=context,
+        )
 
     def tearDownZCML(self):
         """Tear down the component registry and delete the
         ``configurationContext`` resource.
         """
         # Delete the (possibly stacked) configuration context
-        del self['configurationContext']
+        del self["configurationContext"]
 
         # Zap all globally loaded ZCML
         from plone.testing import zca
+
         zca.popGlobalRegistry()
 
     def setUpFive(self):
@@ -690,6 +689,7 @@ STARTUP = Startup()
 
 # Basic integration and functional test and layers. These are the simplest
 # Zope layers that are generally useful
+
 
 class IntegrationTesting(Layer):
     """This layer extends ``STARTUP`` to add rollback of the transaction
@@ -725,17 +725,18 @@ class IntegrationTesting(Layer):
         # Open a new app and save it as the resource ``app``.
 
         environ = {
-            'SERVER_NAME': self['host'],
-            'SERVER_PORT': str(self['port']),
+            "SERVER_NAME": self["host"],
+            "SERVER_PORT": str(self["port"]),
         }
 
         app = addRequestContainer(Zope2.app(), environ=environ)
         request = app.REQUEST
-        request['PARENTS'] = [app]
+        request["PARENTS"] = [app]
 
         # Make sure we have a zope.globalrequest request
         try:
             from zope.globalrequest import setRequest
+
             setRequest(request)
         except ImportError:
             pass
@@ -746,20 +747,21 @@ class IntegrationTesting(Layer):
         self._original_commit = transaction.commit
 
         def you_broke_it():
-            raise TestIsolationBroken("""You are in a Test Layer
+            raise TestIsolationBroken(
+                """You are in a Test Layer
 (IntegrationTesting) that is fast by just aborting transactions between each
 test.  You just committed something. That breaks the test isolation.  So I stop
-here and let you fix it.""")
+here and let you fix it."""
+            )
 
         # Prevent commits in integration tests which breaks test isolation.
         transaction.commit = you_broke_it
 
         # Save resources for tests to access
-        self['app'] = app
-        self['request'] = request
+        self["app"] = app
+        self["request"] = request
 
     def testTearDown(self):
-
         # Abort the transaction
         transaction.abort()
 
@@ -768,18 +770,19 @@ here and let you fix it.""")
         # Make sure we have a zope.globalrequest request
         try:
             from zope.globalrequest import setRequest
+
             setRequest(None)
         except ImportError:
             pass
 
         # Close the database connection and the request
-        app = self['app']
+        app = self["app"]
         app.REQUEST.close()
         app._p_jar.close()
 
         # Delete the resources
-        del self['request']
-        del self['app']
+        del self["request"]
+        del self["app"]
 
 
 INTEGRATION_TESTING = IntegrationTesting()
@@ -820,24 +823,25 @@ class FunctionalTesting(Layer):
         # this layer, we can't just assign a new shadow. We therefore keep
         # track of the original so that we can restore it on tear-down.
 
-        self['zodbDB'] = zodb.stackDemoStorage(
-            self.get('zodbDB'),
-            name='FunctionalTest')
+        self["zodbDB"] = zodb.stackDemoStorage(
+            self.get("zodbDB"), name="FunctionalTest"
+        )
 
         # Save the app
 
         environ = {
-            'SERVER_NAME': self['host'],
-            'SERVER_PORT': str(self['port']),
+            "SERVER_NAME": self["host"],
+            "SERVER_PORT": str(self["port"]),
         }
 
         app = addRequestContainer(Zope2.app(), environ=environ)
         request = app.REQUEST
-        request['PARENTS'] = [app]
+        request["PARENTS"] = [app]
 
         # Make sure we have a zope.globalrequest request
         try:
             from zope.globalrequest import setRequest
+
             setRequest(request)
         except ImportError:
             pass
@@ -846,8 +850,8 @@ class FunctionalTesting(Layer):
         transaction.begin()
 
         # Save resources for the test
-        self['app'] = app
-        self['request'] = request
+        self["app"] = app
+        self["request"] = request
 
     def testTearDown(self):
         # Abort any open transactions
@@ -856,26 +860,27 @@ class FunctionalTesting(Layer):
         # Make sure we have a zope.globalrequest request
         try:
             from zope.globalrequest import setRequest
+
             setRequest(None)
         except ImportError:
             pass
 
         # Close the database connection and the request
-        app = self['app']
+        app = self["app"]
         app.REQUEST.close()
         app._p_jar.close()
 
-        del self['app']
-        del self['request']
+        del self["app"]
+        del self["request"]
 
         # Close and discard the database
-        self['zodbDB'].close()
-        del self['zodbDB']
+        self["zodbDB"].close()
+        del self["zodbDB"]
 
 
 FUNCTIONAL_TESTING = FunctionalTesting()
 
-WSGI_LOG_REQUEST = 'WSGI_REQUEST_LOGGING' in os.environ
+WSGI_LOG_REQUEST = "WSGI_REQUEST_LOGGING" in os.environ
 
 
 class WSGIServer(Layer):
@@ -893,45 +898,41 @@ class WSGIServer(Layer):
     defaultBases = (STARTUP,)
 
     timeout = 5
-    host = os.environ.get('WSGI_SERVER_HOST',
-                          os.environ.get('ZSERVER_HOST'))
-    port = os.environ.get('WSGI_SERVER_PORT',
-                          os.environ.get('ZSERVER_PORT'))
+    host = os.environ.get("WSGI_SERVER_HOST", os.environ.get("ZSERVER_HOST"))
+    port = os.environ.get("WSGI_SERVER_PORT", os.environ.get("ZSERVER_PORT"))
     pipeline = [
-        ('Zope', 'paste.filter_app_factory', 'httpexceptions', {}),
+        ("Zope", "paste.filter_app_factory", "httpexceptions", {}),
     ]
 
     def setUp(self):
-        self['host'] = self.host
+        self["host"] = self.host
         self.setUpServer()
-        self['port'] = self.port
+        self["port"] = self.port
 
     def tearDown(self):
         self.tearDownServer()
-        del self['host']
-        del self['port']
+        del self["host"]
+        del self["port"]
 
     def setUpServer(self):
-        """Create a WSGI server instance and save it in self.server.
-        """
+        """Create a WSGI server instance and save it in self.server."""
         app = self.make_wsgi_app()
-        kwargs = {'clear_untrusted_proxy_headers': False}
+        kwargs = {"clear_untrusted_proxy_headers": False}
         if self.host is not None:
-            kwargs['host'] = self.host
+            kwargs["host"] = self.host
         if self.port is not None:
-            kwargs['port'] = int(self.port)
+            kwargs["port"] = int(self.port)
         self.server = StopableWSGIServer.create(app, **kwargs)
         # If we dynamically set the host/port, we want to reset it to localhost
         # Otherwise this will depend on, for example, the local network setup
-        if self.host in (None, '0.0.0.0', '127.0.0.1', 'localhost'):
-            self.server.effective_host = 'localhost'
+        if self.host in (None, "0.0.0.0", "127.0.0.1", "localhost"):
+            self.server.effective_host = "localhost"
         # Refresh the hostname and port in case we dynamically picked them
-        self['host'] = self.host = self.server.effective_host
-        self['port'] = self.port = int(self.server.effective_port)
+        self["host"] = self.host = self.server.effective_host
+        self["port"] = self.port = int(self.server.effective_port)
 
     def tearDownServer(self):
-        """Close the server socket and clean up.
-        """
+        """Close the server socket and clean up."""
         self.server.shutdown()
         try:
             shutil.rmtree(self._wsgi_conf_dir)
@@ -940,7 +941,7 @@ class WSGIServer(Layer):
 
     def make_wsgi_app(self):
         self._wsgi_conf_dir = tempfile.mkdtemp()
-        global_config = {'here': self._wsgi_conf_dir}
+        global_config = {"here": self._wsgi_conf_dir}
         zope_conf = self._get_zope_conf(self._wsgi_conf_dir)
         Zope2.Startup.run.make_wsgi_app(global_config, zope_conf)
         app = ZPublisher.WSGIPublisher.publish_module
@@ -952,8 +953,8 @@ class WSGIServer(Layer):
 
     def _get_zope_conf(self, dir):
         fd, path = tempfile.mkstemp(dir=dir)
-        with os.fdopen(fd, 'w') as zope_conf:
-            zope_conf.write(f'instancehome {os.path.dirname(dir)}\n')
+        with os.fdopen(fd, "w") as zope_conf:
+            zope_conf.write(f"instancehome {os.path.dirname(dir)}\n")
         return path
 
 
@@ -963,7 +964,5 @@ WSGI_SERVER_FIXTURE = WSGIServer()
 
 # Functional testing layer that uses the WSGI_SERVER_FIXTURE
 WSGI_SERVER = FunctionalTesting(
-    bases=(
-        WSGI_SERVER_FIXTURE,
-    ),
-    name='WSGIServer:Functional')
+    bases=(WSGI_SERVER_FIXTURE,), name="WSGIServer:Functional"
+)
