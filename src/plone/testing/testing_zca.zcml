@@ -1,8 +1,12 @@
 <configure
+    xmlns="http://namespaces.zope.org/zope"
     package="plone.testing"
-    xmlns="http://namespaces.zope.org/zope">
+    >
 
-  <include package="zope.component" file="meta.zcml" />
+  <include
+      package="zope.component"
+      file="meta.zcml"
+      />
 
   <utility
       factory=".tests.DummyUtility"
