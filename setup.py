@@ -10,21 +10,12 @@ version = "8.0.5.dev0"
 install_requires = [
     "setuptools",
     "zope.testing >= 3.8",
+    "five.localsitemanager",
 ]
 
 tests_require = [
     "WebTest",
-    "ZODB",
     "Zope",
-    "zope.browsermenu",
-    "zope.browserpage",
-    "zope.browserresource",
-    "zope.component",
-    "zope.configuration",
-    "zope.event",
-    "zope.interface",
-    "zope.publisher",
-    "zope.security",
     "zope.testbrowser",
     "zope.testrunner",
 ]
@@ -33,8 +24,6 @@ zope_requires = (
     [
         "WebTest",
         "Zope",
-        "zope.component",
-        "zope.publisher",
         "zope.testbrowser",
     ],
 )
