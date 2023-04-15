@@ -9,7 +9,6 @@ version = "8.0.5.dev0"
 
 install_requires = [
     "setuptools",
-    "six",
     "zope.testing >= 3.8",
 ]
 

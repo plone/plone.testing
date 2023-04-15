@@ -118,7 +118,7 @@ We'll use this new layer in a similar manner to the test above, showing that the
     >>> options = runner.get_options([], [])
     >>> setupLayers = {}
     >>> runner.setup_layer(options, POPULATED_ZODB, setupLayers)
-    Set up PopulatedZODB in ... seconds.
+    Set up ...PopulatedZODB in ... seconds.
 
     >>> db = POPULATED_ZODB['zodbDB']
     >>> db.storage
@@ -163,7 +163,7 @@ The transaction has been rolled back.::
 Layer tear-down closes and deletes the database.::
 
     >>> runner.tear_down_unneeded(options, [], setupLayers, [])
-    Tear down PopulatedZODB in ... seconds.
+    Tear down ...PopulatedZODB in ... seconds.
 
     >>> POPULATED_ZODB.get('zodbDB', None) is None
     True
@@ -211,8 +211,8 @@ Let's simulate a test run again to show how this would work.::
     >>> options = runner.get_options([], [])
     >>> setupLayers = {}
     >>> runner.setup_layer(options, EXPANDED_ZODB, setupLayers)
-    Set up PopulatedZODB in ... seconds.
-    Set up ExpandedZODB in ... seconds.
+    Set up ...PopulatedZODB in ... seconds.
+    Set up ...ExpandedZODB in ... seconds.
 
     >>> db = EXPANDED_ZODB['zodbDB']
     >>> db.storage
@@ -259,7 +259,7 @@ The transaction has been rolled back.::
 We'll now tear down the expanded layer and inspect the database again.::
 
     >>> runner.tear_down_unneeded(options, [POPULATED_ZODB], setupLayers, [])
-    Tear down ExpandedZODB in ... seconds.
+    Tear down ...ExpandedZODB in ... seconds.
 
     >>> conn = EXPANDED_ZODB['zodbDB'].open()
     >>> conn.root()
@@ -270,7 +270,7 @@ We'll now tear down the expanded layer and inspect the database again.::
 Finally, we'll tear down the rest of the layers.::
 
     >>> runner.tear_down_unneeded(options, [], setupLayers, [])
-    Tear down PopulatedZODB in ... seconds.
+    Tear down ...PopulatedZODB in ... seconds.
 
     >>> EXPANDED_ZODB.get('zodbDB', None) is None
     True

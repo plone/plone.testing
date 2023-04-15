@@ -385,7 +385,7 @@ We can now view this via the test browser:::
 The test browser integration converts the URL into a request and passes control to Zope's publisher.
 Let's check that query strings are available for input processing:::
 
-    >>> from six.moves.urllib.parse import urlencode
+    >>> from urllib.parse import urlencode
     >>> _ = app.manage_addDTMLDocument('dtml-doc-2', file='<dtml-var foo>')
     >>> import transaction; transaction.commit()
     >>> qs = urlencode({'foo': 'boo, bar & baz'})  # sic: the ampersand.
@@ -493,7 +493,7 @@ We can now look for this new object through the server.::
     >>> app_url.split(':')[:-1]
     ['http', '//localhost']
 
-    >>> from six.moves.urllib.request import urlopen
+    >>> from urllib.request import urlopen
     >>> conn = urlopen(app_url + '/dtml-doc-3', timeout=5)
     >>> b'This is the dtml-doc-3 Document.' in conn.read()
     True
