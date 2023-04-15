@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 from setuptools import find_packages
 from setuptools import setup
 
@@ -44,7 +43,7 @@ setup(
     name='plone.testing',
     version=version,
     description="Testing infrastructure for Zope and Plone projects.",
-    long_description=(u'\n\n'.join([
+    long_description=('\n\n'.join([
         open(os.path.join("src", "plone", "testing", "README.rst")).read(),
         open("CHANGES.rst").read(),
         "Detailed documentation\n"

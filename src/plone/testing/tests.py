@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 from OFS.SimpleItem import SimpleItem
 from pkg_resources import get_distribution
 from zope.testing import renormalizing
@@ -34,19 +31,19 @@ def _canOutrunKlingons(warpDrive):
     return warpDrive.maxSpeed > 8.0
 
 
-class DummyUtility(object):
+class DummyUtility:
 
     def __repr__(self):
         return '<Dummy utility>'
 
 
-class DummyView(object):
+class DummyView:
 
     def __init__(self, context, request):
         pass
 
     def __call__(self):
-        return u''
+        return ''
 
 
 class DummyFile(SimpleItem):

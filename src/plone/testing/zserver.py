@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 """Zope2-specific helpers and layers using ZServer
 """
-from __future__ import absolute_import
 
 from plone.testing import Layer
 from plone.testing import zodb
@@ -399,7 +397,7 @@ class ZServer(Layer):
         self.setUpServer()
 
         self.thread = Thread(
-            name='{0} server'.format(self.__name__),
+            name=f'{self.__name__} server',
             target=self.runner,
         )
 

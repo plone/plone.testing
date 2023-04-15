@@ -1,4 +1,3 @@
-# -*- coding: utf-8 -*-
 """ZODB-specific helpers and layers
 """
 from plone.testing import Layer

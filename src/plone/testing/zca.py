@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 """Core Zope Component Architecture helpers and layers
 """
-from __future__ import absolute_import
 
 from plone.testing import Layer
 from zope.configuration.config import ConfigurationMachine
@@ -80,7 +78,7 @@ def pushGlobalRegistry(new=None):
             lambda self: (loadRegistry, (self.__name__,)))
 
     if new is None:
-        name = 'test-stack-{0}'.format(len(_REGISTRIES))
+        name = f'test-stack-{len(_REGISTRIES)}'
         new = globalregistry.BaseGlobalComponents(name=name, bases=(current,))
         logger.debug(
             'New component registry: %s based on %s',
@@ -157,13 +155,13 @@ def popGlobalRegistry():
 class NamedConfigurationMachine(ConfigurationMachine):
 
     def __init__(self, name):
-        super(NamedConfigurationMachine, self).__init__()
+        super().__init__()
         self.__name__ = name
 
     def __str__(self):
         pkg = 'zope.configuration.config.ConfigurationMachine'
         return (
-            '<{0} object {1}>'.format(
+            '<{} object {}>'.format(
                 pkg,
                 self.__name__,
             )
@@ -223,7 +221,7 @@ def stackConfigurationContext(context=None, name='not named'):
             if adapterRegistration not in newRegistry._adapters:
                 for interface, info in adapterRegistration.items():
                     if Interface in info:
-                        factory = info[Interface][u'']
+                        factory = info[Interface]['']
                         newRegistry.register([interface], Interface, '',
                                              factory)
 
@@ -325,13 +323,13 @@ class ZCMLSandbox(Layer):
 
     def __init__(self, bases=None, name=None, module=None, filename=None,
                  package=None):
-        super(ZCMLSandbox, self).__init__(bases, name, module)
+        super().__init__(bases, name, module)
         self.filename = filename
         self.package = package
 
     def setUp(self):
         name = self.__name__ if self.__name__ is not None else 'not-named'
-        contextName = 'ZCMLSandbox-{0}'.format(name)
+        contextName = f'ZCMLSandbox-{name}'
         self['configurationContext'] = stackConfigurationContext(
             self.get('configurationContext'),
             name=contextName,

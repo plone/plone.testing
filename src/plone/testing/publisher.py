@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 """Helpers for working with common Zope publisher operations
 """
-from __future__ import absolute_import
 
 from plone.testing import Layer
 from plone.testing import security

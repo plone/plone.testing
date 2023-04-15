@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 from zope.testbrowser import browser
 from ZPublisher.httpexceptions import HTTPExceptionHandler
 from ZPublisher.utils import basic_auth_encode
@@ -43,7 +40,7 @@ def saveState(func):
     return wrapped_func
 
 
-class Zope2Caller(object):
+class Zope2Caller:
     """Functional testing caller that can execute HTTP requests via the
     Zope 2 WSGI publisher.
     """
@@ -79,7 +76,7 @@ class Browser(browser.Browser):
 
     def __init__(self, app, url=None):
         wsgi_app = Zope2Caller(self, app)
-        super(Browser, self).__init__(url=url, wsgi_app=wsgi_app)
+        super().__init__(url=url, wsgi_app=wsgi_app)
 
 
 # Add `nohost` to testbrowser's set of allowed hosts

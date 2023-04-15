@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 """Zope-specific helpers and layers using WSGI
 """
-from __future__ import absolute_import
 
 from OFS.metaconfigure import get_packages_to_initialize
 from plone.testing import Layer
@@ -92,7 +90,7 @@ def installProduct(app, productName, quiet=False, multiinit=False):
 
     if not found and not quiet:
         sys.stderr.write(
-            'Could not install product {0}\n'.format(productName))
+            f'Could not install product {productName}\n')
         sys.stderr.flush()
 
 
@@ -144,7 +142,7 @@ def uninstallProduct(app, productName, quiet=False):
 
     if not found and not quiet:
         sys.stderr.write(
-            'Could not install product {0}\n'.format(productName))
+            f'Could not install product {productName}\n')
         sys.stderr.flush()
 
 
@@ -480,7 +478,7 @@ class Startup(Layer):
         # with regular traversal, which relies on a module-level ``DB``
         # variable.
 
-        class DBFacade(object):
+        class DBFacade:
 
             def __init__(self, layer):
                 self.__layer = layer
@@ -955,7 +953,7 @@ class WSGIServer(Layer):
     def _get_zope_conf(self, dir):
         fd, path = tempfile.mkstemp(dir=dir)
         with os.fdopen(fd, 'w') as zope_conf:
-            zope_conf.write('instancehome {0}\n'.format(os.path.dirname(dir)))
+            zope_conf.write(f'instancehome {os.path.dirname(dir)}\n')
         return path
 
 
