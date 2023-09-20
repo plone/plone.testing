@@ -53,7 +53,7 @@ Let's now simulate a test.::
 The test would then execute. It may use the ZODB root.::
 
     >>> zodb.EMPTY_ZODB['zodbConnection']
-    <Connection at ...>
+    <...Connection...at ...>
 
     >>> zodb.EMPTY_ZODB['zodbRoot']
     {}
@@ -136,7 +136,7 @@ Let's now simulate a test.::
 The test would then execute. It may use the ZODB root.::
 
     >>> POPULATED_ZODB['zodbConnection']
-    <Connection at ...>
+    <...Connection...at ...>
 
     >>> POPULATED_ZODB['zodbRoot']
     {'someData': 'a string'}
@@ -231,7 +231,7 @@ Let's now simulate a test.::
 The test would then execute. It may use the ZODB root.::
 
     >>> EXPANDED_ZODB['zodbConnection']
-    <Connection at ...>
+    <...Connection...at ...>
 
     >>> EXPANDED_ZODB['zodbRoot'] == dict(someData='a string', additionalData='Some new data')
     True
