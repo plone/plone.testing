@@ -8,6 +8,16 @@ Changelog
 
 .. towncrier release notes start
 
+8.0.4 (2023-09-21)
+------------------
+
+Bug fixes:
+
+
+- Fix tests when run with ZODB 5.8.1+.
+  [maurits] (#581)
+
+
 8.0.3 (2021-06-14)
 ------------------
 

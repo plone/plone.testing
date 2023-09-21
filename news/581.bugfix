@@ -1,2 +1,0 @@
-Fix tests when run with ZODB 5.8.1+.
-[maurits]
