@@ -1,13 +1,11 @@
-# -*- coding: utf-8 -*-
 import sys
 
 
 _marker = object()
 
 
-class ResourceManager(object):
-    """Mixin class for resource managers.
-    """
+class ResourceManager:
+    """Mixin class for resource managers."""
 
     __bases__ = ()  # must be set as an instance variable by subclass
 
@@ -17,7 +15,7 @@ class ResourceManager(object):
 
     def get(self, key, default=None):
         for resourceManager in self.baseResolutionOrder:
-            if key in getattr(resourceManager, '_resources', {}):
+            if key in getattr(resourceManager, "_resources", {}):
                 # Get the value on the top of the stack
                 return resourceManager._resources[key][-1][0]
         return default
@@ -37,14 +35,13 @@ class ResourceManager(object):
         foundStack = False
 
         for resourceManager in self.baseResolutionOrder:
-            if key in getattr(resourceManager, '_resources', {}):
+            if key in getattr(resourceManager, "_resources", {}):
                 stack = resourceManager._resources[key]
                 foundStack = True
 
                 foundStackItem = False
                 for idx in range(len(stack) - 1, -1, -1):
                     if stack[idx][1] is self:
-
                         # This layer instance has already added an item to
                         # the stack. Update that item instead of pushing a new
                         # item onto the stack.
@@ -56,7 +53,12 @@ class ResourceManager(object):
                 # This layer instance does not have a stack item yet. Create
                 # a new one.
                 if not foundStackItem:
-                    stack.append([value, self, ])
+                    stack.append(
+                        [
+                            value,
+                            self,
+                        ]
+                    )
 
                 # Note: We do not break here on purpose: it's possible
                 # that there is resource stack in another branch of the base
@@ -69,7 +71,7 @@ class ResourceManager(object):
     def __delitem__(self, key):
         found = False
         for resourceManager in self.baseResolutionOrder:
-            if key in getattr(resourceManager, '_resources', {}):
+            if key in getattr(resourceManager, "_resources", {}):
                 stack = resourceManager._resources[key]
                 for idx in range(len(stack) - 1, -1, -1):
                     if stack[idx][1] is self:
@@ -93,7 +95,6 @@ class ResourceManager(object):
     # http://www.python.org/download/releases/2.3/mro/
 
     def _mergeResourceManagers(self, seqs):
-
         res = []
         i = 0
 
@@ -114,7 +115,7 @@ class ResourceManager(object):
                     break
 
             if not cand:
-                raise TypeError(u'Inconsistent layer hierarchy!')
+                raise TypeError("Inconsistent layer hierarchy!")
 
             res.append(cand)
             for seq in nonemptyseqs:  # remove cand
@@ -130,8 +131,7 @@ class ResourceManager(object):
 
 
 class Layer(ResourceManager):
-    """A base class for layers.
-    """
+    """A base class for layers."""
 
     # Set this at the class level to a tuple of layer *instances* to treat
     # as bases for this layer. This may be overridden by passing a tuple
@@ -156,43 +156,53 @@ class Layer(ResourceManager):
         """
 
         if self.__class__ is Layer and name is None:
-            raise ValueError('The `name` argument is required when instantiating `Layer` directly')  # NOQA: E501
+            raise ValueError(
+                "The `name` argument is required when instantiating `Layer` directly"
+            )  # NOQA: E501
 
         if name is None and bases is not None:
-            raise ValueError('The `name`` argument is required when overriding bases with the `bases` argument')  # NOQA: E501
+            raise ValueError(
+                "The `name`` argument is required when overriding bases with the `bases` argument"
+            )  # NOQA: E501
 
-        super(Layer, self).__init__()
+        super().__init__()
 
         if bases is None:
             bases = self.defaultBases
 
         try:
             self.__bases__ = tuple(bases)
-        except (KeyError, TypeError,):
-            raise ValueError('The `bases` argument must be a sequence.')
+        except (
+            KeyError,
+            TypeError,
+        ):
+            raise ValueError("The `bases` argument must be a sequence.")
 
         if name is None:
             name = self.__class__.__name__
         self.__name__ = name
 
         if module is None:
-
             # Get the module name of whatever instantiated the layer, not
             # the class, by default
 
             try:
-                module = sys._getframe(1).f_globals['__name__']
-            except (ValueError, AttributeError, KeyError,):
+                module = sys._getframe(1).f_globals["__name__"]
+            except (
+                ValueError,
+                AttributeError,
+                KeyError,
+            ):
                 module = self.__class__.__module__
 
         self.__module__ = module
 
-        super(Layer, self).__init__()
+        super().__init__()
 
     def __repr__(self):
-        return "<Layer '{0}.{1}'>".format(self.__module__, self.__name__,)
+        return f"<Layer '{self.__module__}.{self.__name__}'>"
 
-    # Layer lifecycle methods - overriden by subclasses
+    # Layer lifecycle methods - overridden by subclasses
 
     def setUp(self):
         pass
@@ -223,7 +233,7 @@ def layered(suite, layer, addLayerToDoctestGlobs=True):
             except AttributeError:
                 pass
             else:
-                if 'layer' not in globs:
-                    globs['layer'] = layer
+                if "layer" not in globs:
+                    globs["layer"] = layer
 
     return suite

@@ -1,6 +1,3 @@
-# -*- coding: utf-8 -*-
-from __future__ import absolute_import
-
 from zope.testbrowser import browser
 from ZPublisher.httpexceptions import HTTPExceptionHandler
 from ZPublisher.utils import basic_auth_encode
@@ -9,7 +6,7 @@ from ZPublisher.WSGIPublisher import publish_module
 import re
 
 
-BASIC_RE = re.compile('Basic (.+)?:(.+)?$')
+BASIC_RE = re.compile("Basic (.+)?:(.+)?$")
 
 
 def authHeader(header):
@@ -17,16 +14,16 @@ def authHeader(header):
     if match:
         u, p = match.group(1, 2)
         if u is None:
-            u = ''
+            u = ""
         if p is None:
-            p = ''
+            p = ""
         return basic_auth_encode(u, p)
     return header
 
 
 def saveState(func):
     """Save threadlocal state (security manager, local component site) before
-    exectuting a decorated function, and restore it after.
+    executing a decorated function, and restore it after.
     """
     from AccessControl.SecurityManagement import getSecurityManager
     from AccessControl.SecurityManagement import setSecurityManager
@@ -40,10 +37,11 @@ def saveState(func):
         finally:
             setSecurityManager(sm)
             setSite(site)
+
     return wrapped_func
 
 
-class Zope2Caller(object):
+class Zope2Caller:
     """Functional testing caller that can execute HTTP requests via the
     Zope 2 WSGI publisher.
     """
@@ -54,9 +52,8 @@ class Zope2Caller(object):
 
     @saveState
     def __call__(self, environ, start_response):
-
         # Base64 encode auth header
-        http_auth = 'HTTP_AUTHORIZATION'
+        http_auth = "HTTP_AUTHORIZATION"
         if http_auth in environ:
             environ[http_auth] = authHeader(environ[http_auth])
 
@@ -79,8 +76,8 @@ class Browser(browser.Browser):
 
     def __init__(self, app, url=None):
         wsgi_app = Zope2Caller(self, app)
-        super(Browser, self).__init__(url=url, wsgi_app=wsgi_app)
+        super().__init__(url=url, wsgi_app=wsgi_app)
 
 
 # Add `nohost` to testbrowser's set of allowed hosts
-browser._allowed.add('nohost')
+browser._allowed.add("nohost")

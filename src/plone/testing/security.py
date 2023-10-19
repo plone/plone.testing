@@ -1,7 +1,5 @@
-# -*- coding: utf-8 -*-
 """Security helpers and layers
 """
-from __future__ import absolute_import
 
 from plone.testing import Layer
 
@@ -37,8 +35,7 @@ def popCheckers():
 
 
 class Checkers(Layer):
-    """Ensures correct isolation of security checkers in zope.security.
-    """
+    """Ensures correct isolation of security checkers in zope.security."""
 
     defaultBases = ()
 
