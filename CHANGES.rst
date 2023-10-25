@@ -8,6 +8,25 @@ Changelog
 
 .. towncrier release notes start
 
+9.0.0 (2023-10-25)
+------------------
+
+Breaking changes:
+
+
+- Drop python 2.7 support.
+  [gforcada] (#1)
+- Drop ZServer support.
+  [gforcada] (#2)
+
+
+Internal:
+
+
+- Update configuration files.
+  [plone devs] (5cc689e5)
+
+
 8.0.4 (2023-09-21)
 ------------------
 
