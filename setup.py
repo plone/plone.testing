@@ -10,7 +10,6 @@ version = "9.0.1.dev0"
 install_requires = [
     "setuptools",
     "zope.testing >= 3.8",
-    "five.localsitemanager",
 ]
 
 tests_require = [
