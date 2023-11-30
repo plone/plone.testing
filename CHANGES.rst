@@ -8,6 +8,15 @@ Changelog
 
 .. towncrier release notes start
 
+9.0.1 (2023-11-30)
+------------------
+
+Bug fixes:
+
+
+- Remove incorrect hard dependency on five.localsitemanager. @davisagli (#86)
+
+
 9.0.0 (2023-10-25)
 ------------------
 
