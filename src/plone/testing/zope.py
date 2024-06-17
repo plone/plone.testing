@@ -175,8 +175,8 @@ def setRoles(userFolder, userId, roles):
 
 def makeTestRequest(environ=None):
     """Return an HTTPRequest object suitable for testing views."""
+    from io import BytesIO
     from sys import stdin
-    from sys import stdout
     from zope.publisher.browser import setDefaultSkin
     from ZPublisher.HTTPRequest import HTTPRequest
     from ZPublisher.HTTPResponse import HTTPResponse
@@ -187,7 +187,7 @@ def makeTestRequest(environ=None):
     environ.setdefault("SERVER_PORT", "80")
     environ.setdefault("REQUEST_METHOD", "GET")
 
-    resp = HTTPResponse(stdout=stdout)
+    resp = HTTPResponse(stdout=BytesIO())
     req = HTTPRequest(stdin, environ, resp)
     req._steps = ["noobject"]  # Fake a published object.
     req["ACTUAL_URL"] = req.get("URL")
