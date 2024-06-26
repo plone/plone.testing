@@ -8,6 +8,15 @@ Changelog
 
 .. towncrier release notes start
 
+9.0.2 (2024-06-26)
+------------------
+
+Bug fixes:
+
+
+- makeTestRequest: use BytesIO to set up the test Response. @gotcha (fix_makeTestRequest)
+
+
 9.0.1 (2023-11-30)
 ------------------
 
