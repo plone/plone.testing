@@ -80,7 +80,6 @@ setup(
     zip_safe=False,
     python_requires=">=3.8",
     install_requires=install_requires,
-    tests_require=tests_require,
     extras_require={
         "test": tests_require,
         "zodb": ["ZODB"],
