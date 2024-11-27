@@ -840,14 +840,14 @@ To add the doctests from a particular module to a test suite, you need to use th
     >>> def test_suite():
     ...     suite = unittest.TestSuite()
     ...     suite.addTests([
-    ...         unittest.makeSuite(TestFasterThanLightTravel), # our previous test
+    ...         unittest.defaultTestLoader.loadTestsFromTestCase(TestFasterThanLightTravel), # our previous test
     ...         doctest.DocTestSuite('spaceship.utils'),
     ...     ])
     ...     return suite
 
 Here, we have given the name of the module to check as a string dotted name.
 It is also possible to import a module and pass it as an object.
-The code above passes a list to ``addTests()``, making it easy to add several sets of tests to the suite: the list can be constructed from calls to ``DocTestSuite()``, ``DocFileSuite()`` (shown below) and ``makeSuite()`` (shown above).
+The code above passes a list to ``addTests()``, making it easy to add several sets of tests to the suite: the list can be constructed from calls to ``DocTestSuite()``, ``DocFileSuite()`` (shown below) and ``unittest.defaultTestLoader.loadTestsFromTestCase()`` (shown above).
 
     Remember that if you add a ``test_suite()`` function to a module that also has ``TestCase``-derived python tests, those tests will no longer be automatically picked up by ``zope.testing``, so you need to add them to the test suite explicitly.
 
@@ -901,7 +901,7 @@ For example, if we had a file called ``spaceship.txt`` with doctests, we could a
     >>> def test_suite():
     ...     suite = unittest.TestSuite()
     ...     suite.addTests([
-    ...         unittest.makeSuite(TestFasterThanLightTravel),
+    ...         unittest.defaultTestLoader.loadTestsFromTestCase(TestFasterThanLightTravel),
     ...         doctest.DocTestSuite('spaceship.utils'),
     ...         doctest.DocFileSuite('spaceship.txt'),
     ...     ])
@@ -920,7 +920,7 @@ It is possible to pass several tests to the suite, e.g.::
     >>> def test_suite():
     ...     suite = unittest.TestSuite()
     ...     suite.addTests([
-    ...         unittest.makeSuite(TestFasterThanLightTravel),
+    ...         unittest.defaultTestLoader.loadTestsFromTestCase(TestFasterThanLightTravel),
     ...         doctest.DocTestSuite('spaceship.utils'),
     ...         doctest.DocFileSuite('spaceship.txt', 'warpdrive.txt',),
     ...     ])
