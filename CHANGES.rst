@@ -8,6 +8,18 @@ Changelog
 
 .. towncrier release notes start
 
+9.0.3 (2024-11-30)
+------------------
+
+Bug fixes:
+
+
+- Remove setuptools fossils.
+  [maurits] (#72)
+- Fix README for removed `unittest.makeSuite` in python 3.13.
+  [petschki] (#100)
+
+
 9.0.2 (2024-06-26)
 ------------------
 
