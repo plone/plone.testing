@@ -1,5 +1,4 @@
-"""Zope-specific helpers and layers using WSGI
-"""
+"""Zope-specific helpers and layers using WSGI"""
 
 from OFS.metaconfigure import get_packages_to_initialize
 from plone.testing import Layer

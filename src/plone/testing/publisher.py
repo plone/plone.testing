@@ -1,5 +1,4 @@
-"""Helpers for working with common Zope publisher operations
-"""
+"""Helpers for working with common Zope publisher operations"""
 
 from plone.testing import Layer
 from plone.testing import security

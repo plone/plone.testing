@@ -1,5 +1,4 @@
-"""Zope2-specific helpers and layers using ZServer
-"""
+"""Zope2-specific helpers and layers using ZServer"""
 
 from plone.testing import Layer
 from plone.testing import zodb

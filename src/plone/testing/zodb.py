@@ -1,5 +1,4 @@
-"""ZODB-specific helpers and layers
-"""
+"""ZODB-specific helpers and layers"""
 
 from plone.testing import Layer
 
