@@ -1,5 +1,4 @@
-"""Security helpers and layers
-"""
+"""Security helpers and layers"""
 
 from plone.testing import Layer
 

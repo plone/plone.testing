@@ -1,9 +1,18 @@
 # Generated from:
-# https://github.com/plone/meta/tree/master/config/default
+# https://github.com/plone/meta/tree/main/src/plone/meta/default
 # See the inline comments on how to expand/tweak this configuration file
 [meta]
 template = "default"
-commit-id = "68cda6e4"
+commit-id = "552ab2b7"
 
 [pyproject]
 dependencies_ignores = "['ZServer', 'StringIO', 'urllib2']"
+
+[github]
+jobs = [
+    "qa",
+    "test",
+    "coverage",
+    "release_ready",
+    "circular",
+    ]

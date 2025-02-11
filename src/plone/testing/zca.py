@@ -1,5 +1,4 @@
-"""Core Zope Component Architecture helpers and layers
-"""
+"""Core Zope Component Architecture helpers and layers"""
 
 from plone.testing import Layer
 from zope.configuration.config import ConfigurationMachine

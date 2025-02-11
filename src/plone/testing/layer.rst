@@ -117,7 +117,7 @@ Overriding the default list of bases
 We can override the list of bases on a per-instance basis.
 This may be dangerous, i.e.
 the layer is likely to expect that its bases are set up.
-Sometimes, it may be useful to inject a new base, however, especially when re-using layers from other packages.
+Sometimes, it may be useful to inject a new base, however, especially when reusing layers from other packages.
 
 The new list of bases is passed to the constructor.
 When creating a second instance of a layer (most layers are global singletons created only once), it's useful to give the new instance a unique name, too.::
