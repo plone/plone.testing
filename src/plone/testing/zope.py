@@ -54,6 +54,11 @@ def installProduct(app, productName, quiet=False, multiinit=False):
         return
 
     if productName.startswith("Products."):
+        # get_products will find all Products.  But when everything is
+        # installed with pip, it may only find items in the
+        # lib/python3.x/site-packages/Products directory,
+        # and miss source checkouts.  So we may need a second chance later
+        # when calling get_packages_to_initialize.
         for priority, name, index, productDir in get_products():
             if ("Products." + name) == productName:
                 install_product(
@@ -71,7 +76,8 @@ def installProduct(app, productName, quiet=False, multiinit=False):
                 found = True
                 break
 
-    else:
+    if not found:
+        # All non-Products packages, plus any Products that are not yet found.
         packages = tuple(get_packages_to_initialize())
         for module, init_func in packages:
             if module.__name__ == productName:
