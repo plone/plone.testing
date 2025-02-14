@@ -1,0 +1,3 @@
+If a product in the Products namespace is not found, look in the packages.
+This fixes running the tests in Plone coredev when everything is installed with pip and `Products.CMFPlone` has a source checkout.
+[maurits]
