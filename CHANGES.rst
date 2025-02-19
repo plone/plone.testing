@@ -8,6 +8,24 @@ Changelog
 
 .. towncrier release notes start
 
+9.0.4 (2025-02-19)
+------------------
+
+Bug fixes:
+
+
+- If a product in the Products namespace is not found, look in the packages.
+  This fixes running the tests in Plone coredev when everything is installed with pip and `Products.CMFPlone` has a source checkout.
+  [maurits] (#104)
+
+
+Internal:
+
+
+- Update configuration files.
+  [plone devs]
+
+
 9.0.3 (2024-11-30)
 ------------------
 
