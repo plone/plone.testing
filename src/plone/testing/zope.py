@@ -12,8 +12,8 @@ from zope.schema.vocabulary import setVocabularyRegistry
 
 import contextlib
 import os
-import pkg_resources
 import shutil
+import sys
 import tempfile
 import transaction
 import Zope2.Startup.run
@@ -21,6 +21,8 @@ import ZPublisher.WSGIPublisher
 
 
 _INSTALLED_PRODUCTS = {}
+
+PY3_10 = sys.version_info[0:2] >= (3, 10)
 
 
 class TestIsolationBroken(BaseException):
@@ -951,9 +953,16 @@ class WSGIServer(Layer):
         Zope2.Startup.run.make_wsgi_app(global_config, zope_conf)
         app = ZPublisher.WSGIPublisher.publish_module
 
-        for spec, protocol, name, extra in reversed(self.pipeline):
-            entrypoint = pkg_resources.get_entry_info(spec, protocol, name)
-            app = entrypoint.load()(app, global_config, **extra)
+        if not PY3_10:
+            return self._handle_entry_points_39(app, global_config)
+
+        from importlib.metadata import entry_points
+
+        all_entry_points = entry_points()
+        for _, protocol, name, extra in reversed(self.pipeline):
+            entry_points = all_entry_points.select(group=protocol, name=name)
+            for entry_point in entry_points:
+                app = entry_point.load()(app, global_config, **extra)
         return app
 
     def _get_zope_conf(self, dir):
@@ -961,6 +970,18 @@ class WSGIServer(Layer):
         with os.fdopen(fd, "w") as zope_conf:
             zope_conf.write(f"instancehome {os.path.dirname(dir)}\n")
         return path
+
+    def _handle_entry_points_39(self, app, global_config):
+        """Handle entry points on Python 3.9 or earlier
+
+        As soon as Python 3.9 is out of support this method can be removed.
+        """
+        import pkg_resources
+
+        for spec, protocol, name, extra in reversed(self.pipeline):
+            entrypoint = pkg_resources.get_entry_info(spec, protocol, name)
+            app = entrypoint.load()(app, global_config, **extra)
+        return app
 
 
 # Fixture layer - use as a base layer, but don't use directly, as it has no
