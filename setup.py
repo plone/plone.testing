@@ -5,7 +5,7 @@ import os
 import os.path
 
 
-version = "9.0.5.dev0"
+version = "9.0.5"
 
 install_requires = [
     "setuptools",

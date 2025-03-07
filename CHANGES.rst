@@ -8,6 +8,22 @@ Changelog
 
 .. towncrier release notes start
 
+9.0.5 (2025-03-07)
+------------------
+
+Bug fixes:
+
+
+- Replace `pkg_resources` with `importlib.metadata` @gforcada (#4126)
+
+
+Internal:
+
+
+- Update configuration files.
+  [plone devs]
+
+
 9.0.4 (2025-02-19)
 ------------------
 
