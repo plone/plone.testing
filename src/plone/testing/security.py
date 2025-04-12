@@ -11,9 +11,6 @@ def pushCheckers():
     normally do this during layer set-up, before loading any ZCML files that
     could load checkers.
     """
-
-    global _checkersStack
-
     from zope.security import checker
 
     _checkersStack.append(checker._checkers.copy())
@@ -24,9 +21,6 @@ def popCheckers():
     You should normally do this during layer tear-down. You *must* keep calls
     to ``popCheckers()`` balanced with calls to ``pushCheckers()``.
     """
-
-    global _checkersStack
-
     from zope.security import checker
 
     checker._checkers.clear()
