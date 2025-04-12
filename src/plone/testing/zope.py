@@ -111,8 +111,6 @@ def uninstallProduct(app, productName, quiet=False):
     # from OFS.Folder import Folder
     # from OFS.Application import get_folder_permissions
     # from AccessControl.class_init import InitializeClass
-
-    global _INSTALLED_PRODUCTS
     found = False
 
     if productName not in _INSTALLED_PRODUCTS:
