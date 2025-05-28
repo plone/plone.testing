@@ -129,19 +129,16 @@ def uninstallProduct(app, productName, quiet=False):
 
                 found = True
                 break
-    elif productName in _INSTALLED_PRODUCTS:  # must be a package
-        module, init_func = _INSTALLED_PRODUCTS[productName]
-        name = module.__name__
-
-        packages = get_packages_to_initialize()
-        packages.append((module, init_func))
+    if not found and productName in _INSTALLED_PRODUCTS:  # must be a package
+        if productName in Application.misc_.__dict__:
+            delattr(Application.misc_, productName)
         found = True
 
     if found:
         del _INSTALLED_PRODUCTS[productName]
 
     if not found and not quiet:
-        sys.stderr.write(f"Could not install product {productName}\n")
+        sys.stderr.write(f"Could not uninstall product {productName}\n")
         sys.stderr.flush()
 
 

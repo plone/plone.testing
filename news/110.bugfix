@@ -1,0 +1,2 @@
+Fix ``zope.uninstallProduct`` for ``Products`` installed with pip.
+[maurits]
