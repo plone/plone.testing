@@ -8,6 +8,16 @@ Changelog
 
 .. towncrier release notes start
 
+9.0.6 (2025-06-05)
+------------------
+
+Bug fixes:
+
+
+- Fix ``zope.uninstallProduct`` for ``Products`` installed with pip.
+  [maurits] (#110)
+
+
 9.0.5 (2025-03-07)
 ------------------
 
