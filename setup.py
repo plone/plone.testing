@@ -1,8 +1,6 @@
+from pathlib import Path
 from setuptools import find_packages
 from setuptools import setup
-
-import os
-import os.path
 
 
 version = "9.0.7.dev0"
@@ -27,26 +25,23 @@ zope_requires = (
     ],
 )
 
+testing_folder = Path("src", "plone", "testing")
 
 setup(
     name="plone.testing",
     version=version,
     description="Testing infrastructure for Zope and Plone projects.",
     long_description=(
-        "\n\n".join(
-            [
-                open(os.path.join("src", "plone", "testing", "README.rst")).read(),
-                open("CHANGES.rst").read(),
-                "Detailed documentation\n" + "======================",
-                open(os.path.join("src", "plone", "testing", "layer.rst")).read(),
-                open(os.path.join("src", "plone", "testing", "zca.rst")).read(),
-                open(os.path.join("src", "plone", "testing", "security.rst")).read(),
-                open(os.path.join("src", "plone", "testing", "publisher.rst")).read(),
-                open(os.path.join("src", "plone", "testing", "zodb.rst")).read(),
-                open(os.path.join("src", "plone", "testing", "zope.rst")).read(),
-                open(os.path.join("src", "plone", "testing", "zserver.rst")).read(),
-            ]
-        )
+        f"{(testing_folder / 'README.rst').read_text()}\n"
+        f"{Path('CHANGES.rst').read_text()}\n"
+        "Detailed documentation\n======================"
+        f"{(testing_folder / 'layer.rst').read_text()}\n"
+        f"{(testing_folder / 'zca.rst').read_text()}\n"
+        f"{(testing_folder / 'security.rst').read_text()}\n"
+        f"{(testing_folder / 'publisher.rst').read_text()}\n"
+        f"{(testing_folder / 'zodb.rst').read_text()}\n"
+        f"{(testing_folder / 'zope.rst').read_text()}\n"
+        f"{(testing_folder / 'zserver.rst').read_text()}\n"
     ),
     classifiers=[
         "Development Status :: 5 - Production/Stable",
