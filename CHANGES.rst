@@ -8,6 +8,15 @@ Changelog
 
 .. towncrier release notes start
 
+9.0.7 (2025-09-11)
+------------------
+
+Internal:
+
+
+- Use pathlib on setup.py [gforcada]
+
+
 9.0.6 (2025-06-05)
 ------------------
 
