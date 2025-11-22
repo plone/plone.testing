@@ -1,12 +1,10 @@
 from pathlib import Path
-from setuptools import find_packages
 from setuptools import setup
 
 
-version = "9.0.8.dev0"
+version = "10.0.0.dev0"
 
 install_requires = [
-    "setuptools",
     "zope.testing >= 3.8",
 ]
 
@@ -14,7 +12,7 @@ tests_require = [
     "WebTest",
     "Zope",
     "zope.testbrowser",
-    "zope.testrunner",
+    "zope.testrunner >= 6.4",
 ]
 
 zope_requires = (
@@ -47,15 +45,13 @@ setup(
         "Development Status :: 5 - Production/Stable",
         "Environment :: Web Environment",
         "Framework :: Plone",
-        "Framework :: Plone :: 6.0",
+        "Framework :: Plone :: 6.2",
         "Framework :: Plone :: Core",
         "Framework :: Zope :: 5",
         "Intended Audience :: Developers",
         "License :: OSI Approved :: BSD License",
         "Operating System :: OS Independent",
         "Programming Language :: Python",
-        "Programming Language :: Python :: 3.8",
-        "Programming Language :: Python :: 3.9",
         "Programming Language :: Python :: 3.10",
         "Programming Language :: Python :: 3.11",
         "Programming Language :: Python :: Implementation :: CPython",
@@ -68,12 +64,9 @@ setup(
     author_email="plone-developers@lists.sourceforge.net",
     url="https://github.com/plone/plone.testing",
     license="BSD",
-    packages=find_packages("src"),
-    package_dir={"": "src"},
-    namespace_packages=["plone"],
     include_package_data=True,
     zip_safe=False,
-    python_requires=">=3.8",
+    python_requires=">=3.10",
     install_requires=install_requires,
     extras_require={
         "test": tests_require,
