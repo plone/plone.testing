@@ -19,7 +19,6 @@ import transaction
 import Zope2.Startup.run
 import ZPublisher.WSGIPublisher
 
-
 _INSTALLED_PRODUCTS = {}
 
 PY3_10 = sys.version_info[0:2] >= (3, 10)

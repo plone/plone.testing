@@ -5,7 +5,6 @@ from zope.configuration.config import ConfigurationMachine
 
 import logging
 
-
 logger = logging.getLogger("plone.testing.zca")
 
 # Contains a stack of installed global registries (but not the default one)

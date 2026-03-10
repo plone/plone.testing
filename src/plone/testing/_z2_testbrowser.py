@@ -5,7 +5,6 @@ from ZPublisher.WSGIPublisher import publish_module
 
 import re
 
-
 BASIC_RE = re.compile("Basic (.+)?:(.+)?$")
 
 
