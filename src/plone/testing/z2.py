@@ -4,7 +4,6 @@ import plone.testing
 import plone.testing.zope
 import warnings
 
-
 deprecated(
     "Please import from plone.testing.zope.",
     Browser="plone.testing.zope:Browser",

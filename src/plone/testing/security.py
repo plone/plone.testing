@@ -2,7 +2,6 @@
 
 from plone.testing import Layer
 
-
 _checkersStack = []
 
 

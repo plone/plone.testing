@@ -19,7 +19,6 @@ import transaction
 import Zope2.Startup.run
 import ZPublisher.WSGIPublisher
 
-
 _INSTALLED_PRODUCTS = {}
 
 PY3_10 = sys.version_info[0:2] >= (3, 10)
@@ -749,12 +748,10 @@ class IntegrationTesting(Layer):
         self._original_commit = transaction.commit
 
         def you_broke_it():
-            raise TestIsolationBroken(
-                """You are in a Test Layer
+            raise TestIsolationBroken("""You are in a Test Layer
 (IntegrationTesting) that is fast by just aborting transactions between each
 test.  You just committed something. That breaks the test isolation.  So I stop
-here and let you fix it."""
-            )
+here and let you fix it.""")
 
         # Prevent commits in integration tests which breaks test isolation.
         transaction.commit = you_broke_it

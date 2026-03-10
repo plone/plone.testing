@@ -9,7 +9,6 @@ import plone.testing
 import unittest
 import zope.component.testing
 
-
 try:
     import ZServer  # noqa
 except ImportError:
