@@ -8,6 +8,22 @@ Changelog
 
 .. towncrier release notes start
 
+10.0.0 (2026-05-18)
+-------------------
+
+Bug fixes:
+
+
+- Configure with plone.meta
+
+
+Internal:
+
+
+- Update configuration files.
+  [plone devs]
+
+
 10.0.0a1 (2025-11-26)
 ---------------------
 
