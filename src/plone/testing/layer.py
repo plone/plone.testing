@@ -130,7 +130,27 @@ class ResourceManager:
 
 
 class Layer(ResourceManager):
-    """A base class for layers."""
+    """Base class for a test layer: a shareable, composable test fixture.
+
+    A layer is set up once and shared by every test that uses it, which is
+    what makes expensive fixtures such as a running Zope or a Plone site
+    affordable. It has two pairs of lifecycle methods, meant to be
+    overridden:
+
+    - ``setUp`` and ``tearDown`` run **once**, around the whole group of
+      tests that share the layer. Do the expensive work here.
+    - ``testSetUp`` and ``testTearDown`` run **around every test**. Do the
+      cheap per-test isolation here.
+
+    A layer is also a mapping of *resources*. Set-up code stores objects in
+    it by key with ``self[key] = value``, and tests read them back with
+    ``self.layer[key]``. Resources are stacked, so a layer's value shadows a
+    base's and is restored on tear-down.
+
+    Layers compose through **bases**: set ``defaultBases`` to a tuple of
+    layer instances, or pass ``bases`` to the constructor. Each base is set
+    up once, before this layer, and reused rather than rebuilt.
+    """
 
     # Set this at the class level to a tuple of layer *instances* to treat
     # as bases for this layer. This may be overridden by passing a tuple
