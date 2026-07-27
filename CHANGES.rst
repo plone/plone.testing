@@ -8,6 +8,17 @@ Changelog
 
 .. towncrier release notes start
 
+10.0.1 (2026-07-27)
+-------------------
+
+Documentation:
+
+
+- Expand the ``Layer`` base class docstring to describe the set-up/tear-down and per-test lifecycle, the resource mapping, and layer composition through bases.
+  This makes it usable as an API reference.
+  [jensens]
+
+
 10.0.0 (2026-05-18)
 -------------------
 
