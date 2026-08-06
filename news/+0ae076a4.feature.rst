@@ -1,0 +1,4 @@
+Explicitly enable XML-RPC in the ``WSGIServer`` layer.
+Zope 6.2 by default disables this.
+But this is used in the ``WSGI_SERVER_FIXTURE`` that most robot tests (and acceptance tests) use.
+[maurits]
