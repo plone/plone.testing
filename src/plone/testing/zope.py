@@ -961,6 +961,14 @@ class WSGIServer(Layer):
         fd, path = tempfile.mkstemp(dir=dir)
         with os.fdopen(fd, "w") as zope_conf:
             zope_conf.write(f"instancehome {os.path.dirname(dir)}\n")
+            # Plone 6.2 disables xml-rpc by default.
+            # But the robot tests need this.   For example, robot tests call
+            # this method from plone.app.robotframework.remote:
+            # http://nohost:55001/plone/RemoteLibrary/get_keyword_names
+            # See
+            # https://github.com/plone/buildout.coredev/pull/1108#issuecomment-5194533758
+            # and further.  So enable XML-RPC.
+            zope_conf.write("enable-xmlrpc on\n")
         return path
 
     def _handle_entry_points_39(self, app, global_config):
