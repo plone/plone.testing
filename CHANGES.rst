@@ -8,6 +8,18 @@ Changelog
 
 .. towncrier release notes start
 
+10.1.0 (2026-08-21)
+-------------------
+
+New features:
+
+
+- Explicitly enable XML-RPC in the ``WSGIServer`` layer.
+  Zope 6.2 by default disables this.
+  But this is used in the ``WSGI_SERVER_FIXTURE`` that most robot tests (and acceptance tests) use.
+  [maurits]
+
+
 10.0.1 (2026-07-27)
 -------------------
 

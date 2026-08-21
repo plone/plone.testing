@@ -1,7 +1,7 @@
 from pathlib import Path
 from setuptools import setup
 
-version = "10.1.0.dev0"
+version = "10.1.0"
 
 install_requires = [
     "zope.testing >= 3.8",
