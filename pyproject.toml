@@ -4,7 +4,89 @@
 [build-system]
 requires = ["setuptools>=68.2,<83", "wheel"]
 
+# START-MARKER-MANUAL-CONFIG
+# Anything from here until END-MARKER-MANUAL-CONFIG
+# will be kept by plone.meta
 
+[project]
+name = "plone.testing"
+version = "10.1.1.dev0"
+description = "Testing infrastructure for Zope and Plone projects."
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Environment :: Web Environment",
+    "Framework :: Plone",
+    "Framework :: Plone :: 6.2",
+    "Framework :: Plone :: Core",
+    "Framework :: Zope :: 5",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python",
+    "Programming Language :: Python",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Programming Language :: Python :: Implementation :: CPython",
+    "Topic :: Internet :: WWW/HTTP :: Dynamic Content",
+    "Topic :: Software Development :: Testing",
+]
+license = "BSD-3-Clause"
+dynamic = ["readme"]
+requires-python = ">=3.10"
+authors = [
+    {name = "Plone Foundation",email = "plone-developers@lists.sourceforge.net"},
+]
+maintainers = [
+    {name = "Plone Foundation and contributors",email = "plone-developers@lists.sourceforge.net"},
+]
+dependencies = ["zope.testing"]
+keywords = ["plone", "zope", "testing"]
+
+[project.optional-dependencies]
+test = [
+    "WebTest",
+    "Zope",
+    "zope.testbrowser",
+    "zope.testrunner",
+]
+zodb = ["ZODB"]
+zca = [
+    "zope.component",
+    "zope.configuration",
+    "zope.event",
+]
+security = ["zope.security"]
+publisher = [
+    "zope.browsermenu",
+    "zope.browserpage",
+    "zope.browserresource",
+    "zope.configuration",
+    "zope.publisher",
+    "zope.security",
+]
+z2 = []
+zope = ["WebTest", "Zope", "zope.testbrowser"]
+zserver = ["ZServer"]
+
+[project.urls]
+Source = "https://github.com/plone/plone.testing"
+Issues = "https://github.com/plone/Products.CMFPlone/issues"
+Changelog = "https://github.com/plone/plone.testing/blob/master/CHANGES.rst"
+
+[tool.setuptools.dynamic]
+readme = {file = [
+    "src/plone/testing/README.rst",
+    "CHANGES.rst",
+    "src/plone/testing/layer.rst",
+    "src/plone/testing/zca.rst",
+    "src/plone/testing/security.rst",
+    "src/plone/testing/publisher.rst",
+    "src/plone/testing/zodb.rst",
+    "src/plone/testing/zope.rst",
+    "src/plone/testing/zserver.rst"]}
+# END-MARKER-MANUAL-CONFIG
 
 [tool.towncrier]
 directory = "news/"
